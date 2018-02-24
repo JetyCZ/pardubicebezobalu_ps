@@ -30,6 +30,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
+use PrestaShop\PrestaShop\Adapter\Customer;
 
 require_once _PS_MODULE_DIR_ . 'ps_customtext/classes/CustomText.php';
 
@@ -78,17 +79,31 @@ class Ps_Customtext extends Module implements WidgetInterface
             $context = Context::getContext();
             $lang = (int)$context->language->id;
 
+            if ($this->context->customer->id == NULL) {
+                return
+                    "<div class='alert-warning'>".
+                    "<h1>Abyste mohli použít zrychlenou objednávku zboží, musíte být přihlášení...</h1>".
+                    "<a href='/cs/přihlásit?back=my-account' title='Přihlášení k vašemu zákaznickému účtu' rel='nofollow'>".
+                        "<i class='material-icons'> </i>".
+                        "<div class='flipthis-wrapper'>".
+                            "<span class='hidden-sm-down flipthis-highlight'>Přihlásit se</span>".
+                        "</div>".
+                    "</div>";
+            }
+
+            /*
             if (!$context->cart->id) {
                 $context->cart->add();
                 $cart = new Cart($context->cart->id, $lang);
-                $cart->id_customer = (int)UserApi::getIdAuthUser();
-                $cart->id_lang = _PS_APP_MOBILE_LANG_ID;
+                // $cart->id_customer = (int)UserApi::getIdAuthUser();
+                // $cart->id_lang = _PS_APP_MOBILE_LANG_ID;
                 $cart->id_currency = (int)Context::getContext()->currency->id;
-                $cart->id_carrier = 1; $cart->recyclable = 0; $cart->gift = 0;
+                // $cart->id_carrier = 1;
+                $cart->recyclable = 0;
+                $cart->gift = 0;
             } else {
                 $cart = new Cart($context->cart->id);
-            }
-
+            }*/
 
 
             $rootCat = Category::getRootCategory();
@@ -128,11 +143,11 @@ class Ps_Customtext extends Module implements WidgetInterface
                             $price = $product["price"];
                             $result .= "<td style='padding-left:20pt'>" . $productName . "</td>";
                             $result .= "<td>" . $price . ",- Kč</td>";
-                            $result .= "<input type='hidden' id='productPrice".$idProduct."' value='".$price."'></input>";
+                            $result .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
                             $result .= "<td>";
-                            if (strpos($productName,'stáčený produkt')!=false) {
+                            if (strpos($productName, 'stáčený produkt') != false) {
                                 $result .= "ml (mililitry, stáčený produkt, 1000=1 litr)";
-                            } elseif (strpos($productName,'na váhu')!=false) {
+                            } elseif (strpos($productName, 'na váhu') != false) {
                                 $result .= "g (gramy, na váhu, 500=0.5 kg)";
                             } else {
                                 $result .= "ks (kusové zboží)";
@@ -140,12 +155,12 @@ class Ps_Customtext extends Module implements WidgetInterface
                             $result .= "</td>";
 
                             $fieldName = "productQuantity" . $idProduct;
-                            $result .= "<td><input oninput='updateTotalPrice(".$idProduct.")' onchange='updateTotalPrice(".$idProduct.")' type='number' value='0' name='".$fieldName."' id='".$fieldName."'></td>";
-                            $result .= "<td><span id='totalPrice".$idProduct."'></span></td>";
+                            $result .= "<td><input oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "'></td>";
+                            $result .= "<td><span id='totalPrice" . $idProduct . "'></span></td>";
                             if ($formPosted) {
                                 $quantity = $_POST[$fieldName];
                                 if (isset($quantity) && $quantity > 0) {
-                                    $cart->updateQty($quantity, $idProduct);
+                                    // $cart->updateQty($quantity, $idProduct);
                                     $result .= "<td>Do košíku vloženo: " . $quantity . "</td>";
                                 }
                             }
@@ -162,7 +177,7 @@ class Ps_Customtext extends Module implements WidgetInterface
             }
             $result .= "</table>";
 
-            $result .= "<input style='font-size: 150%;' name='Vložit zboží všechno najednou do košíku' type='submit'/>";
+            $result .= "<input style='font-size: 150%;' value='Vložit zboží všechno najednou do košíku' type='submit'/>";
 
             $result .= "</form>";
 
@@ -188,20 +203,20 @@ class Ps_Customtext extends Module implements WidgetInterface
     {
         $return = true;
         $return &= Db::getInstance()->execute('
-                CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'info` (
+                CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'info` (
                 `id_info` INT UNSIGNED NOT NULL AUTO_INCREMENT,
                 `id_shop` int(10) unsigned DEFAULT NULL,
                 PRIMARY KEY (`id_info`)
-            ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 ;'
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 ;'
         );
 
         $return &= Db::getInstance()->execute('
-                CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'info_lang` (
+                CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'info_lang` (
                 `id_info` INT UNSIGNED NOT NULL,
                 `id_lang` int(10) unsigned NOT NULL ,
                 `text` text NOT NULL,
                 PRIMARY KEY (`id_info`, `id_lang`)
-            ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 ;'
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 ;'
         );
 
         return $return;
@@ -211,7 +226,7 @@ class Ps_Customtext extends Module implements WidgetInterface
     {
         $ret = true;
         if ($drop_table) {
-            $ret &=  Db::getInstance()->execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'info`') && Db::getInstance()->execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'info_lang`');
+            $ret &= Db::getInstance()->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'info`') && Db::getInstance()->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'info_lang`');
         }
 
         return $ret;
@@ -222,22 +237,22 @@ class Ps_Customtext extends Module implements WidgetInterface
         $output = '';
 
         if (Tools::isSubmit('saveps_customtext')) {
-            if (!Tools::getValue('text_'.(int)Configuration::get('PS_LANG_DEFAULT'), false)) {
+            if (!Tools::getValue('text_' . (int)Configuration::get('PS_LANG_DEFAULT'), false)) {
                 $output = $this->displayError($this->trans('Please fill out all fields.', array(), 'Admin.Notifications.Error')) . $this->renderForm();
             } else {
                 $update = $this->processSaveCustomText();
 
                 if (!$update) {
                     $output = '<div class="alert alert-danger conf error">'
-                        .$this->trans('An error occurred on saving.', array(), 'Admin.Notifications.Error')
-                        .'</div>';
+                        . $this->trans('An error occurred on saving.', array(), 'Admin.Notifications.Error')
+                        . '</div>';
                 }
 
                 $this->_clearCache($this->templateFile);
             }
         }
 
-        return $output.$this->renderForm();
+        return $output . $this->renderForm();
     }
 
     public function processSaveCustomText()
@@ -247,7 +262,7 @@ class Ps_Customtext extends Module implements WidgetInterface
         $text = array();
         $languages = Language::getLanguages(false);
         foreach ($languages as $lang) {
-            $text[$lang['id_lang']] = Tools::getValue('text_'.$lang['id_lang']);
+            $text[$lang['id_lang']] = Tools::getValue('text_' . $lang['id_lang']);
         }
 
         $info->text = $text;
@@ -296,7 +311,7 @@ class Ps_Customtext extends Module implements WidgetInterface
             ),
             'buttons' => array(
                 array(
-                    'href' => AdminController::$currentIndex.'&configure='.$this->name.'&token='.Tools::getAdminTokenLite('AdminModules'),
+                    'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&token=' . Tools::getAdminTokenLite('AdminModules'),
                     'title' => $this->trans('Back to list', array(), 'Admin.Actions'),
                     'icon' => 'process-icon-back'
                 )
@@ -326,7 +341,7 @@ class Ps_Customtext extends Module implements WidgetInterface
             );
         }
 
-        $helper->currentIndex = AdminController::$currentIndex.'&configure='.$this->name;
+        $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
         $helper->default_form_language = $default_lang;
         $helper->allow_employee_form_lang = $default_lang;
         $helper->toolbar_scroll = true;
@@ -361,12 +376,13 @@ class Ps_Customtext extends Module implements WidgetInterface
 
         return $this->fetch($this->templateFile, $this->getCacheId('ps_customtext'));
     }
+
     public function getWidgetVariables($hookName = null, array $configuration = [])
     {
         $sql = 'SELECT r.`id_info`, r.`id_shop`, rl.`text`
-            FROM `'._DB_PREFIX_.'info` r
-            LEFT JOIN `'._DB_PREFIX_.'info_lang` rl ON (r.`id_info` = rl.`id_info`)
-            WHERE `id_lang` = '.(int)$this->context->language->id.' AND  `id_shop` = '.(int)$this->context->shop->id;
+            FROM `' . _DB_PREFIX_ . 'info` r
+            LEFT JOIN `' . _DB_PREFIX_ . 'info_lang` rl ON (r.`id_info` = rl.`id_info`)
+            WHERE `id_lang` = ' . (int)$this->context->language->id . ' AND  `id_shop` = ' . (int)$this->context->shop->id;
 
         return array(
             'cms_infos' => Db::getInstance()->getRow($sql),
@@ -419,5 +435,10 @@ class Ps_Customtext extends Module implements WidgetInterface
 </script>
 EOD;
         return $javascript;
+    }
+
+    public function fetch($templatePath, $cache_id = null, $compile_id = null)
+    {
+        return parent::fetch($templatePath, $cache_id, $compile_id); // TODO: Change the autogenerated stub
     }
 }

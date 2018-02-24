@@ -32,7 +32,7 @@
     {block "form_fields"}
       {foreach from=$formFields item="field"}
         {block "form_field"}
-          {*pjetensk*}{if $field.name!='optin'}
+          {*pjetensk*}{if $field.name!='optin' && $field.name!='birthday'}
             {form_field field=$field}
           {*pjetensk*}{/if}
         {/block}

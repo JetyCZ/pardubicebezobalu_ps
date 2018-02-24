@@ -258,6 +258,7 @@ class FrontControllerCore extends Controller
      */
     public function init()
     {
+
         /*
          * Globals are DEPRECATED as of version 1.5.0.1
          * Use the Context object to access objects instead.
@@ -434,6 +435,49 @@ class FrontControllerCore extends Controller
         } else {
             $this->context->cart = $cart;
         }
+
+        // try {
+        if ($this->context->customer->isLogged()) {
+            $context = Context::getContext();
+            $lang = (int)$context->language->id;
+            if (!$context->cart->id) {
+                $context->cart->add();
+                $cart = new Cart($context->cart->id, $lang);
+                $cart->id_currency = (int)Context::getContext()->currency->id;
+                $cart->recyclable = 0;
+                $cart->gift = 0;
+            } else {
+                $cart = new Cart($context->cart->id);
+            }
+
+            $rootCat = Category::getRootCategory();
+            $children = Category::getChildren($rootCat->id_category, $lang);
+            $formPosted = !empty($_POST);
+            $productIds = array();
+            foreach ($children as $childCat) {
+                $catName = $childCat["name"];
+                $idCategory = $childCat["id_category"];
+                $cat = new Category($idCategory);
+                $products = $cat->getProducts($lang, 0, 1000);
+                if (!($catName === "BIO") && count($products) > 0) {
+                    foreach ($products as $product) {
+                        $idProduct = $product["id_product"];
+                        if (!array_key_exists($idProduct, $productIds)) {
+                            $fieldName = "productQuantity" . $idProduct;
+                            if ($formPosted) {
+                                $quantity = $_POST[$fieldName];
+                                if (isset($quantity) && $quantity > 0) {
+                                    $cart->updateQty($quantity, $idProduct);
+                                }
+                            }
+                            $productIds[$idProduct] = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+
 
         $this->context->cart->checkAndUpdateAddresses();
 
