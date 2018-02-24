@@ -60,7 +60,7 @@
 
       {else}
 
-        {include file='errors/not-found.tpl'}
+        {include file='errors/not-found-cz.tpl'}
 
       {/if}
     </section>
