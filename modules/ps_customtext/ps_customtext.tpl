@@ -22,8 +22,8 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-
+{* pjetensk
 <div id="custom-text">
-    <h1>bla</h1>
     {$cms_infos.text nofilter}
 </div>
+*}

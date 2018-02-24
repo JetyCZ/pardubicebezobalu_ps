@@ -437,7 +437,9 @@ class FrontControllerCore extends Controller
         }
 
         // try {
-        if ($this->context->customer->isLogged()) {
+        $formPosted = !empty($_POST);
+
+        if ($this->context->customer->isLogged() && $formPosted && isset($_POST['bulkAddToCartButton'])) {
             $context = Context::getContext();
             $lang = (int)$context->language->id;
             if (!$context->cart->id) {
@@ -452,7 +454,6 @@ class FrontControllerCore extends Controller
 
             $rootCat = Category::getRootCategory();
             $children = Category::getChildren($rootCat->id_category, $lang);
-            $formPosted = !empty($_POST);
             $productIds = array();
             foreach ($children as $childCat) {
                 $catName = $childCat["name"];
@@ -464,7 +465,7 @@ class FrontControllerCore extends Controller
                         $idProduct = $product["id_product"];
                         if (!array_key_exists($idProduct, $productIds)) {
                             $fieldName = "productQuantity" . $idProduct;
-                            if ($formPosted) {
+                            if ($formPosted && isset($_POST[$fieldName])) {
                                 $quantity = $_POST[$fieldName];
                                 if (isset($quantity) && $quantity > 0) {
                                     $cart->updateQty($quantity, $idProduct);

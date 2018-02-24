@@ -81,13 +81,13 @@ class Ps_Customtext extends Module implements WidgetInterface
 
             if ($this->context->customer->id == NULL) {
                 return
-                    "<div class='alert-warning'>".
-                    "<h1>Abyste mohli použít zrychlenou objednávku zboží, musíte být přihlášení...</h1>".
-                    "<a href='/cs/přihlásit?back=my-account' title='Přihlášení k vašemu zákaznickému účtu' rel='nofollow'>".
-                        "<i class='material-icons'> </i>".
-                        "<div class='flipthis-wrapper'>".
-                            "<span class='hidden-sm-down flipthis-highlight'>Přihlásit se</span>".
-                        "</div>".
+                    "<div class='alert-warning'>" .
+                    "<h1>Abyste mohli použít zrychlenou objednávku zboží, musíte být přihlášení...</h1>" .
+                    "<a href='/muj-ucet' title='Přihlášení k vašemu zákaznickému účtu' rel='nofollow'>" .
+                    "<i class='material-icons'> </i>" .
+                    "<div class='flipthis-wrapper'>" .
+                    "<span class='hidden-sm-down flipthis-highlight'>Přihlásit se</span>" .
+                    "</div>" .
                     "</div>";
             }
 
@@ -111,12 +111,13 @@ class Ps_Customtext extends Module implements WidgetInterface
             $children = Category::getChildren($rootCat->id_category, $lang);
             $result .= "<form method='POST'>";
             $formPosted = !empty($_POST);
-            $result .= "<table><tr>
+            $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
                     <th>Zboží</th>
                     <th>Cena za jednotku <br>vč. DPH</th>
-                    <th>Jednotka</th>
+                    <th width='200'>Jednotka</th>
                     <th>Objednané množství</th>
-                    <th>Cena za množství</th>
+                    <th>Cena za objednáno</th>
+                    <th>Info</th>
                     </tr>";
 
 
@@ -131,8 +132,13 @@ class Ps_Customtext extends Module implements WidgetInterface
 
                 if (!($catName === "BIO") && count($products) > 0) {
                     $result .= "<tr>";
+                    $catLink = "/".$idCategory."-".$childCat["link_rewrite"];
 
-                    $result .= "<td colspan='3'><b>" . $catName . "</b></td>";
+                    $result .= "<td colspan='6' style='background-color:#F0FFF0;'><b>" .
+                        "<a href='".$catLink."' target='_new'>".
+                        $catName .
+                        "</a>".
+                        "</b></td>";
                     $result .= "</tr>";
                     foreach ($products as $product) {
                         $idProduct = $product["id_product"];
@@ -141,32 +147,39 @@ class Ps_Customtext extends Module implements WidgetInterface
                             $result .= "<tr>";
                             $productName = $product["name"];
                             $price = $product["price"];
-                            $result .= "<td style='padding-left:20pt'>" . $productName . "</td>";
+                            $link = $product["link"];
+                            $result .= "<td style='padding-left:20pt'>" .
+                                "<a href='".$link."' target='_new'>".
+                                $productName .
+                                "</a>".
+                                "</td>";
                             $result .= "<td>" . $price . ",- Kč</td>";
                             $result .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
                             $result .= "<td>";
                             if (strpos($productName, 'stáčený produkt') != false) {
-                                $result .= "ml (mililitry, stáčený produkt, 1000=1 litr)";
+                                $result .= "ml (mililitry, 1000=1 litr)";
                             } elseif (strpos($productName, 'na váhu') != false) {
-                                $result .= "g (gramy, na váhu, 500=0.5 kg)";
+                                $result .= "g (gramy, 500=0.5 kg)";
                             } else {
                                 $result .= "ks (kusové zboží)";
                             }
                             $result .= "</td>";
 
                             $fieldName = "productQuantity" . $idProduct;
-                            $result .= "<td><input oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "'></td>";
+                            $result .= "<td><input style='width:100px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "'></td>";
                             $result .= "<td><span id='totalPrice" . $idProduct . "'></span></td>";
+                            $info = "&nbsp;";
                             if ($formPosted) {
                                 $quantity = $_POST[$fieldName];
                                 if (isset($quantity) && $quantity > 0) {
-                                    // $cart->updateQty($quantity, $idProduct);
-                                    $result .= "<td>Do košíku vloženo: " . $quantity . "</td>";
+                                    $info = "Do košíku přidáno: " . $quantity;
                                 }
                             }
+                            $result .= "<td>".$info."</td>";
 
 
-                            $productIds[$idProduct] = 1;
+
+                                $productIds[$idProduct] = 1;
                             $result .= "</tr>";
                         }
 
@@ -175,9 +188,11 @@ class Ps_Customtext extends Module implements WidgetInterface
 
 
             }
+            $result .= "<tr ><td style='padding-top: 30pt;' colspan='6' align='center'>".
+                "<input name='bulkAddToCartButton' style='font-size: 150%;padding:20pt;background-color:#F0FFF0;' value='Vložit zboží všechno najednou do košíku' type='submit'/>".
+            "</td> </tr>";
             $result .= "</table>";
 
-            $result .= "<input style='font-size: 150%;' value='Vložit zboží všechno najednou do košíku' type='submit'/>";
 
             $result .= "</form>";
 

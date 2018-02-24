@@ -140,6 +140,12 @@ class Psaddonsconnect extends Module
                     "averageCart" => "https://addons.prestashop.com/fr/2-modules-prestashop?m=1&benefits=3&utm_source=back-office&utm_medium=AddonsConnect&utm_campaign=back-office-FR&utm_content=cart",
                     "businessSector" => "https://addons.prestashop.com/fr/content/44-ressources-prestashop-les-outils-pour-reussir?utm_source=back-office&utm_medium=AddonsConnect&utm_campaign=back-office-FR&utm_content=sector#modulebusinesssector"),
 
+                "cs" => array(
+                    "traffic" => "https://addons.prestashop.com/en/2-modules-prestashop?m=1&benefits=6&utm_source=back-office&utm_medium=AddonsConnect&utm_campaign=back-office-EN&utm_content=traffic",
+                    "conversion" => "https://addons.prestashop.com/en/2-modules-prestashop?m=1&benefits=1&utm_source=back-office&utm_medium=AddonsConnect&utm_campaign=back-office-EN&utm_content=conversions",
+                    "averageCart" => "https://addons.prestashop.com/fr/2-modules-prestashop?m=1&benefits=3&utm_source=back-office&utm_medium=AddonsConnect&utm_campaign=back-office-FR&utm_content=cart",
+                    "businessSector" => "https://addons.prestashop.com/fr/content/44-ressources-prestashop-les-outils-pour-reussir?utm_source=back-office&utm_medium=AddonsConnect&utm_campaign=back-office-FR&utm_content=sector#modulebusinesssector"),
+
                 "es" => array(
                     "traffic" => "https://addons.prestashop.com/es/2-modulos?m=1&benefits=6&utm_source=back-office&utm_medium=AddonsConnect&utm_campaign=back-office-ES&utm_content=traffic",
                     "conversion" => "https://addons.prestashop.com/es/2-modulos?m=1&benefits=1&utm_source=back-office&utm_medium=AddonsConnect&utm_campaign=back-office-ES&utm_content=conversions",
