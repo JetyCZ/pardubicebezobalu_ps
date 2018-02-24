@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_legalcompliance</name>
+    <displayName><![CDATA[Dodržov&aacute;n&iacute; pr&aacute;vn&iacute;ch předpisů]]></displayName>
+    <version><![CDATA[2.0.4]]></version>
+    <description><![CDATA[Tento modul pom&aacute;h&aacute; evropsk&yacute;m obchodn&iacute;kům b&yacute;t v souladu s platn&yacute;mi z&aacute;kony pro elektronick&eacute; obchodov&aacute;n&iacute;.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+	<confirmUninstall><![CDATA[Opravdu chcete odinstalovat tento modul?]]></confirmUninstall>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>

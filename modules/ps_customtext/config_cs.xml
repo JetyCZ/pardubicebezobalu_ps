@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_customtext</name>
+    <displayName><![CDATA[Voliteln&eacute; textov&eacute; bloky]]></displayName>
+    <version><![CDATA[2.0.0]]></version>
+    <description><![CDATA[Integruje voliteln&eacute; textov&eacute; bloky kamkoli do hlavn&iacute; č&aacute;sti va&scaron;eho obchodu]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>

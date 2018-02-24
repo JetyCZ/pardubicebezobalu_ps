@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_contactinfo</name>
+    <displayName><![CDATA[Kontaktn&iacute; informace]]></displayName>
+    <version><![CDATA[3.0.0]]></version>
+    <description><![CDATA[Umožňuje zobrazit dal&scaron;&iacute; informace o služb&aacute;ch pro z&aacute;kazn&iacute;ky.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>1</need_instance>
+	<limited_countries></limited_countries>
+</module>
