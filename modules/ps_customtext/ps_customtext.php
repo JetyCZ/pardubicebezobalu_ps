@@ -31,7 +31,7 @@ if (!defined('_PS_VERSION_')) {
 
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 
-require_once _PS_MODULE_DIR_.'ps_customtext/classes/CustomText.php';
+require_once _PS_MODULE_DIR_ . 'ps_customtext/classes/CustomText.php';
 
 class Ps_Customtext extends Module implements WidgetInterface
 {
@@ -57,7 +57,7 @@ class Ps_Customtext extends Module implements WidgetInterface
 
     public function install()
     {
-        return  parent::install() &&
+        return parent::install() &&
             $this->installDB() &&
             $this->registerHook('displayHome') &&
             $this->registerHook('customCMS') &&
@@ -69,36 +69,114 @@ class Ps_Customtext extends Module implements WidgetInterface
         if (strpos($this->smarty->getTemplateVars("request_uri"), 'zrychlena-objednavka-zbozi') !== false) {
 
             $result = "";
-            try {
-                $lang = (int)Context::getContext()->language->id;
-                $rootCat = Category::getRootCategory();
 
-                $children = Category::getChildren($rootCat->id_category, $lang);
-                $result .= "<ul>";
+            $javascript = $this->getJavascript();
+            $result .= $javascript;
 
-                foreach ($children as $childCat) {
-                    // var_dump(count($children));
-                    $result .= "<li>".$childCat["name"]."</li>";
 
+            // try {
+            $context = Context::getContext();
+            $lang = (int)$context->language->id;
+
+            if (!$context->cart->id) {
+                $context->cart->add();
+                $cart = new Cart($context->cart->id, $lang);
+                $cart->id_customer = (int)UserApi::getIdAuthUser();
+                $cart->id_lang = _PS_APP_MOBILE_LANG_ID;
+                $cart->id_currency = (int)Context::getContext()->currency->id;
+                $cart->id_carrier = 1; $cart->recyclable = 0; $cart->gift = 0;
+            } else {
+                $cart = new Cart($context->cart->id);
+            }
+
+
+
+            $rootCat = Category::getRootCategory();
+
+            $children = Category::getChildren($rootCat->id_category, $lang);
+            $result .= "<form method='POST'>";
+            $formPosted = !empty($_POST);
+            $result .= "<table><tr>
+                    <th>Zboží</th>
+                    <th>Cena za jednotku <br>vč. DPH</th>
+                    <th>Jednotka</th>
+                    <th>Objednané množství</th>
+                    <th>Cena za množství</th>
+                    </tr>";
+
+
+            $productIds = array();
+            foreach ($children as $childCat) {
+
+                $catName = $childCat["name"];
+
+                $idCategory = $childCat["id_category"];
+                $cat = new Category($idCategory);
+                $products = $cat->getProducts($lang, 0, 1000);
+
+                if (!($catName === "BIO") && count($products) > 0) {
+                    $result .= "<tr>";
+
+                    $result .= "<td colspan='3'><b>" . $catName . "</b></td>";
+                    $result .= "</tr>";
+                    foreach ($products as $product) {
+                        $idProduct = $product["id_product"];
+
+                        if (!array_key_exists($idProduct, $productIds)) {
+                            $result .= "<tr>";
+                            $productName = $product["name"];
+                            $price = $product["price"];
+                            $result .= "<td style='padding-left:20pt'>" . $productName . "</td>";
+                            $result .= "<td>" . $price . ",- Kč</td>";
+                            $result .= "<input type='hidden' id='productPrice".$idProduct."' value='".$price."'></input>";
+                            $result .= "<td>";
+                            if (strpos($productName,'stáčený produkt')!=false) {
+                                $result .= "ml (mililitry, stáčený produkt, 1000=1 litr)";
+                            } elseif (strpos($productName,'na váhu')!=false) {
+                                $result .= "g (gramy, na váhu, 500=0.5 kg)";
+                            } else {
+                                $result .= "ks (kusové zboží)";
+                            }
+                            $result .= "</td>";
+
+                            $fieldName = "productQuantity" . $idProduct;
+                            $result .= "<td><input oninput='updateTotalPrice(".$idProduct.")' onchange='updateTotalPrice(".$idProduct.")' type='number' value='0' name='".$fieldName."' id='".$fieldName."'></td>";
+                            $result .= "<td><span id='totalPrice".$idProduct."'></span></td>";
+                            if ($formPosted) {
+                                $quantity = $_POST[$fieldName];
+                                if (isset($quantity) && $quantity > 0) {
+                                    $cart->updateQty($quantity, $idProduct);
+                                    $result .= "<td>Do košíku vloženo: " . $quantity . "</td>";
+                                }
+                            }
+
+
+                            $productIds[$idProduct] = 1;
+                            $result .= "</tr>";
+                        }
+
+                    }
                 }
-                /*
-                foreach ($cats as $cat) {
-                    var_dump($cat);
-                }
-                */
-                $result .= "<h3>asadsadf</h3>";
 
-                return $result;
 
+            }
+            $result .= "</table>";
+
+            $result .= "<input style='font-size: 150%;' name='Vložit zboží všechno najednou do košíku' type='submit'/>";
+
+            $result .= "</form>";
+
+            return $result;
+
+            /*
             } catch (Exception $e) {
                 var_dump($e);
-                return "Došlo k chybě při zobrazení stránky pro zrychlenou objednávku zboží, prosím přidejte zboží po jednom." ;
-            }
+                return "Došlo k chybě při zobrazení stránky pro zrychlenou objednávku zboží, prosím přidejte zboží po jednom.";
+            }*/
 
         } else {
             return "";
         }
-        // var_dump($this->smarty->getTemplateVars());
     }
 
     public function uninstall()
@@ -320,5 +398,26 @@ class Ps_Customtext extends Module implements WidgetInterface
         }
 
         return $return;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJavascript()
+    {
+        $javascript = <<<'EOD'
+<script type='text/javascript'>
+    function updateTotalPrice(productId) {
+        var quantity = document.getElementById("productQuantity" + productId).value;
+        var productPriceHiddenId = "productPrice" + productId;
+        var totalPriceId = "totalPrice" + productId;
+        var productPriceHidden = document.getElementById(productPriceHiddenId);
+        var totalPriceSpan = document.getElementById(totalPriceId);
+        var price = productPriceHidden.value;
+        totalPriceSpan.innerText = Math.round(price*quantity * 100) / 100 + ',- Kč';
+    }
+</script>
+EOD;
+        return $javascript;
     }
 }

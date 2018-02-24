@@ -32,7 +32,9 @@
     {block "form_fields"}
       {foreach from=$formFields item="field"}
         {block "form_field"}
-          {form_field field=$field}
+          {*pjetensk*}{if $field.name!='optin'}
+            {form_field field=$field}
+          {*pjetensk*}{/if}
         {/block}
       {/foreach}
       {$hook_create_account_form nofilter}
