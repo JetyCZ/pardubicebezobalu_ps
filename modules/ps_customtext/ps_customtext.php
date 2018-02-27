@@ -79,17 +79,18 @@ class Ps_Customtext extends Module implements WidgetInterface
             $context = Context::getContext();
             $lang = (int)$context->language->id;
 
+            /*
             if ($this->context->customer->id == NULL) {
                 return
                     "<div class='alert-warning'>" .
-                    "<h1>Abyste mohli použít zrychlenou objednávku zboží, musíte být přihlášení...</h1>" .
+                    "<h1>Pro použití zrychlené objednávky zboží se prosím přihlašte...</h1>" .
                     "<a href='/muj-ucet' title='Přihlášení k vašemu zákaznickému účtu' rel='nofollow'>" .
                     "<i class='material-icons'> </i>" .
                     "<div class='flipthis-wrapper'>" .
                     "<span class='hidden-sm-down flipthis-highlight'>Přihlásit se</span>" .
                     "</div>" .
                     "</div>";
-            }
+            }*/
 
             /*
             if (!$context->cart->id) {
@@ -114,7 +115,6 @@ class Ps_Customtext extends Module implements WidgetInterface
             $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
                     <th>Zboží</th>
                     <th>Cena za jednotku <br>vč. DPH</th>
-                    <th width='200'>Jednotka</th>
                     <th>Objednané množství</th>
                     <th>Cena za objednáno</th>
                     <th>Info</th>
@@ -155,18 +155,28 @@ class Ps_Customtext extends Module implements WidgetInterface
                                 "</td>";
                             $result .= "<td>" . $price . ",- Kč</td>";
                             $result .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
-                            $result .= "<td>";
-                            if (strpos($productName, 'stáčený produkt') != false) {
-                                $result .= "ml (mililitry, 1000=1 litr)";
-                            } elseif (strpos($productName, 'na váhu') != false) {
-                                $result .= "g (gramy, 500=0.5 kg)";
-                            } else {
-                                $result .= "ks (kusové zboží)";
-                            }
-                            $result .= "</td>";
 
                             $fieldName = "productQuantity" . $idProduct;
-                            $result .= "<td><input style='width:100px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "'></td>";
+                            $result .= "<td nowrap='nowrap'><input style='width:100px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
+
+                            $unitX = "";
+                            $help = "";
+                            if (strpos($productName, 'stáčený produkt') != false) {
+                                $unitX = "ml ";
+                                $help="(1000 = 1 litr)";
+                            } elseif (strpos($productName, 'na váhu') != false) {
+                                $unitX = "g ";
+                                $help="(1000 = 1 kg)";
+                            } else {
+                                $unitX = "ks ";
+                                $help="(kusové zboží)";
+                            }
+                            // $result .= $unitX + " ";
+                            $result .= " ".$unitX;
+                            $result .= "<span style='color: #C0C0C0;'>";
+                            $result .= $help;
+                            $result .= "</span>";
+                            $result .= "</td>";
                             $result .= "<td><span id='totalPrice" . $idProduct . "'></span></td>";
                             $info = "&nbsp;";
                             if ($formPosted) {
