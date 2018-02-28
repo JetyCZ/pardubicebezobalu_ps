@@ -26,9 +26,9 @@
   {if !$configuration.is_catalog}
     <span class="control-label">
     {if strpos($product.name, 'stáčený produkt') != false}
-    Objednávaný objem stáčeného zboží
+    Objednávaný objem stáčeného zboží (1000 = 1 litr)
     {elseif strpos($product.name, 'na váhu') != false}
-      Objednávaná váha zboží (v gramech: 1000 = 1Kg, 100 = 100g, 500 = půl kila)
+      Objednávaná váha zboží (v gramech: 1000 = 1Kg)
     {else}
     Objednávaný počet kusů
     {/if}

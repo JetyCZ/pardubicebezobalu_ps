@@ -38,7 +38,7 @@
 
 
 
-
+      {hook h='customCMS'}
     {block name='page_content_container'}
 
       <section id="content" class="page-content card card-block">
@@ -49,7 +49,7 @@
         {/block}
       </section>
     {/block}
-      {hook h='customCMS'}
+
 
     {block name='page_footer_container'}
       <footer class="page-footer">

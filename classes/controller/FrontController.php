@@ -439,22 +439,24 @@ class FrontControllerCore extends Controller
         // try {
         $formPosted = !empty($_POST);
 
-        if ($this->context->customer->isLogged() && $formPosted && isset($_POST['bulkAddToCartButton'])) {
+        if ($formPosted && isset($_POST['bulkAddToCartButton'])) {
+
             $context = Context::getContext();
             $lang = (int)$context->language->id;
+
+
+
+            $context = Context::getContext();
             if (!$context->cart->id) {
                 $context->cart->add();
-                $cart = new Cart($context->cart->id, $lang);
-                $cart->id_currency = (int)Context::getContext()->currency->id;
-                $cart->recyclable = 0;
-                $cart->gift = 0;
-            } else {
-                $cart = new Cart($context->cart->id);
+                $context->cookie->id_cart = $context->cart->id;
             }
+            $id_cart = $context->cart->id;
 
             $rootCat = Category::getRootCategory();
             $children = Category::getChildren($rootCat->id_category, $lang);
             $productIds = array();
+
             foreach ($children as $childCat) {
                 $catName = $childCat["name"];
                 $idCategory = $childCat["id_category"];
@@ -468,6 +470,7 @@ class FrontControllerCore extends Controller
                             if ($formPosted && isset($_POST[$fieldName])) {
                                 $quantity = $_POST[$fieldName];
                                 if (isset($quantity) && $quantity > 0) {
+
                                     $cart->updateQty($quantity, $idProduct);
                                 }
                             }
