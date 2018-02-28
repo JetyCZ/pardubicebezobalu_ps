@@ -65,6 +65,39 @@ class Ps_Customtext extends Module implements WidgetInterface
             $this->installFixtures();
     }
 
+    public function getJavascript()
+    {
+        $javascript = <<<'EOD'
+<script type='text/javascript'>
+    function updateTotalPrice(productId) {
+        var quantity = document.getElementById("productQuantity" + productId).value;
+        var productPriceHiddenId = "productPrice" + productId;
+        var totalPriceId = "totalPrice" + productId;
+        var productPriceHidden = document.getElementById(productPriceHiddenId);
+        var totalPriceSpan = document.getElementById(totalPriceId);
+        var price = productPriceHidden.value;
+        totalPriceSpan.innerText = Math.round(price*quantity * 100) / 100 + ',- Kč';
+    }
+    function updateTotalPriceFruitKs(productId, gramPerKs) {
+        var quantity = document.getElementById("productQuantity" + productId + 'Ks').value;
+        var productPriceHiddenId = "productPrice" + productId;
+        var totalPriceId = "totalPrice" + productId;
+        var productPriceHidden = document.getElementById(productPriceHiddenId);
+        var pricePerGram = productPriceHidden.value;
+        var totalWeight = gramPerKs * quantity;
+        
+        var totalPriceSpan = document.getElementById(totalPriceId);
+        // totalPriceSpan.innerText = Math.round(pricePerGram*totalWeight * 100) / 100 + ',- Kč';
+        var labelKc = Math.round(pricePerGram*totalWeight * 100) / 100 + ',- Kč';
+        
+        document.getElementById("productQuantity" + productId).value = totalWeight;
+        totalPriceSpan.innerText = labelKc + '; ' + Math.round(totalWeight*100) / (100*1000) + ' Kg';
+    }
+</script>
+EOD;
+        return $javascript;
+    }
+
     public function hookcustomCMS($params)
     {
         if (strpos($this->smarty->getTemplateVars("request_uri"), 'zrychlena-objednavka-zbozi') !== false) {
@@ -78,33 +111,6 @@ class Ps_Customtext extends Module implements WidgetInterface
             // try {
             $context = Context::getContext();
             $lang = (int)$context->language->id;
-
-            /*
-            if ($this->context->customer->id == NULL) {
-                return
-                    "<div class='alert-warning'>" .
-                    "<h1>Pro použití zrychlené objednávky zboží se prosím přihlašte...</h1>" .
-                    "<a href='/muj-ucet' title='Přihlášení k vašemu zákaznickému účtu' rel='nofollow'>" .
-                    "<i class='material-icons'> </i>" .
-                    "<div class='flipthis-wrapper'>" .
-                    "<span class='hidden-sm-down flipthis-highlight'>Přihlásit se</span>" .
-                    "</div>" .
-                    "</div>";
-            }*/
-
-            /*
-            if (!$context->cart->id) {
-                $context->cart->add();
-                $cart = new Cart($context->cart->id, $lang);
-                // $cart->id_customer = (int)UserApi::getIdAuthUser();
-                // $cart->id_lang = _PS_APP_MOBILE_LANG_ID;
-                $cart->id_currency = (int)Context::getContext()->currency->id;
-                // $cart->id_carrier = 1;
-                $cart->recyclable = 0;
-                $cart->gift = 0;
-            } else {
-                $cart = new Cart($context->cart->id);
-            }*/
 
 
             $rootCat = Category::getRootCategory();
@@ -130,14 +136,15 @@ class Ps_Customtext extends Module implements WidgetInterface
                 $cat = new Category($idCategory);
                 $products = $cat->getProducts($lang, 0, 1000);
 
+                $isFruit = ($idCategory == 18);
                 if (!($catName === "BIO") && count($products) > 0) {
                     $result .= "<tr>";
-                    $catLink = "/".$idCategory."-".$childCat["link_rewrite"];
+                    $catLink = "/" . $idCategory . "-" . $childCat["link_rewrite"];
 
                     $result .= "<td colspan='6' style='background-color:#F0FFF0;'><b>" .
-                        "<a href='".$catLink."' target='_new'>".
+                        "<a href='" . $catLink . "' target='_new'>" .
                         $catName .
-                        "</a>".
+                        "</a>" .
                         "</b></td>";
                     $result .= "</tr>";
                     foreach ($products as $product) {
@@ -149,33 +156,105 @@ class Ps_Customtext extends Module implements WidgetInterface
                             $price = $product["price"];
                             $link = $product["link"];
                             $result .= "<td style='padding-left:20pt'>" .
-                                "<a href='".$link."' target='_new'>".
+                                "<a href='" . $link . "' target='_new'>" .
                                 $productName .
-                                "</a>".
+                                "</a>" .
                                 "</td>";
-                            $result .= "<td>" . $price . ",- Kč</td>";
-                            $result .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
-
-                            $fieldName = "productQuantity" . $idProduct;
-                            $result .= "<td nowrap='nowrap'><input style='width:100px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
 
                             $unitX = "";
                             $help = "";
+                            $zaLabelUnit = "";
+                            $zaLabelPrice = "";
+                            $isWeightedKs = false;
+                            $vaziZhrubaLabel = "váží zhruba";
+                            $vaziZhrubaPos = strpos($productName, $vaziZhrubaLabel);
                             if (strpos($productName, 'stáčený produkt') != false) {
                                 $unitX = "ml ";
-                                $help="(1000 = 1 litr)";
+                                $help = "(1000 = 1 litr)";
+                                $zaLabelUnit = "za litr";
+                                $zaLabelPrice = $price*1000;
                             } elseif (strpos($productName, 'na váhu') != false) {
                                 $unitX = "g ";
-                                $help="(1000 = 1 kg)";
+                                $help = "(1000 = 1 kg)";
+
+                                $pricePer100g = $price * 100;
+                                if ($pricePer100g<10) {
+                                        $zaLabelPrice = $price*1000;
+                                        $zaLabelUnit = "za Kg";
+                                } else {
+                                    $zaLabelPrice = $pricePer100g;
+                                    $zaLabelUnit = "za 100 gramů";
+                                }
+
+                            } else if ($vaziZhrubaPos != false) {
+                                $unitX = "ks ";
+                                $help = "(kusové zboží)";
+                                $zaLabelUnit = "za kus";
+                                $zaLabelPrice = $price;
+
+                                $isWeightedKs = true;
                             } else {
                                 $unitX = "ks ";
-                                $help="(kusové zboží)";
+                                $help = "(kusové zboží)";
+                                $zaLabelUnit = "za&nbsp;kus";
+                                $zaLabelPrice = $price;
                             }
-                            // $result .= $unitX + " ";
-                            $result .= " ".$unitX;
-                            $result .= "<span style='color: #C0C0C0;'>";
-                            $result .= $help;
-                            $result .= "</span>";
+
+                            $result .= "<td nowrap='nowrap'>";
+                            if (!$isFruit && !$isWeightedKs) {
+                                $result .= $zaLabelPrice . ",- Kč&nbsp;<span style='color: #A0A0A0;'>" . $zaLabelUnit . "</span>";
+                            } else {
+                                $result .= ($price * 1000) . ",- Kč&nbsp;<span style='color: #A0A0A0;'>za Kg</span>";
+                            }
+                            $result .= "</td>";
+
+                            $result .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
+
+                            $fieldName = "productQuantity" . $idProduct;
+                            $result .= "<td nowrap='nowrap'>";
+
+                            $updateFunction = "updateTotalPrice(" . $idProduct . ")";
+
+                            if ($isWeightedKs) {
+                                $gramPerKs = substr($productName, $vaziZhrubaPos + strlen($vaziZhrubaLabel), strlen($productName) - strlen($vaziZhrubaLabel) - $vaziZhrubaPos - 1);
+
+                                $updateFunctionFruitKs = "updateTotalPriceFruitKs(" . $idProduct . "," . $gramPerKs . ")";
+                                $result .= "<input style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . ")' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0>";
+                                $result .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
+                                $result .= " " . $unitX;
+                                $result .= "<span style='color: #C0C0C0;'>";
+                                $result .= $help;
+                                $result .= "</span>";
+                            } else if (!$isFruit) {
+                                $result .= "<input style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0>";
+
+                                $result .= " " . $unitX;
+                                $result .= "<span style='color: #C0C0C0;'>";
+                                $result .= $help;
+                                $result .= "</span>";
+                            } else {
+                                        $result .= "<select style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
+
+                                        $result .= "<option value='0'>Vybrat hmotnost</option>";
+                                        $result .= "<option value='100'>100 g</option>";
+                                        $result .= "<option value='200'>200 g</option>";
+                                        $result .= "<option value='300'>300 g</option>";
+                                        $result .= "<option value='400'>400 g</option>";
+                                        $result .= "<option value='500'>0.5 Kg</option>";
+                                        $result .= "<option value='1000'>1 Kg</option>";
+                                        $result .= "<option value='2000'>2 Kg</option>";
+                                        $result .= "<option value='3000'>3 Kg</option>";
+                                        $result .= "<option value='4000'>4 Kg</option>";
+                                        $result .= "<option value='5000'>5 Kg</option>";
+                                        $result .= "<option value='5000'>7 Kg</option>";
+                                        $result .= "<option value='5000'>10 Kg</option>";
+                                        $result .= "<option value='5000'>15 Kg</option>";
+                                        $result .= "<option value='5000'>20 Kg</option>";
+                                        $result .= "<option value='2500'>25 Kg</option>";
+                                        $result .= "<option value='50000'>50 Kg</option>";
+                                        $result .= "</select>";
+                            }
+
                             $result .= "</td>";
                             $result .= "<td><span id='totalPrice" . $idProduct . "'></span></td>";
                             $info = "&nbsp;";
@@ -185,11 +264,10 @@ class Ps_Customtext extends Module implements WidgetInterface
                                     $info = "Do košíku přidáno: " . $quantity;
                                 }
                             }
-                            $result .= "<td>".$info."</td>";
+                            $result .= "<td>" . $info . "</td>";
 
 
-
-                                $productIds[$idProduct] = 1;
+                            $productIds[$idProduct] = 1;
                             $result .= "</tr>";
                         }
 
@@ -198,9 +276,9 @@ class Ps_Customtext extends Module implements WidgetInterface
 
 
             }
-            $result .= "<tr ><td style='padding-top: 30pt;' colspan='6' align='center'>".
-                "<input name='bulkAddToCartButton' style='font-size: 150%;padding:20pt;background-color:#F0FFF0;' value='Vložit zboží všechno najednou do košíku' type='submit'/>".
-            "</td> </tr>";
+            $result .= "<tr ><td style='padding-top: 30pt;' colspan='6' align='center'>" .
+                "<input name='bulkAddToCartButton' style='font-size: 150%;padding:20pt;background-color:#F0FFF0;' value='Vložit zboží všechno najednou do košíku' type='submit'/>" .
+                "</td> </tr>";
             $result .= "</table>";
 
 
@@ -441,26 +519,6 @@ class Ps_Customtext extends Module implements WidgetInterface
         return $return;
     }
 
-    /**
-     * @return string
-     */
-    public function getJavascript()
-    {
-        $javascript = <<<'EOD'
-<script type='text/javascript'>
-    function updateTotalPrice(productId) {
-        var quantity = document.getElementById("productQuantity" + productId).value;
-        var productPriceHiddenId = "productPrice" + productId;
-        var totalPriceId = "totalPrice" + productId;
-        var productPriceHidden = document.getElementById(productPriceHiddenId);
-        var totalPriceSpan = document.getElementById(totalPriceId);
-        var price = productPriceHidden.value;
-        totalPriceSpan.innerText = Math.round(price*quantity * 100) / 100 + ',- Kč';
-    }
-</script>
-EOD;
-        return $javascript;
-    }
 
     public function fetch($templatePath, $cache_id = null, $compile_id = null)
     {
