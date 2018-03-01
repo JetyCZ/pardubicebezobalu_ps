@@ -199,13 +199,15 @@ EOD;
                                 $zaLabelUnit = "za&nbsp;kus";
                                 $zaLabelPrice = $price;
                             }
+                            $pricePerUnitLabel = "";
+                            if (!$isFruit && !$isWeightedKs) {
+                                $pricePerUnitLabel = $zaLabelPrice . ",- Kč&nbsp;<span style='color: #A0A0A0;'>" . $zaLabelUnit . "</span>";
+                            } else {
+                                $pricePerUnitLabel .= ($price * 1000) . ",- Kč&nbsp;<span style='color: #A0A0A0;'>za Kg</span>";
+                            }
 
                             $result .= "<td nowrap='nowrap'>";
-                            if (!$isFruit && !$isWeightedKs) {
-                                $result .= $zaLabelPrice . ",- Kč&nbsp;<span style='color: #A0A0A0;'>" . $zaLabelUnit . "</span>";
-                            } else {
-                                $result .= ($price * 1000) . ",- Kč&nbsp;<span style='color: #A0A0A0;'>za Kg</span>";
-                            }
+                            $result .= $pricePerUnitLabel;
                             $result .= "</td>";
 
                             $result .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
