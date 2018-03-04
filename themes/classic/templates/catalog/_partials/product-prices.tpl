@@ -1,3 +1,4 @@
+
 {**
  * 2007-2017 PrestaShop
  *
@@ -44,7 +45,22 @@
         <meta itemprop="priceCurrency" content="{$currency.iso_code}">
 
         <div class="current-price">
-          <span itemprop="price" content="{$product.price_amount}">{$product.price}</span>
+          <span itemprop="price" content="{$product.price_amount}">
+
+              {if strpos($product.name, 'stáčený produkt') != false}
+                  {$product.price_amount * 1000},- Kč za 1 litr
+              {elseif strpos($product.name, 'na váhu') != false}
+                  {if $product.price_amount>0.1}
+                      {$product.price_amount*100},- Kč za 100g
+                      {else}
+                      {$product.price_amount*1000},- Kč za 1Kg
+                  {/if}
+              {else}
+                  {$product.price} za kus
+              {/if}
+
+
+          </span>
 
           {if $product.has_discount}
             {if $product.discount_type === 'percentage'}

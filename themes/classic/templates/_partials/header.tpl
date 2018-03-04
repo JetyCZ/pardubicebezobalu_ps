@@ -38,9 +38,8 @@
         <div class="container">
 
             <div class="row">
-                <div class="col-md-6"><h1
-                            style="font-family: 'Comic Sans MS', cursive, sans-serif;font-size: 300%;color: #2fb5d2">
-                        Krámek&nbsp;Bezobalu</h1></div>
+                <div class="col-md-6"><h1>
+                        <a style="font-family: 'Comic Sans MS', cursive, sans-serif;font-size: 200%;color: #2fb5d2" href="https://www.pardubicebezobalu.cz">Krámek&nbsp;Bezobalu</a></h1></div>
                 <div class="hidden-sm-down">
                     <div class="col-md-3 col-xs-12">
                         {hook h='displayNav1'}

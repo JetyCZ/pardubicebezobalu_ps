@@ -33,6 +33,7 @@ use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 use PrestaShop\PrestaShop\Adapter\Customer;
 
 require_once _PS_MODULE_DIR_ . 'ps_customtext/classes/CustomText.php';
+require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
 
 class Ps_Customtext extends Module implements WidgetInterface
 {
@@ -148,6 +149,7 @@ EOD;
                         "</b></td>";
                     $result .= "</tr>";
                     foreach ($products as $product) {
+
                         $idProduct = $product["id_product"];
 
                         if (!array_key_exists($idProduct, $productIds)) {
@@ -161,53 +163,14 @@ EOD;
                                 "</a>" .
                                 "</td>";
 
-                            $unitX = "";
-                            $help = "";
-                            $zaLabelUnit = "";
-                            $zaLabelPrice = "";
-                            $isWeightedKs = false;
-                            $vaziZhrubaLabel = "váží zhruba";
-                            $vaziZhrubaPos = strpos($productName, $vaziZhrubaLabel);
-                            if (strpos($productName, 'stáčený produkt') != false) {
-                                $unitX = "ml ";
-                                $help = "(1000 = 1 litr)";
-                                $zaLabelUnit = "za litr";
-                                $zaLabelPrice = $price*1000;
-                            } elseif (strpos($productName, 'na váhu') != false) {
-                                $unitX = "g ";
-                                $help = "(1000 = 1 kg)";
-
-                                $pricePer100g = $price * 100;
-                                if ($pricePer100g<10) {
-                                        $zaLabelPrice = $price*1000;
-                                        $zaLabelUnit = "za Kg";
-                                } else {
-                                    $zaLabelPrice = $pricePer100g;
-                                    $zaLabelUnit = "za 100 gramů";
-                                }
-
-                            } else if ($vaziZhrubaPos != false) {
-                                $unitX = "ks ";
-                                $help = "(kusové zboží)";
-                                $zaLabelUnit = "za kus";
-                                $zaLabelPrice = $price;
-
-                                $isWeightedKs = true;
-                            } else {
-                                $unitX = "ks ";
-                                $help = "(kusové zboží)";
-                                $zaLabelUnit = "za&nbsp;kus";
-                                $zaLabelPrice = $price;
-                            }
-                            $pricePerUnitLabel = "";
-                            if (!$isFruit && !$isWeightedKs) {
-                                $pricePerUnitLabel = $zaLabelPrice . ",- Kč&nbsp;<span style='color: #A0A0A0;'>" . $zaLabelUnit . "</span>";
-                            } else {
-                                $pricePerUnitLabel .= ($price * 1000) . ",- Kč&nbsp;<span style='color: #A0A0A0;'>za Kg</span>";
+                            try {
+                                $priceInfo = null;
+                                $priceInfo = CustomUtils::priceInfo($productName, $price);
+                            } catch (Throwable $e) {
                             }
 
                             $result .= "<td nowrap='nowrap'>";
-                            $result .= $pricePerUnitLabel;
+                            $result .= $priceInfo->pricePerUnitLabel();
                             $result .= "</td>";
 
                             $result .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
@@ -217,44 +180,43 @@ EOD;
 
                             $updateFunction = "updateTotalPrice(" . $idProduct . ")";
 
-                            if ($isWeightedKs) {
-                                $gramPerKs = substr($productName, $vaziZhrubaPos + strlen($vaziZhrubaLabel), strlen($productName) - strlen($vaziZhrubaLabel) - $vaziZhrubaPos - 1);
-
-                                $updateFunctionFruitKs = "updateTotalPriceFruitKs(" . $idProduct . "," . $gramPerKs . ")";
+                            if ($priceInfo->isWeightedKs) {
+                                $updateFunctionFruitKs = "updateTotalPriceFruitKs(" . $idProduct . "," . $priceInfo->gramPerKs . ")";
                                 $result .= "<input style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . ")' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0>";
                                 $result .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
-                                $result .= " " . $unitX;
+                                $result .= " " . $priceInfo->unitX;
                                 $result .= "<span style='color: #C0C0C0;'>";
-                                $result .= $help;
+                                $result .= $priceInfo->help;
                                 $result .= "</span>";
-                            } else if (!$isFruit) {
+                            } else if ($isFruit && $priceInfo->isWeighted) {
+
+                                $result .= "<select style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
+
+                                $result .= "<option value='0'>Vybrat hmotnost</option>";
+                                $result .= "<option value='100'>100 g</option>";
+                                $result .= "<option value='200'>200 g</option>";
+                                $result .= "<option value='300'>300 g</option>";
+                                $result .= "<option value='400'>400 g</option>";
+                                $result .= "<option value='500'>0.5 Kg</option>";
+                                $result .= "<option value='1000'>1 Kg</option>";
+                                $result .= "<option value='2000'>2 Kg</option>";
+                                $result .= "<option value='3000'>3 Kg</option>";
+                                $result .= "<option value='4000'>4 Kg</option>";
+                                $result .= "<option value='5000'>5 Kg</option>";
+                                $result .= "<option value='5000'>7 Kg</option>";
+                                $result .= "<option value='5000'>10 Kg</option>";
+                                $result .= "<option value='5000'>15 Kg</option>";
+                                $result .= "<option value='5000'>20 Kg</option>";
+                                $result .= "<option value='2500'>25 Kg</option>";
+                                $result .= "<option value='50000'>50 Kg</option>";
+                                $result .= "</select>";
+                            } else {
                                 $result .= "<input style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0>";
 
-                                $result .= " " . $unitX;
+                                $result .= " " . $priceInfo->unitX;
                                 $result .= "<span style='color: #C0C0C0;'>";
-                                $result .= $help;
+                                $result .= $priceInfo->help;
                                 $result .= "</span>";
-                            } else {
-                                        $result .= "<select style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
-
-                                        $result .= "<option value='0'>Vybrat hmotnost</option>";
-                                        $result .= "<option value='100'>100 g</option>";
-                                        $result .= "<option value='200'>200 g</option>";
-                                        $result .= "<option value='300'>300 g</option>";
-                                        $result .= "<option value='400'>400 g</option>";
-                                        $result .= "<option value='500'>0.5 Kg</option>";
-                                        $result .= "<option value='1000'>1 Kg</option>";
-                                        $result .= "<option value='2000'>2 Kg</option>";
-                                        $result .= "<option value='3000'>3 Kg</option>";
-                                        $result .= "<option value='4000'>4 Kg</option>";
-                                        $result .= "<option value='5000'>5 Kg</option>";
-                                        $result .= "<option value='5000'>7 Kg</option>";
-                                        $result .= "<option value='5000'>10 Kg</option>";
-                                        $result .= "<option value='5000'>15 Kg</option>";
-                                        $result .= "<option value='5000'>20 Kg</option>";
-                                        $result .= "<option value='2500'>25 Kg</option>";
-                                        $result .= "<option value='50000'>50 Kg</option>";
-                                        $result .= "</select>";
                             }
 
                             $result .= "</td>";
@@ -266,7 +228,8 @@ EOD;
                                     $info = "Do košíku přidáno: " . $quantity;
                                 }
                             }
-                            $result .= "<td>" . $info . "</td>";
+                            $result .= "<td>";
+                            $result .= $info . "</td>";
 
 
                             $productIds[$idProduct] = 1;

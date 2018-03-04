@@ -38,6 +38,7 @@
     {block name='product_quantity'}
       <div class="product-quantity clearfix">
         <div class="qty">
+
           <input
             type="text"
             name="qty"

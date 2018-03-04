@@ -142,10 +142,6 @@
 
                     </div>
 
-                    {block name='hook_display_reassurance'}
-                        {hook h='displayReassurance'}
-                    {/block}
-
                     {block name='product_tabs'}
                     <div class="tabs">
                         <ul class="nav nav-tabs" role="tablist">
@@ -232,6 +228,9 @@
                         </div>
                         {/foreach}
                     </div>
+                    {block name='hook_display_reassurance'}
+                        {hook h='displayReassurance'}
+                    {/block}
                 </div>
                 {/block}
             </div>
