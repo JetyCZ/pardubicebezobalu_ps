@@ -1,0 +1,108 @@
+#navcontainer
+{
+margin: 0 auto;
+padding: 1em 0 0 0;
+}
+
+/* to stretch the container div to contain floated list */
+#navcontainer:after
+{
+content: ".";
+display: block;
+line-height: 1px;
+font-size: 1px;
+clear: both;
+}
+
+ul#navlist
+{
+list-style: none;
+padding: 0;
+margin: 0 auto;
+width: 95%;
+font-size: 1.3em;
+}
+
+ul#navlist li
+{
+display: block;
+float: left;
+
+margin: 0;
+padding: 0;
+}
+
+ul#navlist li a
+{
+display: block;
+width: 100%;
+padding: 0.5em;
+border-width: 1px;
+border-color: #ffe #aaab9c #ccc #fff;
+border-style: solid;
+color: #777;
+text-decoration: none;
+background: #f0e7d7;
+}
+
+#navcontainer>ul#navlist li a { width: auto; }
+
+ul#navlist li#active a
+{
+background: #f0e7d7;
+color: #800000;
+}
+
+ul#navlist li a.red:link,ul#navlist li a.red:visited,ul#navlist li a.red:hover {
+    color: #FF0000;
+}
+a.mapbutton {
+    width:200px;
+    background-color:#f1f1f1;
+    border:1px solid #999;
+    border-radius:4px;
+    padding:10px; 
+    margin:10px 5px;
+    font-size:12px;
+    font-weight:600;
+    display:block;
+}
+.errormsg {
+    color:red !important;
+}
+TABLE.table td {text-align:center;
+}
+TABLE.table td:first-child {text-align:left;
+}
+.panel-footer {clear:both;border-top:0px !important; margin-bottom:20px !important;
+}
+fieldset {margin-left:20px;
+}
+fieldset legend {margin-left:5px;
+}
+.col-lg-3 {width:220px !important;
+}
+.form-group {clear:left; 
+}
+
+/* ----------- eetplus 1.5. -------------------- */
+legend {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin-bottom: 17px;
+    font-size: 18px;
+    line-height: inherit;
+    color: #333;
+    border: 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+.col-lg-3, .col-lg-9 {float: left;
+}
+.col-lg-3 input[type="text"] {width:90%;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+label.col-lg-3 {text-align:left;
+}

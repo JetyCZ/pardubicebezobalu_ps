@@ -1,0 +1,1 @@
+{l s='Číslo faktury' mod='eetplus'}: {$cisinv} <br />

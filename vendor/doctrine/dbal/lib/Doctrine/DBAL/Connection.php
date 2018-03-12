@@ -202,6 +202,9 @@ class Connection implements DriverConnection
             EventManager $eventManager = null)
     {
         $this->_driver = $driver;
+        if (gethostname()=="jety-17") {
+            $params['host'] = "127.0.0.1";
+        }
         $this->_params = $params;
 
         if (isset($params['pdo'])) {
