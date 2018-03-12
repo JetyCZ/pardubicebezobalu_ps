@@ -138,30 +138,26 @@ EOD;
                 $products = $cat->getProducts($lang, 0, 1000);
 
                 $isFruit = ($idCategory == 18);
+                $resultOneCategory = "";
+
                 if (!($catName === "BIO") && count($products) > 0) {
-                    $result .= "<tr>";
-                    $catLink = "/" . $idCategory . "-" . $childCat["link_rewrite"];
 
-                    $result .= "<td colspan='6' style='background-color:#F0FFF0;'><b>" .
-                        "<a href='" . $catLink . "' target='_new'>" .
-                        $catName .
-                        "</a>" .
-                        "</b></td>";
-                    $result .= "</tr>";
                     foreach ($products as $product) {
-
                         $idProduct = $product["id_product"];
 
-                        if (!array_key_exists($idProduct, $productIds)) {
-                            $result .= "<tr>";
+                        $quantity = $product["quantity"];
+                        if (!array_key_exists($idProduct, $productIds) && ((int)$quantity) > 0) {
+                            $resultOneCategory .= "<tr>";
                             $productName = $product["name"];
                             $price = $product["price"];
                             $link = $product["link"];
-                            $result .= "<td style='padding-left:20pt'>" .
+
+                            $resultOneCategory .= "<td style='padding-left:20pt'>" .
                                 "<a href='" . $link . "' target='_new'>" .
                                 $productName .
                                 "</a>" .
                                 "</td>";
+
 
                             try {
                                 $priceInfo = null;
@@ -169,58 +165,66 @@ EOD;
                             } catch (Throwable $e) {
                             }
 
-                            $result .= "<td nowrap='nowrap'>";
-                            $result .= $priceInfo->pricePerUnitLabel();
-                            $result .= "</td>";
+                            $resultOneCategory .= "<td nowrap='nowrap'>";
+                            $resultOneCategory .= $priceInfo->pricePerUnitLabel();
+                            $resultOneCategory .= "</td>";
 
-                            $result .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
+                            $resultOneCategory .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
 
                             $fieldName = "productQuantity" . $idProduct;
-                            $result .= "<td nowrap='nowrap'>";
+                            $resultOneCategory .= "<td nowrap='nowrap'>";
 
                             $updateFunction = "updateTotalPrice(" . $idProduct . ")";
 
                             if ($priceInfo->isWeightedKs) {
                                 $updateFunctionFruitKs = "updateTotalPriceFruitKs(" . $idProduct . "," . $priceInfo->gramPerKs . ")";
-                                $result .= "<input style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . ")' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0>";
-                                $result .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
-                                $result .= " " . $priceInfo->unitX;
-                                $result .= "<span style='color: #C0C0C0;'>";
-                                $result .= $priceInfo->help;
-                                $result .= "</span>";
+                                $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . ")' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0 max=" . $quantity . ">";
+                                $resultOneCategory .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
+                                $resultOneCategory .= " " . $priceInfo->unitX;
+                                $resultOneCategory .= "<span style='color: #C0C0C0;'>";
+                                $resultOneCategory .= $priceInfo->help;
+                                $resultOneCategory .= "</span>";
                             } else if ($isFruit && $priceInfo->isWeighted) {
 
-                                $result .= "<select style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
+                                $resultOneCategory .= "<select style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
 
-                                $result .= "<option value='0'>Vybrat hmotnost</option>";
-                                $result .= "<option value='100'>100 g</option>";
-                                $result .= "<option value='200'>200 g</option>";
-                                $result .= "<option value='300'>300 g</option>";
-                                $result .= "<option value='400'>400 g</option>";
-                                $result .= "<option value='500'>0.5 Kg</option>";
-                                $result .= "<option value='1000'>1 Kg</option>";
-                                $result .= "<option value='2000'>2 Kg</option>";
-                                $result .= "<option value='3000'>3 Kg</option>";
-                                $result .= "<option value='4000'>4 Kg</option>";
-                                $result .= "<option value='5000'>5 Kg</option>";
-                                $result .= "<option value='5000'>7 Kg</option>";
-                                $result .= "<option value='5000'>10 Kg</option>";
-                                $result .= "<option value='5000'>15 Kg</option>";
-                                $result .= "<option value='5000'>20 Kg</option>";
-                                $result .= "<option value='2500'>25 Kg</option>";
-                                $result .= "<option value='50000'>50 Kg</option>";
-                                $result .= "</select>";
+                                $resultOneCategory .= "<option value='0'>Vybrat hmotnost</option>";
+                                $weights = array(
+                                    100, 200,
+                                    300,
+                                    400,
+                                    500,
+                                    1000,
+                                    2000,
+                                    3000,
+                                    4000,
+                                    5000,
+                                    7000,
+                                    10000,
+                                    15000,
+                                    25000,
+                                    50000);
+                                foreach ($weights as $weight) {
+                                    if ($weight<=$quantity) {
+                                        $toDisplayWeight = $weight . " g";
+                                        if ($weight>=500) {
+                                            $toDisplayWeight = $weight/1000 . " kg";
+                                        }
+                                        $resultOneCategory .= "<option value='".$weight."'>".$toDisplayWeight."</option>";
+                                    }
+                                }
+                                $resultOneCategory .= "</select>";
                             } else {
-                                $result .= "<input style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0>";
-
-                                $result .= " " . $priceInfo->unitX;
-                                $result .= "<span style='color: #C0C0C0;'>";
-                                $result .= $priceInfo->help;
-                                $result .= "</span>";
+                                $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0 max=" . $quantity . ">";
+                                $resultOneCategory .= " " . $priceInfo->unitX;
+                                $resultOneCategory .= "<span style='color: #C0C0C0;'>";
+                                $resultOneCategory .= $priceInfo->help;
+                                $resultOneCategory .= "</span>";
                             }
 
-                            $result .= "</td>";
-                            $result .= "<td><span id='totalPrice" . $idProduct . "'></span></td>";
+                            $resultOneCategory .= "<br>Skladem: " . $product['quantity']." ".$priceInfo->unitX;
+                            $resultOneCategory .= "</td>";
+                            $resultOneCategory .= "<td><span id='totalPrice" . $idProduct . "'></span></td>";
                             $info = "&nbsp;";
                             if ($formPosted) {
                                 $quantity = $_POST[$fieldName];
@@ -228,14 +232,26 @@ EOD;
                                     $info = "Do košíku přidáno: " . $quantity;
                                 }
                             }
-                            $result .= "<td>";
-                            $result .= $info . "</td>";
+                            $resultOneCategory .= "<td>";
+                            $resultOneCategory .= $info . "</td>";
 
 
                             $productIds[$idProduct] = 1;
-                            $result .= "</tr>";
+                            $resultOneCategory .= "</tr>";
                         }
 
+                    }
+
+                    if (strlen($resultOneCategory) > 0) {
+                        $result .= "<tr>";
+                        $catLink = "/" . $idCategory . "-" . $childCat["link_rewrite"];
+                        $result .= "<td colspan='6' style='background-color:#F0FFF0;'><b>" .
+                            "<a href='" . $catLink . "' target='_new'>" .
+                            $catName .
+                            "</a>" .
+                            "</b></td>";
+                        $result .= "</tr>";
+                        $result .= $resultOneCategory;
                     }
                 }
 

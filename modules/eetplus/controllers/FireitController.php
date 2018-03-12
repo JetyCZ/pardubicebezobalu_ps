@@ -113,14 +113,8 @@ class FireitController extends EetplusController
         reset($modules);
         $output .= '<tr><th>&nbsp;</th>';
         foreach ($modules as $module) {
-             try {
-                 $mod = Module::getInstanceByName($module['name']);
-                 $output .= '<th style="font-weight:400;">' .  $mod->displayName. '</th>';
-             } catch (Exception $exception) {
-                 $output .= '<th style="font-weight:400;">' .  "ERROR". '</th>';
-             }
-
-          
+             $mod = Module::getInstanceByName($module['name']);
+             $output .= '<th style="font-weight:400;">' .  $mod->displayName. '</th>';
         }
         $output .= '</tr>';
         
