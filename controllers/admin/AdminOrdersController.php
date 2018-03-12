@@ -2118,7 +2118,7 @@ class AdminOrdersControllerCore extends AdminController
         // always add taxes even if there are not displayed to the customer
         $use_taxes = true;
 
-        $initial_product_price_tax_incl = Product::getPriceStatic($product->id, $use_taxes, isset($combination) ? $combination->id : null, 2, null, false, true, 1,
+        $initial_product_price_tax_incl = Product::getPriceStatic($product->id, $use_taxes, isset($combination) ? $combination->id : null, 3, null, false, true, 1,
             false, $order->id_customer, $cart->id, $order->{Configuration::get('PS_TAX_ADDRESS_TYPE', null, null, $order->id_shop)});
 
         // Creating specific price if needed
@@ -2426,8 +2426,8 @@ class AdminOrdersControllerCore extends AdminController
             'result' => true,
             'product' => $product,
             'tax_rate' => $product->getTaxesRate($address),
-            'price_tax_incl' => Product::getPriceStatic($product->id, true, $order_detail->product_attribute_id, 2),
-            'price_tax_excl' => Product::getPriceStatic($product->id, false, $order_detail->product_attribute_id, 2),
+            'price_tax_incl' => Product::getPriceStatic($product->id, true, $order_detail->product_attribute_id, 3),
+            'price_tax_excl' => Product::getPriceStatic($product->id, false, $order_detail->product_attribute_id, 3),
             'reduction_percent' => $order_detail->reduction_percent
         )));
     }

@@ -58,7 +58,7 @@ class Ps_Shoppingcart extends Module implements WidgetInterface
         }
 
         if (Configuration::get('PS_BLOCK_CART_AJAX')) {
-            $this->context->controller->registerJavascript('modules-shoppingcart', 'modules/'.$this->name.'/ps_shoppingcart.js', ['position' => 'bottom', 'priority' => 150]);
+            $this->context->controller->registerJavascript('modules-shoppingcart', 'modules/' . $this->name . '/ps_shoppingcart.js', ['position' => 'bottom', 'priority' => 150]);
         }
     }
 
@@ -129,17 +129,16 @@ class Ps_Shoppingcart extends Module implements WidgetInterface
                 Configuration::updateValue('PS_BLOCK_CART_AJAX', (int)($ajax));
             }
         }
-        return $output.$this->renderForm();
+        return $output . $this->renderForm();
     }
 
     public function install()
     {
         return
             parent::install()
-                && $this->registerHook('header')
-                && $this->registerHook('displayTop')
-                && Configuration::updateValue('PS_BLOCK_CART_AJAX', 1)
-        ;
+            && $this->registerHook('header')
+            && $this->registerHook('displayTop')
+            && Configuration::updateValue('PS_BLOCK_CART_AJAX', 1);
     }
 
     public function renderForm()
@@ -179,7 +178,7 @@ class Ps_Shoppingcart extends Module implements WidgetInterface
 
         $helper = new HelperForm();
         $helper->show_toolbar = false;
-        $helper->table =  $this->table;
+        $helper->table = $this->table;
         $lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));
         $helper->default_form_language = $lang->id;
         $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
@@ -187,8 +186,8 @@ class Ps_Shoppingcart extends Module implements WidgetInterface
 
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'submitBlockCart';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name.'&tab_module='.$this->tab
-        .'&module_name='.$this->name;
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false) . '&configure=' . $this->name . '&tab_module=' . $this->tab
+            . '&module_name=' . $this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
         $helper->tpl_vars = array(
             'fields_value' => $this->getConfigFieldsValues(),

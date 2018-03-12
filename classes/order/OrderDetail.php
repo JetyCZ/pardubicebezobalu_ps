@@ -606,7 +606,7 @@ class OrderDetailCore extends ObjectModel
             (int)$product['id_product'],
             true,
             ($product['id_product_attribute'] ? intval($product['id_product_attribute']) : null),
-            2,
+            3,
             null,
             false,
             true,

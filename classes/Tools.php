@@ -1635,7 +1635,7 @@ class ToolsCore
     public static function orderbyPrice(&$array, $order_way)
     {
         foreach ($array as &$row) {
-            $row['price_tmp'] = Product::getPriceStatic($row['id_product'], true, ((isset($row['id_product_attribute']) && !empty($row['id_product_attribute'])) ? (int)$row['id_product_attribute'] : null), 2);
+            $row['price_tmp'] = Product::getPriceStatic($row['id_product'], true, ((isset($row['id_product_attribute']) && !empty($row['id_product_attribute'])) ? (int)$row['id_product_attribute'] : null), 3);
         }
 
         unset($row);
@@ -1672,8 +1672,11 @@ class ToolsCore
      * @param int $precision
      * @return float
      */
-    public static function ps_round($value, $precision = 0, $round_mode = null)
+    public static function ps_round($value, $precisionP = 0, $round_mode = null)
     {
+        $precision = $precisionP;
+        if ($precisionP==2) $precision=3;
+
         if ($round_mode === null) {
             if (Tools::$round_mode == null) {
                 Tools::$round_mode = (int)Configuration::get('PS_PRICE_ROUND_MODE');

@@ -52,7 +52,8 @@
         </div>
       {/if}
       <div class="current-price">
-        <span class="price">{$product.price}</span>
+        <br>
+        <span class="price">{$product.price} <br><span style="color:silver">cena&nbsp;za&nbsp;1&nbsp;gram/kus/mililitr<br>zaokrouhleno&nbsp;na&nbsp;2&nbsp;desetinná&nbsp;místa</span></span>
         {if $product.unit_price_full}
           <div class="unit-price-cart">{$product.unit_price_full}</div>
         {/if}

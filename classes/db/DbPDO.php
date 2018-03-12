@@ -97,6 +97,9 @@ class DbPDOCore extends Db
     public function connect()
     {
         try {
+            if (gethostname()=="jety-17") {
+                $this->server = "127.0.0.1";
+            }
             $this->link = $this->_getPDO($this->server, $this->user, $this->password, $this->database, 5);
         } catch (PDOException $e) {
             throw new PrestaShopException('Link to database cannot be established:'.$e->getMessage());
@@ -318,14 +321,14 @@ class DbPDOCore extends Db
         }
 
         $result = $link->query('
-		CREATE TABLE `'.$prefix.'test` (
+		CREATE TABLE `' . $prefix . 'test` (
 			`test` tinyint(1) unsigned NOT NULL
-		) ENGINE='.$engine);
+		) ENGINE=' . $engine);
         if (!$result) {
             $error = $link->errorInfo();
             return $error[2];
         }
-        $link->query('DROP TABLE `'.$prefix.'test`');
+        $link->query('DROP TABLE `' . $prefix . 'test`');
         return true;
     }
 
@@ -368,7 +371,7 @@ class DbPDOCore extends Db
 
         if (!$result) {
             $value = 'MyISAM';
-        }else {
+        } else {
             $row = $result->fetch();
             if (!$row || strtolower($row['Value']) != 'yes') {
                 $value = 'MyISAM';

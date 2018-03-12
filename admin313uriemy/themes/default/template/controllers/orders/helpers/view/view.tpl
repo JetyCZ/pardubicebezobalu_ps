@@ -608,7 +608,7 @@
                   <dt>{l s='Valid orders placed' d='Admin.Orderscustomers.Feature'}</dt>
                     <dd><span class="badge">{$customerStats['nb_orders']|intval}</span></dd>
                   <dt>{l s='Total spent since registration' d='Admin.Orderscustomers.Feature'}</dt>
-                    <dd><span class="badge badge-success">{displayPrice price=Tools::ps_round(Tools::convertPrice($customerStats['total_orders'], $currency), 2) currency=$currency->id}</span></dd>
+                    <dd><span class="badge badge-success">{displayPrice price=Tools::ps_round(Tools::convertPrice($customerStats['total_orders'], $currency), 3) currency=$currency->id}</span></dd>
                   {if Configuration::get('PS_B2B_ENABLE')}
                     <dt>{l s='SIRET' d='Admin.Orderscustomers.Feature'}</dt>
                       <dd>{$customer->siret}</dd>
@@ -1102,7 +1102,7 @@
                         </div>
                         <p class="help-block"><i class="icon-warning-sign"></i> {l
                             s='(Max %s %s)'
-                            sprintf=[Tools::displayPrice(Tools::ps_round($shipping_refundable, 2), $currency->id) , $smarty.capture.TaxMethod]
+                            sprintf=[Tools::displayPrice(Tools::ps_round($shipping_refundable, 3), $currency->id) , $smarty.capture.TaxMethod]
                             d='Admin.Orderscustomers.Feature'
                             }
                         </p>

@@ -2833,11 +2833,13 @@ class ProductCore extends ObjectModel
      * @param bool     $use_customer_price
      * @return float                          Product price
      */
-    public static function getPriceStatic($id_product, $usetax = true, $id_product_attribute = null, $decimals = 6, $divisor = null,
+    public static function getPriceStatic($id_product, $usetax = true, $id_product_attribute = null, $decimalsP = 6, $divisor = null,
         $only_reduc = false, $usereduc = true, $quantity = 1, $force_associated_tax = false, $id_customer = null, $id_cart = null,
         $id_address = null, &$specific_price_output = null, $with_ecotax = true, $use_group_reduction = true, Context $context = null,
         $use_customer_price = true, $id_customization = null)
     {
+        $decimals = $decimalsP;
+        if ($decimalsP == 2) $decimals = 3;
         if (!$context) {
             $context = Context::getContext();
         }
@@ -3875,8 +3877,8 @@ class ProductCore extends ObjectModel
 
         $results_array = array();
         foreach ($result as $row) {
-            $row['price_tax_incl'] = Product::getPriceStatic($row['id_product'], true, null, 2);
-            $row['price_tax_excl'] = Product::getPriceStatic($row['id_product'], false, null, 2);
+            $row['price_tax_incl'] = Product::getPriceStatic($row['id_product'], true, null, 3);
+            $row['price_tax_excl'] = Product::getPriceStatic($row['id_product'], false, null, 3);
             $results_array[] = $row;
         }
         return $results_array;
@@ -4379,7 +4381,7 @@ class ProductCore extends ObjectModel
             (int)$row['id_product'],
             false,
             $id_product_attribute,
-            (self::$_taxCalculationMethod == PS_TAX_EXC ? 2 : 6),
+            (self::$_taxCalculationMethod == PS_TAX_EXC ? 3 : 6),
             null,
             false,
             true,
@@ -4402,7 +4404,7 @@ class ProductCore extends ObjectModel
                 (int)$row['id_product'],
                 false,
                 $id_product_attribute,
-                2,
+                3,
                 null,
                 false,
                 false,
