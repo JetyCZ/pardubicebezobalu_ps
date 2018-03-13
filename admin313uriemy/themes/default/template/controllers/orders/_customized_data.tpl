@@ -49,17 +49,15 @@
 				<div class="form-group">
 					<div class="fixed-width-xl">
 						<div class="input-group">
-							{if $currency->format % 2}<div class="input-group-addon">{$currency->sign} {l s='tax excl.' d='Admin.Global'}</div>{/if}
 							<input type="text" name="product_price_tax_excl" class="edit_product_price_tax_excl edit_product_price" value="{Tools::ps_round($product['unit_price_tax_excl'], 3)}" size="5" />
-							{if !($currency->format % 2)}<div class="input-group-addon">{$currency->sign} {l s='tax excl.' d='Admin.Global'}</div>{/if}
+							<div class="input-group-addon">{$currency->sign} {l s='tax excl.' d='Admin.Global'}</div>
 						</div>
 					</div>
 					<br/>
 					<div class="fixed-width-xl">
 						<div class="input-group">
-							{if $currency->format % 2}<div class="input-group-addon">{$currency->sign} {l s='tax incl.' d='Admin.Global'}</div>{/if}
 							<input type="text" name="product_price_tax_incl" class="edit_product_price_tax_incl edit_product_price" value="{Tools::ps_round($product['unit_price_tax_incl'], 3)}" size="5" />
-							{if !($currency->format % 2)}<div class="input-group-addon">{$currency->sign} {l s='tax incl.' d='Admin.Global'}</div>{/if}
+							<div class="input-group-addon">{$currency->sign} {l s='tax incl.' d='Admin.Global'}</div>
 						</div>
 					</div>
 				</div>
@@ -214,9 +212,8 @@
 								<small class="text-muted">({$smarty.capture.TaxMethod})</small>
 							</label>
 							<div class="input-group">
-								{if $currency->format % 2}<div class="input-group-addon">{$currency->sign}</div>{/if}
 								<input onchange="checkPartialRefundProductAmount(this)" type="text" name="partialRefundProduct[{$product['id_order_detail']|intval}]" />
-								{if !($currency->format % 2)}<div class="input-group-addon">{$currency->sign}</div>{/if}
+								<div class="input-group-addon">{$currency->sign}</div>
 							</div>
 							<p class="help-block"><i class="icon-warning-sign"></i> {l s='(Max %amount_refundable% %tax_method%)' sprintf=[ '%amount_refundable%' => Tools::displayPrice(Tools::ps_round($amount_refundable, 3), $currency->id), '%tax_method%' => $smarty.capture.TaxMethod] d='Admin.Orderscustomers.Help'}</p>
 						</div>
