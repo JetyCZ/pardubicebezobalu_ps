@@ -1,0 +1,4 @@
+Informace modulu EETplus
+
+   {message}
+  

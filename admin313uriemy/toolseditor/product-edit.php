@@ -1788,7 +1788,7 @@ var numrecs3 = ".$numrecs3.";
 	  }
 	  
       if($infofields[$i][0] == "priceVAT")
-		$myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),2, '.', '');
+		$myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),4, '.', '');
       else if (($infofields[$i][0] != "carrier") && ($infofields[$i][0] != "tags") && ($infofields[$i][0] != "virtualp")
 		  && ($infofields[$i][0] != "discount") && ($infofields[$i][0] != "combinations") 
 	      && ($infofields[$i][0] != "supplier") && ($infofields[$i][0] != "attachmnts"))
@@ -1945,7 +1945,7 @@ var numrecs3 = ".$numrecs3.";
 		  if($drow["id_customer"] == "0") $drow["id_customer"] = "";
 		  echo "<td>".$drow["id_customer"]."</td>";
 		  if($drow["price"] == -1)
-		  {	$frompriceVAT = number_format(((($datarow['rate']/100) +1) * $datarow['price']),2, '.', '');
+		  {	$frompriceVAT = number_format(((($datarow['rate']/100) +1) * $datarow['price']),4, '.', '');
 		    $fromprice = $datarow['price'];
 			$drow["price"] = "";
 		  }
@@ -1984,8 +1984,8 @@ var numrecs3 = ".$numrecs3.";
 		  else 
 		    $newprice = $frompriceVAT*(1-($drow['reduction']/100));
 		  $newpriceEX = (1/(($datarow['rate']/100) +1)) * $newprice;
-	      $newprice = number_format($newprice,2, '.', '');
-          $newpriceEX = number_format($newpriceEX,2, '.', '');
+	      $newprice = number_format($newprice,4, '.', '');
+          $newpriceEX = number_format($newpriceEX,4, '.', '');
 		  
 		  echo '<td>'.$newpriceEX.'/ '.$newprice.'</td>';
 		  echo "</tr>";

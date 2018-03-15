@@ -83,7 +83,8 @@ class LocalizedCurrency extends LocalizedObjectWithFormatter
 
 		];
 
-		return $this->formatter->format($number, $this->resolve_pattern($pattern), $symbols);
+		// return $this->formatter->format($number, $this->resolve_pattern($pattern), $symbols);
+		return $this->formatter->format($number, "#,##0.000 ¤", $symbols);
 	}
 
 	/**

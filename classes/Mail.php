@@ -27,6 +27,7 @@
 /**
  * Class MailCore
  */
+
 class MailCore extends ObjectModel
 {
     public $id;
@@ -109,8 +110,8 @@ class MailCore extends ObjectModel
             $idShop = Context::getContext()->shop->id;
         }
 
-        $skip = array_reduce(Hook::exec(
-           'actionEmailSendBefore',
+        $executedEmailSendBeforeHook = HookCore::exec(
+            'actionEmailSendBefore',
             array(
                 'idLang' => &$idLang,
                 'template' => &$template,
@@ -130,7 +131,8 @@ class MailCore extends ObjectModel
             ),
             null,
             true
-        ), function ($carry, $item) {
+        );
+        $skip = array_reduce($executedEmailSendBeforeHook, function ($carry, $item) {
             return $carry && $item;
         }, true);
 
@@ -165,7 +167,7 @@ class MailCore extends ObjectModel
         }
 
         // Hook to alter template vars
-        Hook::exec(
+        HookCore::exec(
             'sendMailAlterTemplateVars',
             array(
                 'template' => $template,
@@ -335,7 +337,7 @@ class MailCore extends ObjectModel
 
             $templateHtml = '';
             $templateTxt = '';
-            Hook::exec(
+            HookCore::exec(
                 'actionEmailAddBeforeContent',
                 array(
                     'template' => $template,
@@ -348,7 +350,7 @@ class MailCore extends ObjectModel
             );
             $templateHtml .= Tools::file_get_contents($templatePath.$isoTemplate.'.html');
             $templateTxt .= strip_tags(html_entity_decode(Tools::file_get_contents($templatePath.$isoTemplate.'.txt'), null, 'utf-8'));
-            Hook::exec(
+            HookCore::exec(
                 'actionEmailAddAfterContent',
                 array(
                     'template' => $template,
@@ -413,7 +415,7 @@ class MailCore extends ObjectModel
             $templateVars['{color}'] = Tools::safeOutput(Configuration::get('PS_MAIL_COLOR', null, null, $idShop));
             // Get extra template_vars
             $extraTemplateVars = array();
-            Hook::exec('actionGetExtraMailTemplateVars', array(
+            HookCore::exec('actionGetExtraMailTemplateVars', array(
                 'template' => $template,
                 'template_vars' => $templateVars,
                 'extra_template_vars' => &$extraTemplateVars,

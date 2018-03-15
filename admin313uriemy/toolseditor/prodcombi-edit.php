@@ -2166,7 +2166,7 @@ function getpath(name)
     { $sorttxt = "";
       $color = "";
       if($infofields[$i][2] == "priceVAT")
-		$myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),2, '.', '');
+		$myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),4, '.', '');
       else if (($infofields[$i][2] != "carrier") && ($infofields[$i][2] != "discount") && ($infofields[$i][2] != "combinations") && ($infofields[$i][2] != "supplier"))
         $myvalue = $datarow[$infofields[$i][2]];
       if($i == 1) /* id */

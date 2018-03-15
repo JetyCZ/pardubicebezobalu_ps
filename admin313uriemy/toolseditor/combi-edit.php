@@ -997,7 +997,7 @@ echo '
 	if($numrecs3 != $numrecs2) echo $numrecs3;
 	echo ")";
   }
-  echo " combinations for ".$id_product." (<b>".$product_name."</b>) - ".round($product_price,2)."(+".($VAT_rate+0)."%) ".round(($product_price*(100+$VAT_rate)/100),2)." &nbsp; &nbsp; <input type=checkbox name='base_included' onclick='switch_pricebase(this)'> include baseprice<br/><span id='warning' style='background-color: #FFAAAA'></span></th></tr><tr><th><b></b></th>";
+  echo " combinations for ".$id_product." (<b>".$product_name."</b>) - ".round($product_price,4)."(+".($VAT_rate+0)."%) ".round(($product_price*(100+$VAT_rate)/100),2)." &nbsp; &nbsp; <input type=checkbox name='base_included' onclick='switch_pricebase(this)'> include baseprice<br/><span id='warning' style='background-color: #FFAAAA'></span></th></tr><tr><th><b></b></th>";
 
   for($i=0; $i<$numfields; $i++)
   { if($i==0)
@@ -1042,7 +1042,7 @@ echo '
 		else if($combifields[$i][0] == "price")
 		  echo "<td>".$row['price']."</td>";
 		else if($combifields[$i][0] == "priceVAT")
-		  echo "<td>".round(($row['price']*(100+$VAT_rate)/100),2)."</td>";
+		  echo "<td>".round(($row['price']*(100+$VAT_rate)/100),4)."</td>";
 		else if($combifields[$i][0] == "weight")
 		  echo "<td>".$row['weight']."</td>";
 		else if($combifields[$i][0] == "wholesale_price")

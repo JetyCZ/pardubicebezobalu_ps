@@ -344,8 +344,8 @@ while ($products=mysqli_fetch_array($res1))
   echo '<td>'.$products['product_reference'].'</td>';
   echo '<td><input name="product_name['.$products['id_order_detail'].']" style="width:21em" value="'.htmlspecialchars($products['product_name']).'"/></td>';
   echo '<td><input name="product_price['.$products['id_order_detail'].']" class="price" value="'.number_format($products['product_price'], 4, '.', '').'" size="9" /></td>';
-  echo '<td>'.number_format($products['rate'], 2, '.', '').'%</td>';
-  echo '<td>'.number_format($products['product_price']*(1+$products['rate']/100),2, '.', '').'</td>';  
+  echo '<td>'.number_format($products['rate'], 4, '.', '').'%</td>';
+  echo '<td>'.number_format($products['product_price']*(1+$products['rate']/100),4, '.', '').'</td>';
   echo '<td style="position:relative"><input name="product_quantity['.$products['id_order_detail'].']" value="'.$products['product_quantity'].'" size="5" />';
     if($share_stock)
 	  $shoplimiter = "id_shop_group=".$id_shop_group;
@@ -359,9 +359,9 @@ while ($products=mysqli_fetch_array($res1))
 	}
 	echo '</td>';
   
-  echo '<td>'.number_format($products['product_price']*$products['product_quantity'],2, '.', '').'</td>';  
-  echo '<td>'.number_format($products['product_price']*$products['product_quantity']*(1+$products['rate']/100),2, '.', '').'</td>';  
-  echo '<td>'.number_format($products['product_weight'],2, '.', '').'</td>';
+  echo '<td>'.number_format($products['product_price']*$products['product_quantity'],4, '.', '').'</td>';
+  echo '<td>'.number_format($products['product_price']*$products['product_quantity']*(1+$products['rate']/100),4, '.', '').'</td>';
+  echo '<td>'.number_format($products['product_weight'],4, '.', '').'</td>';
   if($products['product_attribute_id']!=0) /* show attribute image when available */
   { $attriquery = "SELECT id_image from "._DB_PREFIX_."product_attribute_image WHERE id_product_attribute='".$products['product_attribute_id']."';";
     $attrires=dbquery($attriquery);

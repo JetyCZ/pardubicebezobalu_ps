@@ -591,7 +591,7 @@ $query.=" WHERE ps.id_shop='".$id_shop."' ".$wheretext;
       { $sorttxt = "";
         $color = "";
         if($infofields[$i][2] == "priceVAT")
-	 	  $myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),2, '.', '');
+	 	  $myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),4, '.', '');
         else
           $myvalue = $datarow[$infofields[$i][2]];
 	    if($i == 1) /* id */
@@ -614,7 +614,7 @@ $query.=" WHERE ps.id_shop='".$id_shop."' ".$wheretext;
 		  echo "<td>".$datarow['rate']."</td>";
         }
         else if ($infofields[$i][0] == "price")
-        { echo "<td>".number_format($datarow['price'],2, '.', '')."</td>";
+        { echo "<td>".number_format($datarow['price'],4, '.', '')."</td>";
 	    }
         else if ($infofields[$i][0] == "image")
         { echo "<td>".get_product_image($datarow['id_product'],$datarow['id_image'], $datarow['id_image'])."</td>";

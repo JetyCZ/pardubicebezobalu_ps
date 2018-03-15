@@ -192,8 +192,8 @@ else if ($_GET['action']=='add-product')
   }
   $query.=" ,download_hash = ''"; /* it is not clear how this is calculated; it is not the filename */
   $query.=" ,download_deadline = null";
-  $unit_price_excl = round($price,3);
-  $unit_price_incl = round(($price*(floatval($products['tax_rate'])+100)/100),3);
+  $unit_price_excl = round($price,4);
+  $unit_price_incl = round(($price*(floatval($products['tax_rate'])+100)/100),4);
   $query.=" ,total_price_tax_incl = '".$unit_price_incl."'";
   $query.=" ,total_price_tax_excl = '".$unit_price_excl."'";
   $query.=" ,unit_price_tax_incl = '".$unit_price_incl."'";
@@ -247,8 +247,8 @@ else if ($_GET['action']=='change-products')
       $tres = dbquery($tquery);
       $trow=mysqli_fetch_array($tres);
   
-      $unit_price_excl = round($price_product,2);
-      $unit_price_incl = round(($price_product*(floatval($trow['rate'])+100)/100),2);
+      $unit_price_excl = round($price_product,4);
+      $unit_price_incl = round(($price_product*(floatval($trow['rate'])+100)/100),4);
       $quantity = intval($_GET['product_quantity'][$id_order_detail]);
   
       $query = "update ". _DB_PREFIX_."order_detail set product_price='".$price_product."'";

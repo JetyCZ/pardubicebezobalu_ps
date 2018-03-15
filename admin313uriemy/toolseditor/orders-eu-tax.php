@@ -200,7 +200,7 @@ while($datarow = mysqli_fetch_array($res))
 		$extaxes += $tax;
 	}
 	if(strlen($myorders) > 0) $myorders .= ",";
-	$myorders .= '<a title="'.$datarow['firstname'].' '.$datarow['lastname'].' - '.$datarow['countryname'].' - '.$datarow['vat_number'].' : '.number_format($datarow['total_paid_tax_incl'],2).' / '.number_format($datarow['total_paid_tax_excl'],2).' - '.substr($datarow['invoice_date'],0,10).' '.'" href="#" onclick="return false;">'.$datarow["id_order"].'</a>';
+	$myorders .= '<a title="'.$datarow['firstname'].' '.$datarow['lastname'].' - '.$datarow['countryname'].' - '.$datarow['vat_number'].' : '.number_format($datarow['total_paid_tax_incl'],4).' / '.number_format($datarow['total_paid_tax_excl'],2).' - '.substr($datarow['invoice_date'],0,10).' '.'" href="#" onclick="return false;">'.$datarow["id_order"].'</a>';
 	$oldrow = $datarow;
   }
   if(isset($oldrow))

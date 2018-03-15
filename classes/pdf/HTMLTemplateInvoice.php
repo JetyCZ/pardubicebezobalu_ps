@@ -344,11 +344,13 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
 
         $this->smarty->assign($data);
 
+        $productTab = $this->smarty->fetch($this->getTemplate('invoice.product-tab'));
+
         $tpls = array(
             'style_tab' => $this->smarty->fetch($this->getTemplate('invoice.style-tab')),
             'addresses_tab' => $this->smarty->fetch($this->getTemplate('invoice.addresses-tab')),
             'summary_tab' => $this->smarty->fetch($this->getTemplate('invoice.summary-tab')),
-            'product_tab' => $this->smarty->fetch($this->getTemplate('invoice.product-tab')),
+            'product_tab' => $productTab,
             'tax_tab' => $this->getTaxTabContent(),
             'payment_tab' => $this->smarty->fetch($this->getTemplate('invoice.payment-tab')),
 			'note_tab' => $this->smarty->fetch($this->getTemplate('invoice.note-tab')),

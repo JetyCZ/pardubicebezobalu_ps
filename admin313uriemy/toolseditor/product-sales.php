@@ -124,7 +124,7 @@ while($datarow = mysqli_fetch_array($res))
 	$quant = ($datarow["product_quantity"]-$datarow["product_quantity_return"]);
 	$netprice = ($datarow["product_price"]-$datarow["reduction_amount"])*(100+$datarow["tax_rate"])*(100-$datarow["reduction_percent"])/10000;
 /* netprice*quant won't work as in not finished orders the tax rate field is zero */
-	echo '<td>'.number_format($datarow["total_price_tax_incl"],2, '.', '').'</td>';
+	echo '<td>'.number_format($datarow["total_price_tax_incl"],4, '.', '').'</td>';
 	echo "</tr
 >";
 

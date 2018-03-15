@@ -1520,7 +1520,7 @@ function getpath(name)
 	  echo "<tr><td>".$fields[$i]."</td>";
 	  
       if($fields[$i] == "priceVAT")
-		$myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),2, '.', '');
+		$myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),4, '.', '');
 	  else if ($i == 0)
 	    $myvalue  = $id_product;
       else if (($fields[$i] != "carrier") && ($fields[$i] != "tags") && ($fields[$i] != "discount") && ($fields[$i] != "combinations") && ($fields[$i] != "supplier") && ($fields[$i] != "attachmnts"))
@@ -1817,7 +1817,7 @@ function getpath(name)
 	  $xquery.=" left join ". _DB_PREFIX_."feature_value_lang fl on fp.id_feature_value=fl.id_feature_value AND fl.id_lang='".$id_lang."'";
 	  $xquery .= " WHERE fp.id_product = '".$id_product."' AND fp.id_feature='".$key."'";
 	  $xres=dbquery($xquery);
-	  while ($xrow=mysqli_fetch_array($xres)) /* mag maar één keer gebeuren */
+	  while ($xrow=mysqli_fetch_array($xres)) /* mag maar ï¿½ï¿½n keer gebeuren */
 	  { echo "<tr><td>".$key."-".$feature."</td><td>";
 	    if($xrow["custom"] == "1") echo $xrow["value"];
 		else echo "<b>".$xrow["value"]."</b>";

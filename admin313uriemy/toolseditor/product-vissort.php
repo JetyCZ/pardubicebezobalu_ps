@@ -411,7 +411,7 @@ function move_right(elt)
 	  ></div><input type=hidden name="id_product'.$x.'" value="'.$datarow['id_product'].'">';
 	  
 	  echo '<a href="'.get_base_uri().$langinsert.$datarow['catrewrite'].'/'.$datarow['id_product'].'-'.$datarow['link_rewrite'].$eanpostfix.'.html" class="prodname" target="_blank">'.$datarow['name'].'</a>';
-	  $price = number_format(((($datarow['rate']/100) +1) * $datarow['price']),2, '.', '');
+	  $price = number_format(((($datarow['rate']/100) +1) * $datarow['price']),4, '.', '');
 	  echo '<p class="stats">'.$datarow['salescount'].' - '.$datarow['revenue']
 	  .' - '.$datarow['ordercount'].'-'.$datarow['buyercount'].' - '.$price.'</p>';
 	  echo '</div>';

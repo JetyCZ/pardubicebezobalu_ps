@@ -732,7 +732,7 @@ $query.=" WHERE ps.id_shop='".$id_shop."' ".$wheretext;
       $color = "";
 	  $csvspecials = array("carrier","combinations","depends_on_stock","discount","supplier","tags");
       if($infofields[$i][2] == "priceVAT")
-		$myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),2, '.', '');
+		$myvalue =  number_format(((($datarow['rate']/100) +1) * $datarow['price']),4, '.', '');
       else if (!in_array($infofields[$i][2],$csvspecials))
         $myvalue = $datarow[$infofields[$i][2]];
       if($i == 1) /* id */

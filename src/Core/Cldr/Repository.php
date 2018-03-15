@@ -27,6 +27,7 @@
 namespace PrestaShop\PrestaShop\Core\Cldr;
 
 use ICanBoogie\CLDR\FileProvider;
+use ICanBoogie\CLDR\LocalizedCurrency;
 use ICanBoogie\CLDR\RunTimeProvider;
 use ICanBoogie\CLDR\WebProvider;
 use ICanBoogie\CLDR\Currency;

@@ -137,7 +137,7 @@ $query .= " LIMIT ".$startrec.",".$numrecs;
     $priceVAT = (($prodrow['rate']/100) +1) * $prodrow['price'];
     if($datarow['fromprice'] > 0)
 	{ $frompriceVAT = (($prodrow['rate']/100) +1) * $datarow['fromprice'];
-	  $fpv_text = number_format($datarow['fromprice'],2, '.', '').' / '.number_format($frompriceVAT,2, '.', '');
+	  $fpv_text = number_format($datarow['fromprice'],4, '.', '').' / '.number_format($frompriceVAT,2, '.', '');
 	}
 	else 
 	{ $fpv_text = "";
@@ -150,15 +150,15 @@ $query .= " LIMIT ".$startrec.",".$numrecs;
 	  else
 		$reduction = $datarow['reduction'];
 	  $newprice = $frompriceVAT - $reduction;
-	  $change = number_format($reduction,2,".","");
+	  $change = number_format($reduction,4,".","");
     }
 	else 
 	{ $newprice = $frompriceVAT*(1-$datarow['reduction']);
 	  $change = ($datarow['reduction']*100).'%';
 	}
 	$newpriceEX = (1/(($prodrow['rate']/100) +1)) * $newprice;
-    $newprice = number_format($newprice,2, '.', '');
-    $newpriceEX = number_format($newpriceEX,2, '.', '');
+    $newprice = number_format($newprice,4, '.', '');
+    $newpriceEX = number_format($newpriceEX,4, '.', '');
   
     echo '<tr'.$background.'>';
 	
