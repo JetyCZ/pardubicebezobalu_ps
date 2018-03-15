@@ -496,7 +496,10 @@ class ToolsCore
         }
 
         $iso = Language::getIsoById((int)$cookie->id_lang);
-        @include_once(_PS_THEME_DIR_.'lang/'.$iso.'.php');
+        $langFile = _PS_THEME_DIR_ . 'lang/' . $iso . '.php';
+        if (file_exists($langFile)) {
+            @include_once($langFile);
+        }
 
         return $iso;
     }

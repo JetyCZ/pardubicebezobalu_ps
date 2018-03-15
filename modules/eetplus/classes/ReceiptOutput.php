@@ -198,7 +198,7 @@ class ReceiptOutput
             $produkty = Context::getContext()->smarty->fetch(_PS_MODULE_DIR_ . $this->instance->name . '/views/templates/mail_products.tpl');
         }
         $vars['{produkty}'] = $produkty;
-        $souhrn             = '';
+        $souhrn             = [];
         $summary ='';
         if (Configuration::get('EETPLUS_UCTSUMM')) {
             $keys = array(
@@ -213,7 +213,16 @@ class ReceiptOutput
             );
             foreach ($keys as $key) {
                 $val          = $order->{$key};
-                $souhrn[$key] = Eetplus::globalRound(Eetplus::convertToCzk($val, $currencyData));
+                try {
+                    $valInCzk = Eetplus::convertToCzk($val, $currencyData);
+                    $rounded = Eetplus::globalRound($valInCzk);
+                    $souhrn[$key] = $rounded;
+                } catch (Throwable $e) {
+                    var_dump($e);
+                    throw $e;
+
+
+                }
             }
             Context::getContext()->smarty->assign('summary', $souhrn);
             $summary = Context::getContext()->smarty->fetch(_PS_MODULE_DIR_ . $this->instance->name . '/views/templates/mail_summary.tpl');

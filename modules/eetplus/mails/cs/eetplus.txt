@@ -1,0 +1,31 @@
+ELEKTRONICKÁ ÚČTENKA {poradove_cislo}
+
+{shop_name}
+{adresa}
+
+Provozovna: {id_provoz}  
+Pokladna: {id_pokl}
+DIČ: {dic_popl} 
+IČ: {ic_popl} 
+Datum a čas:    {datum}
+
+{produkty}
+
+{summary}
+
+{tax_tab}
+
+Pořadové číslo účtenky: {poradove_cislo}
+{typkodu}: {fik}
+BKP: {bkp}    
+Číslo objednávky: {kod_objednavky}
+{cislofaktury} 
+Režim tržby: běžný 
+Celková částka: {celk_trzba} 
+
+
+
+
+
+Vytvořeno aplikací: Modul EETplus pro Prestashop
+  
