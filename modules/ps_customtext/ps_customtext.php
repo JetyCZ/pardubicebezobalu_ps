@@ -31,9 +31,11 @@ if (!defined('_PS_VERSION_')) {
 
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 use PrestaShop\PrestaShop\Adapter\Customer;
+// use Cron\CronExpression;
 
 require_once _PS_MODULE_DIR_ . 'ps_customtext/classes/CustomText.php';
 require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
+require_once _PS_ROOT_DIR_ . '/classes/jety/Cron/CronExpression.php';
 
 class Ps_Customtext extends Module implements WidgetInterface
 {
@@ -127,7 +129,7 @@ EOD;
                     <th>Info</th>
                     </tr>";
 
-
+            $supplierCrons = Db::getInstance()->executeS("select * from " . _DB_PREFIX_ . "jety_supplier_cron");
             $productIds = array();
             foreach ($children as $childCat) {
 
@@ -146,7 +148,15 @@ EOD;
                         $idProduct = $product["id_product"];
 
                         $quantity = $product["quantity"];
-                        if (!array_key_exists($idProduct, $productIds) && ((int)$quantity) > 0) {
+                        $outOfStock = (int) $product["out_of_stock"];
+
+                        if (
+                            !array_key_exists($idProduct, $productIds) &&
+                            (
+                                ($outOfStock <2) ||
+                                ((int)$quantity > 0)
+                            )
+                        ) {
                             $resultOneCategory .= "<tr>";
                             $productName = $product["name"];
                             $price = $product["price"];
@@ -155,7 +165,7 @@ EOD;
                             $resultOneCategory .= "<td style='padding-left:20pt'>" .
                                 "<a href='" . $link . "' target='_new'>" .
                                 $productName .
-                                "</a>" .
+                                "</a>" . $outOfStock .
                                 "</td>";
 
 
@@ -181,9 +191,7 @@ EOD;
                                 $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . ")' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0 max=" . $quantity . ">";
                                 $resultOneCategory .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
-                                $resultOneCategory .= "<span style='color: #C0C0C0;'>";
-                                $resultOneCategory .= $priceInfo->help;
-                                $resultOneCategory .= "</span>";
+                                $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             } else if ($isFruit && $priceInfo->isWeighted) {
 
                                 $resultOneCategory .= "<select style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
@@ -217,12 +225,44 @@ EOD;
                             } else {
                                 $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0 max=" . $quantity . ">";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
-                                $resultOneCategory .= "<span style='color: #C0C0C0;'>";
-                                $resultOneCategory .= $priceInfo->help;
-                                $resultOneCategory .= "</span>";
+                                $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             }
 
-                            $resultOneCategory .= "<br>Skladem: " . $product['quantity']." ".$priceInfo->unitX;
+                            $stockLabel = "";
+                            if ($outOfStock==1) {
+                                if ($quantity>0) {
+                                    $stockLabel.= $this->infoLabel("Skladem: " . $product['quantity'] . " " . $priceInfo->unitX,
+                                    "Množství zboží, které máme fyzicky v prodejně v Brozanech k volnému prodeji, nebo k objednání na e-shopu");
+                                } else {
+                                    $stockLabel.= $this->infoLabel("Není skladem", "Toto zboží nemáme fyzicky v prodejně v Brozanech na skladě, můžeme jej ale objednat od dodavatele.");
+                                    if ($quantity<0) {
+                                        $stockLabel.= $this->infoLabel("Zákazníci už objednali: " . -1*$product['quantity'] . " " . $priceInfo->unitX,
+                                            "Informace o tom, jaké množství tohoto zboží zatím zákazníci objednali a kolik tedy budeme objednávat v příští objednávce.");
+                                    }
+                                }
+
+                                $cronLabel = "";
+
+
+                                foreach ($supplierCrons as $supplierCron) {
+
+                                    $productIdSupplier = $product["id_supplier"];
+                                    $cronIdSupplier = $supplierCron["id_supplier"];
+                                    if ($cronIdSupplier == $productIdSupplier) {
+                                        $cron = Cron\CronExpression::factory($supplierCron['cronstr']);
+                                        $nextOrder = $cron->getNextRunDate()->format('d.m.Y H:i');
+                                        $stockLabel .= $this->infoLabel("Zboží budeme objednávat ".$nextOrder,"Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.");
+                                        break;
+                                    }
+
+                                }
+
+                            } else {
+                                $stockLabel = "Skladem: " . $product['quantity'] . " " . $priceInfo->unitX;
+                            }
+
+
+                            $resultOneCategory .= "<br>" . $this->toGraySpan($stockLabel);
                             $resultOneCategory .= "</td>";
                             $resultOneCategory .= "<td><span id='totalPrice" . $idProduct . "'></span></td>";
                             $info = "&nbsp;";
@@ -276,6 +316,10 @@ EOD;
         } else {
             return "";
         }
+    }
+
+    public function toGraySpan($text) {
+        return "<span style='color: #C0C0C0;'>".$text."</span>";
     }
 
     public function uninstall()
@@ -505,4 +549,12 @@ EOD;
     {
         return parent::fetch($templatePath, $cache_id, $compile_id); // TODO: Change the autogenerated stub
     }
+
+    public function infoLabel($text, $label): string
+    {
+        return " <div title='".$label."'>"
+                ."<i class=\"glyphicon glyphicon-info-sign\"></i> "
+                . $text." </div>";
+    }
+
 }
