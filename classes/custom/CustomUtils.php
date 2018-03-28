@@ -3,6 +3,23 @@ require_once 'PriceInfo.php';
 class CustomUtils {
 
     const vaziZhrubaLabel = "váží zhruba";
+    const czechDateFormat = 'd.m.Y H:i';
+
+    public static function calculateNextSupplyDate($dbRow)
+    {
+        $cronstr = $dbRow['cronstr'];
+        $orderDate = $dbRow['order_date'];
+
+
+        $nextOrder = "";
+        if (strlen($cronstr) > 0) {
+            $cron = Cron\CronExpression::factory($cronstr);
+            $nextOrder = $cron->getNextRunDate()->format(CustomUtils::czechDateFormat);
+        } else if (isset($orderDate)) {
+            $nextOrder = date(CustomUtils::czechDateFormat, strtotime($orderDate));
+        }
+        return $nextOrder;
+    }
 
     public static function priceInfo($productName, $price) {
         $vaziZhrubaPos = strpos($productName, CustomUtils::vaziZhrubaLabel);

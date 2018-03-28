@@ -841,11 +841,11 @@
                 <label class="control-label col-lg-3">{l s='Display to customer?' d='Admin.Orderscustomers.Feature'}</label>
                 <div class="col-lg-9">
                   <span class="switch prestashop-switch fixed-width-lg">
-                    <input type="radio" name="visibility" id="visibility_on" value="0" />
+                    <input type="radio" name="visibility" id="visibility_on" value="0" checked="checked"/>
                     <label for="visibility_on">
                       {l s='Yes' d='Admin.Global'}
                     </label>
-                    <input type="radio" name="visibility" id="visibility_off" value="1" checked="checked" />
+                    <input type="radio" name="visibility" id="visibility_off" value="1"  />
                     <label for="visibility_off">
                       {l s='No' d='Admin.Global'}
                     </label>

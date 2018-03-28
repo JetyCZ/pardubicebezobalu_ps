@@ -10,15 +10,15 @@ use Exception;
 use InvalidArgumentException;
 use RuntimeException;
 
-require_once("classes/jety/Cron/FieldInterface.php");
-require_once("classes/jety/Cron/AbstractField.php");
-require_once("classes/jety/Cron/CronExpression.php");
-require_once("classes/jety/Cron/DayOfMonthField.php");
-require_once("classes/jety/Cron/DayOfWeekField.php");
-require_once("classes/jety/Cron/FieldFactory.php");
-require_once("classes/jety/Cron/HoursField.php");
-require_once("classes/jety/Cron/MinutesField.php");
-require_once("classes/jety/Cron/MonthField.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/FieldInterface.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/AbstractField.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/CronExpression.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/DayOfMonthField.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/DayOfWeekField.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/FieldFactory.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/HoursField.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/MinutesField.php");
+require_once(_PS_ROOT_DIR_."/classes/jety/Cron/MonthField.php");
 
 
 /**

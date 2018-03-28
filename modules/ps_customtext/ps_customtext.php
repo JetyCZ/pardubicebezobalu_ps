@@ -31,7 +31,6 @@ if (!defined('_PS_VERSION_')) {
 
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 use PrestaShop\PrestaShop\Adapter\Customer;
-// use Cron\CronExpression;
 
 require_once _PS_MODULE_DIR_ . 'ps_customtext/classes/CustomText.php';
 require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
@@ -59,6 +58,8 @@ class Ps_Customtext extends Module implements WidgetInterface
         $this->templateFile = 'module:ps_customtext/ps_customtext.tpl';
     }
 
+
+
     public function install()
     {
         return parent::install() &&
@@ -71,6 +72,8 @@ class Ps_Customtext extends Module implements WidgetInterface
     public function getJavascript()
     {
         $javascript = <<<'EOD'
+<link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
 <script type='text/javascript'>
     function updateTotalPrice(productId) {
         var quantity = document.getElementById("productQuantity" + productId).value;
@@ -101,8 +104,10 @@ EOD;
         return $javascript;
     }
 
+
     public function hookcustomCMS($params)
     {
+
         if (strpos($this->smarty->getTemplateVars("request_uri"), 'zrychlena-objednavka-zbozi') !== false) {
 
             $result = "";
@@ -165,7 +170,7 @@ EOD;
                             $resultOneCategory .= "<td style='padding-left:20pt'>" .
                                 "<a href='" . $link . "' target='_new'>" .
                                 $productName .
-                                "</a>" . $outOfStock .
+                                "</a>" .
                                 "</td>";
 
 
@@ -186,9 +191,47 @@ EOD;
 
                             $updateFunction = "updateTotalPrice(" . $idProduct . ")";
 
+                            $maxAttribute = " max=" . $quantity;
+                            $stockLabel = "";
+                            $inStoreLabel = $this->infoLabel("Skladem: " . $priceInfo->quantityToAmountAndUnit($quantity, 1) ,
+                                "Množství zboží, které máme fyzicky v prodejně v Brozanech k volnému prodeju. Objednáním přes e-shop si zboží rezervujete pro sebe.");
+
+                            if ($outOfStock==1) {
+                                $maxAttribute = "";
+                                if ($quantity>0) {
+                                    $stockLabel.= $inStoreLabel;
+                                } else {
+                                    $stockLabel.= $this->infoLabel("Není skladem, lze objednat", "Toto zboží nemáme fyzicky v prodejně v Brozanech na skladě, můžeme jej ale objednat od dodavatele.");
+                                    if ($quantity<0) {
+
+                                        $quantityToOrder = $priceInfo->quantityToAmountAndUnit($quantity,-1);
+                                        $stockLabel.= $this->infoLabel("Budeme objednávat: " . $quantityToOrder,
+                                            "Informace o tom, kolik budeme objednávat v příští objednávce. Jde o množství, co zákazníci objednali mínus kolik máme na skladě.");
+                                    }
+                                }
+
+                                foreach ($supplierCrons as $supplierCron) {
+
+                                    $productIdSupplier = $product["id_supplier"];
+                                    $cronIdSupplier = $supplierCron["id_supplier"];
+                                    if ($cronIdSupplier == $productIdSupplier) {
+                                        $nextOrder = CustomUtils::calculateNextSupplyDate($supplierCron);
+
+                                        $stockLabel .= $this->infoLabel("Zboží budeme objednávat ".$nextOrder,"Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.");
+                                        break;
+                                    }
+
+                                }
+
+                            } else {
+                                $stockLabel = $inStoreLabel;
+                            }
+
+
+
                             if ($priceInfo->isWeightedKs) {
                                 $updateFunctionFruitKs = "updateTotalPriceFruitKs(" . $idProduct . "," . $priceInfo->gramPerKs . ")";
-                                $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . ")' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0 max=" . $quantity . ">";
+                                $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . ")' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
                                 $resultOneCategory .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
@@ -223,43 +266,12 @@ EOD;
                                 }
                                 $resultOneCategory .= "</select>";
                             } else {
-                                $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0 max=" . $quantity . ">";
+                                $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0 ".$maxAttribute . ">";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             }
 
-                            $stockLabel = "";
-                            if ($outOfStock==1) {
-                                if ($quantity>0) {
-                                    $stockLabel.= $this->infoLabel("Skladem: " . $product['quantity'] . " " . $priceInfo->unitX,
-                                    "Množství zboží, které máme fyzicky v prodejně v Brozanech k volnému prodeji, nebo k objednání na e-shopu");
-                                } else {
-                                    $stockLabel.= $this->infoLabel("Není skladem", "Toto zboží nemáme fyzicky v prodejně v Brozanech na skladě, můžeme jej ale objednat od dodavatele.");
-                                    if ($quantity<0) {
-                                        $stockLabel.= $this->infoLabel("Zákazníci už objednali: " . -1*$product['quantity'] . " " . $priceInfo->unitX,
-                                            "Informace o tom, jaké množství tohoto zboží zatím zákazníci objednali a kolik tedy budeme objednávat v příští objednávce.");
-                                    }
-                                }
 
-                                $cronLabel = "";
-
-
-                                foreach ($supplierCrons as $supplierCron) {
-
-                                    $productIdSupplier = $product["id_supplier"];
-                                    $cronIdSupplier = $supplierCron["id_supplier"];
-                                    if ($cronIdSupplier == $productIdSupplier) {
-                                        $cron = Cron\CronExpression::factory($supplierCron['cronstr']);
-                                        $nextOrder = $cron->getNextRunDate()->format('d.m.Y H:i');
-                                        $stockLabel .= $this->infoLabel("Zboží budeme objednávat ".$nextOrder,"Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.");
-                                        break;
-                                    }
-
-                                }
-
-                            } else {
-                                $stockLabel = "Skladem: " . $product['quantity'] . " " . $priceInfo->unitX;
-                            }
 
 
                             $resultOneCategory .= "<br>" . $this->toGraySpan($stockLabel);
@@ -304,7 +316,7 @@ EOD;
 
 
             $result .= "</form>";
-
+            $result.="<a href=\"http://www.reliablecounter.com\" target=\"_blank\"><img src=\"http://www.reliablecounter.com/count.php?page=pardubicebezobalu.cz&digit=style/creative/13/&reloads=0\" alt=\"www.reliablecounter.com\" title=\"www.reliablecounter.com\" border=\"0\"></a><br />";
             return $result;
 
             /*
@@ -319,7 +331,7 @@ EOD;
     }
 
     public function toGraySpan($text) {
-        return "<span style='color: #C0C0C0;'>".$text."</span>";
+        return "<span style='color: #909090;'>".$text."</span>";
     }
 
     public function uninstall()
@@ -552,9 +564,10 @@ EOD;
 
     public function infoLabel($text, $label): string
     {
-        return " <div title='".$label."'>"
+        return "<div title='".$label."'>"
                 ."<i class=\"glyphicon glyphicon-info-sign\"></i> "
-                . $text." </div>";
+                .$text
+            . " </div>";
     }
 
 }

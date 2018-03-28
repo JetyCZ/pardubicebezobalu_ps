@@ -1242,7 +1242,8 @@ function useTinyMCE(elt, field)
   tinymce.init({
 //	content_css: "http://localhost/css/my_tiny_styles.css",
 //    fontsize_formats: "8pt 9pt 10pt 11pt 12pt 26pt 36pt",	
-	selector: "#"+field, 
+	selector: "#"+field,
+    toolbar: "...| removeformat | ...",
 //	width:500
 //	setup: function (ed) {
 //  	ed.on("change", function () {
