@@ -74,7 +74,32 @@ class Ps_Customtext extends Module implements WidgetInterface
         $javascript = <<<'EOD'
 <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
+<script type='text/javascript' src="/js/mapping.js"></script>
 <script type='text/javascript'>
+
+document.addEventListener("DOMContentLoaded", function(event) { 
+  $('.quantity').on('paste',function(e) {
+    e.preventDefault();
+    var text = (e.originalEvent || e).clipboardData.getData('text/plain');
+    var pref = "https://pardubicebezobalu.cz/s.php?id=";
+    if (text.startsWith(pref)) {
+        var idSklenice = text.replace(pref,"");
+        if (idSklenice.length>0) {
+            var idInput = map[idSklenice];
+            let input = document.getElementById(idInput);
+            if (input!=null) {
+                input.focus();
+                input.value = null;
+            }
+        }
+    } else {
+        document.execCommand("insertText", false, text);
+    }
+    });
+});
+
+    
+    
     function updateTotalPrice(productId) {
         var quantity = document.getElementById("productQuantity" + productId).value;
         var productPriceHiddenId = "productPrice" + productId;
@@ -126,6 +151,7 @@ EOD;
             $children = Category::getChildren($rootCat->id_category, $lang);
             $result .= "<form method='POST'>";
             $formPosted = !empty($_POST);
+            // http://jsbin.com/xecacojave/edit?html,js,output
             $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
                     <th>Zboží</th>
                     <th>Cena za jednotku <br>vč. DPH</th>
@@ -136,6 +162,8 @@ EOD;
 
             $supplierCrons = Db::getInstance()->executeS("select * from " . _DB_PREFIX_ . "jety_supplier_cron");
             $productIds = array();
+            $cats = "var map = {";
+            $catProductCounter=1;
             foreach ($children as $childCat) {
 
                 $catName = $childCat["name"];
@@ -162,12 +190,18 @@ EOD;
                                 ((int)$quantity > 0)
                             )
                         ) {
-                            $resultOneCategory .= "<tr>";
+                            $shortUrl = $product["id_product"] . "-" . $product["link_rewrite"];
+                            $productInputIdAttr = " id='" . $shortUrl ."' ";
+
+                            // 1: '133-merunky-cele-na-vahu',
+                            $cats.="\n".($catProductCounter++).": '".$shortUrl."',";
+
+                            $resultOneCategory .= "\n<tr>";
                             $productName = $product["name"];
                             $price = $product["price"];
                             $link = $product["link"];
 
-                            $resultOneCategory .= "<td style='padding-left:20pt'>" .
+                            $resultOneCategory .= "\n<td style='padding-left:20pt'>" .
                                 "<a href='" . $link . "' target='_new'>" .
                                 $productName .
                                 "</a>" .
@@ -180,14 +214,14 @@ EOD;
                             } catch (Throwable $e) {
                             }
 
-                            $resultOneCategory .= "<td nowrap='nowrap'>";
+                            $resultOneCategory .= "\n<td nowrap='nowrap'>";
                             $resultOneCategory .= $priceInfo->pricePerUnitLabel();
                             $resultOneCategory .= "</td>";
 
                             $resultOneCategory .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
 
                             $fieldName = "productQuantity" . $idProduct;
-                            $resultOneCategory .= "<td nowrap='nowrap'>";
+                            $resultOneCategory .= "\n<td nowrap='nowrap'>";
 
                             $updateFunction = "updateTotalPrice(" . $idProduct . ")";
 
@@ -231,13 +265,13 @@ EOD;
 
                             if ($priceInfo->isWeightedKs) {
                                 $updateFunctionFruitKs = "updateTotalPriceFruitKs(" . $idProduct . "," . $priceInfo->gramPerKs . ")";
-                                $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . ")' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
+                                $resultOneCategory .= "<input ".$productInputIdAttr." class='quantity' style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . "' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
                                 $resultOneCategory .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             } else if ($isFruit && $priceInfo->isWeighted) {
 
-                                $resultOneCategory .= "<select style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
+                                $resultOneCategory .= "<select ".$productInputIdAttr." style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
 
                                 $resultOneCategory .= "<option value='0'>Vybrat hmotnost</option>";
                                 $weights = array(
@@ -266,7 +300,7 @@ EOD;
                                 }
                                 $resultOneCategory .= "</select>";
                             } else {
-                                $resultOneCategory .= "<input style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . ")' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0 ".$maxAttribute . ">";
+                                $resultOneCategory .= "<input ".$productInputIdAttr." class='quantity' style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . "' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0 ".$maxAttribute . ">";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             }
@@ -276,7 +310,7 @@ EOD;
 
                             $resultOneCategory .= "<br>" . $this->toGraySpan($stockLabel);
                             $resultOneCategory .= "</td>";
-                            $resultOneCategory .= "<td><span id='totalPrice" . $idProduct . "'></span></td>";
+                            $resultOneCategory .= "\n<td><span id='totalPrice" . $idProduct . "'></span></td>";
                             $info = "&nbsp;";
                             if ($formPosted) {
                                 $quantity = $_POST[$fieldName];
@@ -284,7 +318,7 @@ EOD;
                                     $info = "Do košíku přidáno: " . $quantity;
                                 }
                             }
-                            $resultOneCategory .= "<td>";
+                            $resultOneCategory .= "\n<td>";
                             $resultOneCategory .= $info . "</td>";
 
 
@@ -317,6 +351,7 @@ EOD;
 
             $result .= "</form>";
             $result.="<a href=\"http://www.reliablecounter.com\" target=\"_blank\"><img src=\"http://www.reliablecounter.com/count.php?page=pardubicebezobalu.cz&digit=style/creative/13/&reloads=0\" alt=\"www.reliablecounter.com\" title=\"www.reliablecounter.com\" border=\"0\"></a><br />";
+            // $result.="<textarea rows=1 cols=5>".$cats."</textarea>";
             return $result;
 
             /*
@@ -331,7 +366,7 @@ EOD;
     }
 
     public function toGraySpan($text) {
-        return "<span style='color: #909090;'>".$text."</span>";
+        return "\n<span style='color: #909090;'>".$text."</span>";
     }
 
     public function uninstall()
@@ -564,10 +599,10 @@ EOD;
 
     public function infoLabel($text, $label): string
     {
-        return "<div title='".$label."'>"
-                ."<i class=\"glyphicon glyphicon-info-sign\"></i> "
-                .$text
-            . " </div>";
+        return "\n<div title='".$label."'>"
+                ."\n\t<i class=\"glyphicon glyphicon-info-sign\"></i> "
+                ."\n".$text
+            . " \n</div>";
     }
 
 }

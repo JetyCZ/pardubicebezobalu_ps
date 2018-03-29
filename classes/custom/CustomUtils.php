@@ -57,7 +57,8 @@ class CustomUtils {
             $unitX = "ks ";
             $help = "(kusové zboží)";
             $zaLabelUnit = "za&nbsp;kus";
-            $zaLabelPrice = $price;
+            $zaLabelPrice = round($price,2);
+
         }
 
         $result = new PriceInfo();

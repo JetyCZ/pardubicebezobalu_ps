@@ -20,16 +20,20 @@ class PriceInfo
     public function pricePerUnitLabel() {
         $pricePerUnitLabel = "";
         if (!$this->isWeightedKs) {
-            $pricePerUnitLabel = $this->zaLabelPrice . ",- Kč&nbsp;<span style='color: #909090;'>" . $this->zaLabelUnit . "</span>";
+            $pricePerUnitLabel = "\n".$this->zaLabelPrice . ",- Kč&nbsp;".
+                "\n"."<span style='color: #909090;'>" . $this->zaLabelUnit . "</span>";
         } else {
-            $pricePerUnitLabel .= ($this->price * 1000) . ",- Kč&nbsp;<span style='color: #909090;'>za Kg</span>";
+            $pricePerUnitLabel .= "\n".round($this->gramPerKs * $this->price,1) .",- Kč ".
+            "\n<span style='color: #909090;'>za ks</span>".
+                "\n<br><span style='color: #909090;'>".($this->price * 1000) . ",- Kč&nbsp;za Kg</span>";
+
         }
         return $pricePerUnitLabel;
     }
 
     public function quantityToAmountAndUnit($quantity, $mult) {
         if ($this->isWeightedKs) {
-            $result = $mult*($quantity/$this->gramPerKs) . " " . $this->unitX . " (".$mult*$quantity." g)";
+            $result = round($mult*($quantity/$this->gramPerKs),1) . " " . $this->unitX . " (".$mult*$quantity." g)";
         } else {
             $result = $mult*$quantity . " " . $this->unitX;
         }
