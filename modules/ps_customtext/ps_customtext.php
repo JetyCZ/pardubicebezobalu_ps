@@ -100,8 +100,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     
     
-    function updateTotalPrice(productId) {
-        var quantity = document.getElementById("productQuantity" + productId).value;
+    function updateTotalPrice(productId, shortUrl) {
+        var quantity = document.getElementById("productQuantity_" + shortUrl).value;
         var productPriceHiddenId = "productPrice" + productId;
         var totalPriceId = "totalPrice" + productId;
         var productPriceHidden = document.getElementById(productPriceHiddenId);
@@ -109,8 +109,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         var price = productPriceHidden.value;
         totalPriceSpan.innerText = Math.round(price*quantity * 100) / 100 + ',- Kč';
     }
-    function updateTotalPriceFruitKs(productId, gramPerKs) {
-        var quantity = document.getElementById("productQuantity" + productId + 'Ks').value;
+    function updateTotalPriceFruitKs(productId, gramPerKs, shortUrl) {
+        var quantity = document.getElementById("productQuantity_" + shortUrl).value;
         var productPriceHiddenId = "productPrice" + productId;
         var totalPriceId = "totalPrice" + productId;
         var productPriceHidden = document.getElementById(productPriceHiddenId);
@@ -182,6 +182,7 @@ EOD;
 
                         $quantity = $product["quantity"];
                         $outOfStock = (int) $product["out_of_stock"];
+                        $shortUrl = $product["id_product"] . "-" . $product["link_rewrite"];
 
                         if (
                             !array_key_exists($idProduct, $productIds) &&
@@ -190,8 +191,7 @@ EOD;
                                 ((int)$quantity > 0)
                             )
                         ) {
-                            $shortUrl = $product["id_product"] . "-" . $product["link_rewrite"];
-                            $productInputIdAttr = " id='" . $shortUrl ."' ";
+                            $productQuantityIdAttr = " id='productQuantity_" . $shortUrl ."' ";
 
                             // 1: '133-merunky-cele-na-vahu',
                             $cats.="\n".($catProductCounter++).": '".$shortUrl."',";
@@ -261,17 +261,21 @@ EOD;
                                 $stockLabel = $inStoreLabel;
                             }
 
+                            $quote = "'";
+                            $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ', ' . $quote.$shortUrl.$quote . ');"';
+                            $oninput = " oninput=" . $updateTotalPriceFunction;
+                            $onchange = " onchange=" . $updateTotalPriceFunction;
 
 
                             if ($priceInfo->isWeightedKs) {
-                                $updateFunctionFruitKs = "updateTotalPriceFruitKs(" . $idProduct . "," . $priceInfo->gramPerKs . ")";
-                                $resultOneCategory .= "<input ".$productInputIdAttr." class='quantity' style='width:100px' oninput='" . $updateFunctionFruitKs . "' onchange='" . $updateFunctionFruitKs . "' type='number' value='0' name='" . $fieldName . "Ks' id='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
+                                $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', '.$quote.$shortUrl.$quote.')"';
+                                $resultOneCategory .= "<input ".$productQuantityIdAttr." class='quantity' style='width:100px' oninput=" . $updateFunctionFruitKs . " onchange=". $updateFunctionFruitKs . " type='number' value='0' name='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
                                 $resultOneCategory .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             } else if ($isFruit && $priceInfo->isWeighted) {
 
-                                $resultOneCategory .= "<select ".$productInputIdAttr." style='width:150px' oninput='updateTotalPrice(" . $idProduct . ")' onchange='updateTotalPrice(" . $idProduct . ")' name='" . $fieldName . "' id='" . $fieldName . "'>";
+                                $resultOneCategory .= "<select ".$productQuantityIdAttr." style='width:150px' ".$oninput.$onchange." name='" . $fieldName . "'>";
 
                                 $resultOneCategory .= "<option value='0'>Vybrat hmotnost</option>";
                                 $weights = array(
@@ -300,7 +304,8 @@ EOD;
                                 }
                                 $resultOneCategory .= "</select>";
                             } else {
-                                $resultOneCategory .= "<input ".$productInputIdAttr." class='quantity' style='width:100px' oninput='" . $updateFunction . "' onchange='" . $updateFunction . "' type='number' value='0' name='" . $fieldName . "' id='" . $fieldName . "' min=0 ".$maxAttribute . ">";
+
+                                $resultOneCategory .= "<input ".$productQuantityIdAttr.$oninput.$onchange." class='quantity' style='width:100px' type='number' value='0' name='" . $fieldName . "' min=0 ".$maxAttribute . ">";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             }
