@@ -83,3 +83,97 @@
         82: '213-netinske-uzene-maso-na-vahu',
         83: '216-japonska-smes-na-vahu',
 };
+
+    function focusQuantity(shortUrl) {
+        let input = document.getElementById('productQuantity_' + shortUrl);
+        if (input != null) {
+            input.focus();
+            input.value = null;
+        }
+    }
+
+    function checkQrCode(timeoutCall) {
+        let qrcodeInput = document.getElementById('qrcode');
+        var pref = "https://www.pardubicebezobalu.cz/s.php?id=";
+        var text = qrcodeInput.value;
+        if (text.startsWith(pref)) {
+            var idSklenice = text.replace(pref,"");
+            if (idSklenice.length>0) {
+                if (idSklenice<10 && !timeoutCall) {
+                    setTimeout(
+                        function(){
+                            checkQrCode(true);
+                            }, 500);
+                } else {
+                    var shortUrl = map[idSklenice];
+                    focusQuantity(shortUrl);
+                }
+
+            }
+        }
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+
+        $( ".quantity" ).keypress(function( event ) {
+            if ( event.which == 104 ) {
+                event.preventDefault();
+                let qrcodeInput = document.getElementById('qrcode');
+                qrcodeInput.value = 'h';
+                qrcodeInput.focus();
+            }
+        });
+        /*
+        $('.quantity').on('key',function(e) {
+
+            e.preventDefault();
+            var text = (e.originalEvent || e).clipboardData.getData('text/plain');
+            // https://pardubicebezobalu.cz/s.php?id=2
+            var pref = "https://pardubicebezobalu.cz/s.php?id=";
+            if (text.startsWith(pref)) {
+                var idSklenice = text.replace(pref,"");
+                if (idSklenice.length>0) {
+                    var shortUrl = map[idSklenice];
+                    let input = document.getElementById('productQuantity_' + shortUrl);
+                    if (input!=null) {
+                        input.focus();
+                        input.value = null;
+                    }
+                }
+            } else {
+                document.execCommand("insertText", false, text);
+            }
+        });
+        */
+    });
+
+
+    function updateTotalPriceQuantityElement(productId, quantityElem) {
+        var productPriceHiddenId = "productPrice" + productId;
+        var totalPriceId = "totalPrice" + productId;
+        var productPriceHidden = document.getElementById(productPriceHiddenId);
+        var totalPriceSpan = document.getElementById(totalPriceId);
+        var price = productPriceHidden.value;
+        totalPriceSpan.innerText = Math.round(price * quantityElem * 100) / 100 + ',- Kč';
+    }
+
+    function updateTotalPrice(productId, shortUrl) {
+        var quantityElem = document.getElementById("productQuantity_" + shortUrl).value;
+        updateTotalPriceQuantityElement(productId, quantityElem);
+    }
+    function updateTotalPriceFruitKs(productId, gramPerKs, shortUrl) {
+        var quantity = document.getElementById("productQuantity_" + shortUrl).value;
+        var productPriceHiddenId = "productPrice" + productId;
+        var totalPriceId = "totalPrice" + productId;
+        var productPriceHidden = document.getElementById(productPriceHiddenId);
+        var pricePerGram = productPriceHidden.value;
+        var totalWeight = gramPerKs * quantity;
+
+        var totalPriceSpan = document.getElementById(totalPriceId);
+        // totalPriceSpan.innerText = Math.round(pricePerGram*totalWeight * 100) / 100 + ',- Kč';
+        var labelKc = Math.round(pricePerGram*totalWeight * 100) / 100 + ',- Kč';
+
+        document.getElementById("productQuantity" + productId).value = totalWeight;
+        totalPriceSpan.innerText = labelKc + '; ' + Math.round(totalWeight*100) / (100*1000) + ' Kg';
+    }

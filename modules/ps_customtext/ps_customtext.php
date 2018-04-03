@@ -72,59 +72,11 @@ class Ps_Customtext extends Module implements WidgetInterface
     public function getJavascript()
     {
         $javascript = <<<'EOD'
-<link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"></link>
 
 <script type='text/javascript' src="/js/mapping.js"></script>
-<script type='text/javascript'>
 
-document.addEventListener("DOMContentLoaded", function(event) { 
-  $('.quantity').on('paste',function(e) {
-    e.preventDefault();
-    var text = (e.originalEvent || e).clipboardData.getData('text/plain');
-    var pref = "https://pardubicebezobalu.cz/s.php?id=";
-    if (text.startsWith(pref)) {
-        var idSklenice = text.replace(pref,"");
-        if (idSklenice.length>0) {
-            var idInput = map[idSklenice];
-            let input = document.getElementById(idInput);
-            if (input!=null) {
-                input.focus();
-                input.value = null;
-            }
-        }
-    } else {
-        document.execCommand("insertText", false, text);
-    }
-    });
-});
 
-    
-    
-    function updateTotalPrice(productId, shortUrl) {
-        var quantity = document.getElementById("productQuantity_" + shortUrl).value;
-        var productPriceHiddenId = "productPrice" + productId;
-        var totalPriceId = "totalPrice" + productId;
-        var productPriceHidden = document.getElementById(productPriceHiddenId);
-        var totalPriceSpan = document.getElementById(totalPriceId);
-        var price = productPriceHidden.value;
-        totalPriceSpan.innerText = Math.round(price*quantity * 100) / 100 + ',- Kč';
-    }
-    function updateTotalPriceFruitKs(productId, gramPerKs, shortUrl) {
-        var quantity = document.getElementById("productQuantity_" + shortUrl).value;
-        var productPriceHiddenId = "productPrice" + productId;
-        var totalPriceId = "totalPrice" + productId;
-        var productPriceHidden = document.getElementById(productPriceHiddenId);
-        var pricePerGram = productPriceHidden.value;
-        var totalWeight = gramPerKs * quantity;
-        
-        var totalPriceSpan = document.getElementById(totalPriceId);
-        // totalPriceSpan.innerText = Math.round(pricePerGram*totalWeight * 100) / 100 + ',- Kč';
-        var labelKc = Math.round(pricePerGram*totalWeight * 100) / 100 + ',- Kč';
-        
-        document.getElementById("productQuantity" + productId).value = totalWeight;
-        totalPriceSpan.innerText = labelKc + '; ' + Math.round(totalWeight*100) / (100*1000) + ' Kg';
-    }
-</script>
 EOD;
         return $javascript;
     }
@@ -149,6 +101,7 @@ EOD;
             $rootCat = Category::getRootCategory();
 
             $children = Category::getChildren($rootCat->id_category, $lang);
+
             $result .= "<form method='POST'>";
             $formPosted = !empty($_POST);
             // http://jsbin.com/xecacojave/edit?html,js,output
@@ -270,10 +223,18 @@ EOD;
                             if ($priceInfo->isWeightedKs) {
                                 $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', '.$quote.$shortUrl.$quote.')"';
                                 $resultOneCategory .= "<input ".$productQuantityIdAttr." class='quantity' style='width:100px' oninput=" . $updateFunctionFruitKs . " onchange=". $updateFunctionFruitKs . " type='number' value='0' name='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
-                                $resultOneCategory .= "<input type='hidden' value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
+                                $result .= $this->context->customer->email;
+
+                                if (CustomUtils::isAdmin($this->context)) {
+                                    $type="type='text' ".$oninput.$onchange;
+                                } else {
+                                    $type="type='hidden' ";
+                                }
+
+                                $resultOneCategory .= "<input ".$type." value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
-                            } else if ($isFruit && $priceInfo->isWeighted) {
+                            /*} else if ($isFruit && $priceInfo->isWeighted) {
 
                                 $resultOneCategory .= "<select ".$productQuantityIdAttr." style='width:150px' ".$oninput.$onchange." name='" . $fieldName . "'>";
 
@@ -302,7 +263,7 @@ EOD;
                                         $resultOneCategory .= "<option value='".$weight."'>".$toDisplayWeight."</option>";
                                     }
                                 }
-                                $resultOneCategory .= "</select>";
+                                $resultOneCategory .= "</select>";*/
                             } else {
 
                                 $resultOneCategory .= "<input ".$productQuantityIdAttr.$oninput.$onchange." class='quantity' style='width:100px' type='number' value='0' name='" . $fieldName . "' min=0 ".$maxAttribute . ">";
@@ -357,6 +318,7 @@ EOD;
             $result .= "</form>";
             $result.="<a href=\"http://www.reliablecounter.com\" target=\"_blank\"><img src=\"http://www.reliablecounter.com/count.php?page=pardubicebezobalu.cz&digit=style/creative/13/&reloads=0\" alt=\"www.reliablecounter.com\" title=\"www.reliablecounter.com\" border=\"0\"></a><br />";
             // $result.="<textarea rows=1 cols=5>".$cats."</textarea>";
+            $result .= "<input id='qrcode' name='qrcode' onkeyup='checkQrCode(false);'>";
             return $result;
 
             /*

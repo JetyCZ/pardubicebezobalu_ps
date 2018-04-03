@@ -8,7 +8,6 @@
  */
 /* section 1: handling $_GET/$_POST variables and initialization */
 if(!@include 'approve.php') die( "approve.php was not found!");
-
 /* flags for addon fields */
 $showdate = 0;
 $showcustomer = 0;
@@ -30,6 +29,10 @@ else {
 	$row = mysqli_fetch_array($res);
 	$id_lang = $row['value'];
 }
+
+
+
+
 $id_lang = strval(intval($id_lang));
 if (!isset($_GET['attribute'])) $_GET['attribute'] = "";
 else
@@ -44,7 +47,7 @@ $cur_rate = $row['conversion_rate'];
 $id_currency = $row['id_currency'];
 
 /* section 2: page header */
-?><!DOCTYPE html> 
+?><!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <title>Prestashop Order Modify</title>
 <link rel="stylesheet" href="style1.css" type="text/css" />
@@ -66,14 +69,14 @@ table img {display:block; }
 <script type="text/javascript">
 function check_products()
 { if(!checkPrices()) return false;
-  productsform.verbose.value = orderform.verbose.checked;	
+  productsform.verbose.value = orderform.verbose.checked;
 }
 
 function checkPrices()
 { rv = document.getElementsByClassName("price"); // also possible with document.querySelectorAll("price")
   len = rv.length;
   for(var i=0; i<len; i++)
-  { if(rv[i].value.indexOf(',') != -1) 
+  { if(rv[i].value.indexOf(',') != -1)
     { alert("Please use dots instead of comma's for the prices!");
       rv[i].focus();
       return false;
@@ -85,7 +88,7 @@ function checkPrices()
 <script type="text/javascript" src="utils8.js"></script>
 </head>
 <body>
-<?php print_menubar(); 
+<?php print_menubar();
 
 /* section 3: find order */
 if ($id_order != "") {
@@ -96,7 +99,7 @@ if ($id_order != "") {
 	}
 	else
 	{   $row = mysqli_fetch_array($res);
-		$order_reference = $row["reference"];		
+		$order_reference = $row["reference"];
 	}
 }
 else if ($order_reference != "")
@@ -107,7 +110,7 @@ else if ($order_reference != "")
 	}
 	else
 	{   $row = mysqli_fetch_array($res);
-		$id_order = $row["id_order"];		
+		$id_order = $row["id_order"];
 	}
 }
 ?>
@@ -115,6 +118,9 @@ else if ($order_reference != "")
 <form name="searchform" method="post" action="order-edit.php">
 	<label for="order_number">Order number:</label><input name="id_order" type="text" value="<?php echo $id_order ?>" size="10" maxlength="10" />
     <label for="order_number">Order reference:</label><input name="order_reference" type="text" value="<?php echo $order_reference ?>" size="10" maxlength="10" />
+    <a href="/admin313uriemy/index.php?controller=AdminOrders&id_order=<?php echo $id_order; ?>&&vieworder">
+        <h3>Administrace objednávky</h3>
+    </a>
 </td><td width="100px">
 	<input name="send" type="submit" value="Find order" />
 </form>
@@ -148,7 +154,7 @@ $id_order_invoice = $row['id_order_invoice'];
 if($row["vat_invoice"] != "")
   $vat_number = $row["vat_invoice"];
 else
-  $vat_number = $row["vat_number"];	
+  $vat_number = $row["vat_number"];
 $order_currency = $row['id_currency'];
 $order_currname = $row['currname'];
 $conversion_rate = $row['currrate'] / $cur_rate;
@@ -223,7 +229,7 @@ echo "<br>Date=".$order_date;
 			  { $selected=' selected="selected" ';
 				$carrierfound = true;
 			  }
-			  if ($carrierrow['deleted'] != '0') 
+			  if ($carrierrow['deleted'] != '0')
 			    $deleted = ' style="background-color:grey" ';
 			  echo '<option  value="'.$carrierrow['id_carrier'].'" '.$deleted.' '.$selected.'>'.$carrierrow['name'].'</option>';
 			}
@@ -231,11 +237,11 @@ echo "<br>Date=".$order_date;
 			{ if($carrier == 0)
 			    echo '<option value=0  style="background-color:grey" selected>None</option>';
 			  else
-				echo '<option value="'.$carrier.'"  style="background-color:grey" selected>Unknown-'.$carrier.'</option>';				  
+				echo '<option value="'.$carrier.'"  style="background-color:grey" selected>Unknown-'.$carrier.'</option>';
 			}
 		?>
 	</select>
-	
+
 	<label for="total_shipping">Shipping:</label><input name="total_shipping" type="text" value="<?php echo $total_shipping ?>" />
 	<label for="total_discounts">Discounts:</label><input name="total_discounts" type="text"  value="<?php echo $total_discounts ?>" />
 	<label for="total_wrapping">Wrapping:</label><input name="total_wrapping" type="text" value="<?php echo $total_wrapping ?>" />
@@ -246,20 +252,20 @@ echo "<br>Date=".$order_date;
 	<!-- hidden value -->  <input name="total_products" type="hidden"  value="<?php echo $total_products ?>" />
 	<!-- hidden value -->  <input name="total_products_wt" type="hidden"  id="total_products_wt" value="<?php echo $total_products_wt ?>" />
 	<!-- hidden value -->  <input name="id_order" type="hidden" value="<?php echo $id_order ?>" />
-	
+
 	<input type="submit" name="orderform"  value="Modify Order" />
 
 </td><td>&nbsp; &nbsp;</td><td style="vertical-align:top">
 <?php
   $qfields = "a1.firstname AS firstname1,a1.lastname AS lastname1,a1.company AS company1,a1.address1,a1.address2,a1.postcode,a1.city,a1.id_country,a1.phone,a1.phone_mobile";
-  $qfields .= ",a2.firstname AS firstname2,a2.lastname AS lastname2,a2.company AS company2,a2.address1 AS address12,a2.address2 AS address22,a2.postcode AS postcode2,a2.city AS city2,a2.id_country AS id_country2,a2.phone AS phone2,a2.phone_mobile AS phone_mobile2";  
+  $qfields .= ",a2.firstname AS firstname2,a2.lastname AS lastname2,a2.company AS company2,a2.address1 AS address12,a2.address2 AS address22,a2.postcode AS postcode2,a2.city AS city2,a2.id_country AS id_country2,a2.phone AS phone2,a2.phone_mobile AS phone_mobile2";
   $qfields .= ",cl1.iso_code AS country1, cl2.iso_code AS country2, c.email, o.id_address_delivery, o.id_address_invoice";
   $qbody = " FROM ". _DB_PREFIX_."orders o";
   $qbody .= " LEFT JOIN ". _DB_PREFIX_."customer c ON c.id_customer=o.id_customer";
   $qbody .= " LEFT JOIN ". _DB_PREFIX_."address a1 ON o.id_address_invoice=a1.id_address";
-  $qbody .= " LEFT JOIN ". _DB_PREFIX_."country cl1 ON cl1.id_country=a1.id_country"; 
-  $qbody .= " LEFT JOIN ". _DB_PREFIX_."address a2 ON o.id_address_delivery=a2.id_address"; 
-  $qbody .= " LEFT JOIN ". _DB_PREFIX_."country cl2 ON cl2.id_country=a2.id_country"; 
+  $qbody .= " LEFT JOIN ". _DB_PREFIX_."country cl1 ON cl1.id_country=a1.id_country";
+  $qbody .= " LEFT JOIN ". _DB_PREFIX_."address a2 ON o.id_address_delivery=a2.id_address";
+  $qbody .= " LEFT JOIN ". _DB_PREFIX_."country cl2 ON cl2.id_country=a2.id_country";
   $qbody .= " WHERE id_order=".$id_order;
   $qres = dbquery("SELECT ".$qfields.$qbody);
   $qrow=mysqli_fetch_assoc($qres);
@@ -268,15 +274,15 @@ echo "<br>Date=".$order_date;
   echo $qrow["firstname1"]." ".$qrow["lastname1"]."<br>";
   if($qrow["company1"]!="")echo $qrow["company1"]."<br>";
   echo $qrow["address1"]."<br>";
-  if($qrow["address2"]!="")echo $qrow["address2"]."<br>";	  
+  if($qrow["address2"]!="")echo $qrow["address2"]."<br>";
   echo $qrow["postcode"]." ".$qrow["city"]." ".$qrow["country1"]."<br>";
   echo $qrow["phone"]." / ".$qrow["phone_mobile"]."<p>";
-  
+
   if($qrow["id_address_delivery"] != $qrow["id_address_invoice"])
   {	echo "SHIP: ".$qrow["firstname2"]." ".$qrow["lastname2"]."<br>";
 	if($qrow["company2"]!="")echo $qrow["company2"]."<br>";
 	echo $qrow["address12"]."<br>";
-	if($qrow["address22"]!="")echo $qrow["address22"]."<br>";	  
+	if($qrow["address22"]!="")echo $qrow["address22"]."<br>";
 	echo $qrow["postcode2"]." ".$qrow["city2"]." ".$qrow["country2"]."<br>";
 	echo $qrow["phone2"]." / ".$qrow["phone_mobile2"]."<p>";
   }
@@ -338,7 +344,7 @@ while ($products=mysqli_fetch_array($res1))
   }
 */
 //  $products["rate"] = (100*((float)$products['unit_price_tax_incl'] - (float)$products['unit_price_tax_excl']))/(float)$products['unit_price_tax_excl'];
-  
+
   echo '<td>'.$products['product_id'].'</td>';
   echo '<td>'.$products['product_attribute_id'].'</td>';
   echo '<td>'.$products['product_reference'].'</td>';
@@ -349,8 +355,8 @@ while ($products=mysqli_fetch_array($res1))
   echo '<td style="position:relative"><input name="product_quantity['.$products['id_order_detail'].']" value="'.$products['product_quantity'].'" size="5" />';
     if($share_stock)
 	  $shoplimiter = "id_shop_group=".$id_shop_group;
-    else 
-	  $shoplimiter = "id_shop=".$id_shop;		
+    else
+	  $shoplimiter = "id_shop=".$id_shop;
 	$stquery = "SELECT quantity from ". _DB_PREFIX_."stock_available WHERE id_product='".$products["product_id"]."' AND id_product_attribute='".$products['product_attribute_id']."' AND ".$shoplimiter;
 	$stres=dbquery($stquery);
 	if(mysqli_num_rows($stres)> 0)
@@ -358,7 +364,7 @@ while ($products=mysqli_fetch_array($res1))
 	  echo '<div style="position: absolute; bottom: -8px; right:4px;"><span style="color:#9999FA; align:right">['.$strow['quantity'].']</span></div>';
 	}
 	echo '</td>';
-  
+
   echo '<td>'.number_format($products['product_price']*$products['product_quantity'],4, '.', '').'</td>';
   echo '<td>'.number_format($products['product_price']*$products['product_quantity']*(1+$products['rate']/100),4, '.', '').'</td>';
   echo '<td>'.number_format($products['product_weight'],4, '.', '').'</td>';
@@ -371,7 +377,7 @@ while ($products=mysqli_fetch_array($res1))
 	else
 	  echo "<td>".get_product_image($products['product_id'],$products['id_image'],'')."</td>";
   }
-  else  
+  else
     echo "<td>".get_product_image($products['product_id'],$products['id_image'],'')."</td>";
   echo '<td><input name="product_delete['.$products['id_order_detail'].']" type="checkbox" />';
   echo '<input name="product_quantity_old['.$products['id_order_detail'].']" type="hidden" value="'.$products['product_quantity'].'" />';
@@ -395,7 +401,7 @@ while ($products=mysqli_fetch_array($res1))
 </form>
 <?php echo mysqli_num_rows($res1)." lines - ".$itemcount." items"; ?>
 <p/>
-<?php 
+<?php
 /* the following code will produce an editable order_date field. It should be normally disabled. */
 
 if($showdate || $showcustomer || $showreference)

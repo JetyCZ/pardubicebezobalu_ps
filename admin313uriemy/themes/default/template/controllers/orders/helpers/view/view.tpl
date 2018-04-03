@@ -63,6 +63,11 @@
   </script>
 
   {assign var="hook_invoice" value={hook h="displayInvoice" id_order=$order->id}}
+  <a href="/admin313uriemy/toolseditor/order-edit.php?id_order={$order->id}">
+    <h2>
+    Editace objednávky
+    </h2>
+  </a>
   {if ($hook_invoice)}
   <div>{$hook_invoice}</div>
   {/if}

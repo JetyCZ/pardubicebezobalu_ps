@@ -7,8 +7,21 @@
           <div class="col-md-12">
 
             {block name='order_confirmation_header'}
-              <h3 class="h1 card-title">
-                <i class="material-icons done">&#xE876;</i>{l s='Your order is confirmed' d='Shop.Theme.Checkout'}
+              <h3   class="h1 card-title">
+                <i class="material-icons done">&#xE876;</i>
+                {l s='Your order is confirmed' d='Shop.Theme.Checkout'}
+
+
+                <br>
+                {if ($customer.email eq 'pavel.jetensky@seznam.cz') or ($customer.email eq 'hhrom@email.cz')}
+                <a href="/admin313uriemy/index.php?controller=AdminOrders&id_order={$order.details.id}&vieworder">
+                  Administrace objednávky
+                </a> |
+                <a href="/admin313uriemy/toolseditor/order-edit.php?id_order={$order.details.id}">
+                  Editace objednávky
+                </a>
+                {/if}
+
               </h3>
             {/block}
 

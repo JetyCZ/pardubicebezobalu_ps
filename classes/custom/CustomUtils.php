@@ -74,4 +74,15 @@ class CustomUtils {
 
         return $result;
     }
+
+    public static function isAdmin($context)
+    {
+        if (!isset($context->customer)) {
+            return false;
+        }
+        if (!isset($context->customer->email)) {
+            return false;
+        }
+        return ($context->customer->email == 'hhrom@email.cz' || $context->customer->email == 'pavel.jetensky@seznam.cz');
+    }
 }
