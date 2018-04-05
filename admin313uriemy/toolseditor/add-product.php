@@ -17,7 +17,7 @@ else $id_shop = intval($input['id_shop']);
 if($id_shop == 0) colordie("Invalid shop ID");
 if (!isset($input['id_lang'])) colordie("No lang ID provided");
 else $id_lang = intval($input['id_lang']);
-if (!isset($input['search_lang'])) $search_lang = 0;
+if (!isset($input['search_lang'])) $search_lang = 2;
 else $search_lang = intval($input['search_lang']);
 
 if (!isset($input['search_txt'])) $search_txt="";

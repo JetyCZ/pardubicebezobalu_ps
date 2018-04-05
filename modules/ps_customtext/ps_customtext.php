@@ -157,8 +157,12 @@ EOD;
                             $resultOneCategory .= "\n<td style='padding-left:20pt'>" .
                                 "<a href='" . $link . "' target='_new'>" .
                                 $productName .
-                                "</a>" .
-                                "</td>";
+                                "</a>" ;
+
+                            if (CustomUtils::isAdmin($this->context)) {
+                                $resultOneCategory.='<br><a href="/admin313uriemy/index.php?controller=AdminOrders&idProduct='.$idProduct.'">OBJ</a>';
+                            }
+                            $resultOneCategory.="</td>";
 
 
                             try {

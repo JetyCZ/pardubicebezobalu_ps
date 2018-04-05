@@ -26,7 +26,6 @@
 {% set right = right|default(false) %}
 
 <div class="{{ div_style|default("btn-group dropdown") }}">
-
   {% if default_item is defined %}
     <a
       href="{{ default_item.href|default("#") }}"
