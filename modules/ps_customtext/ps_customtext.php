@@ -103,6 +103,8 @@ EOD;
             $children = Category::getChildren($rootCat->id_category, $lang);
 
             $result .= "<form method='POST'>";
+            $result .= $this->context->customer->email;
+
             $formPosted = !empty($_POST);
             // http://jsbin.com/xecacojave/edit?html,js,output
             $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
@@ -159,8 +161,9 @@ EOD;
                                 $productName .
                                 "</a>" ;
 
+                            
                             if (CustomUtils::isAdmin($this->context)) {
-                                $resultOneCategory.='<br><a href="/admin313uriemy/index.php?controller=AdminOrders&idProduct='.$idProduct.'">OBJ</a>';
+                                $resultOneCategory.=' |&nbsp;<a href="/admin313uriemy/index.php?controller=AdminOrders&idProduct='.$idProduct.'">OBJ</a>';
                             }
                             $resultOneCategory.="</td>";
 
@@ -226,17 +229,21 @@ EOD;
 
                             if ($priceInfo->isWeightedKs) {
                                 $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', '.$quote.$shortUrl.$quote.')"';
-                                $resultOneCategory .= "<input ".$productQuantityIdAttr." class='quantity' style='width:100px' oninput=" . $updateFunctionFruitKs . " onchange=". $updateFunctionFruitKs . " type='number' value='0' name='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
-                                $result .= $this->context->customer->email;
+                                $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl ."' ";
+                                $resultOneCategory .= "<input ".$productQuantityKsIdAttr." class='quantity' style='width:100px' oninput=" . $updateFunctionFruitKs . " onchange=". $updateFunctionFruitKs . " type='number' value='0' name='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
 
                                 if (CustomUtils::isAdmin($this->context)) {
                                     $type="type='text' ".$oninput.$onchange;
+                                    $resultOneCategory .= " " . $priceInfo->unitX;
+                                    $resultOneCategory .= "&nbsp;<input ".$type." value='0' name='" . $fieldName . "' ".$productQuantityIdAttr.">";
+                                    $resultOneCategory .= " gramů";
                                 } else {
                                     $type="type='hidden' ";
+                                    $resultOneCategory .= "<input ".$type." value='0' name='" . $fieldName . "' ".$productQuantityIdAttr.">";
+                                    $resultOneCategory .= " " . $priceInfo->unitX;
                                 }
 
-                                $resultOneCategory .= "<input ".$type." value='0' name='" . $fieldName . "' id='" . $fieldName . "'>";
-                                $resultOneCategory .= " " . $priceInfo->unitX;
+
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             /*} else if ($isFruit && $priceInfo->isWeighted) {
 

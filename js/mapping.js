@@ -155,25 +155,27 @@
         var productPriceHidden = document.getElementById(productPriceHiddenId);
         var totalPriceSpan = document.getElementById(totalPriceId);
         var price = productPriceHidden.value;
-        totalPriceSpan.innerText = Math.round(price * quantityElem * 100) / 100 + ',- Kč';
+        totalPriceSpan.innerText = Math.round(price * quantityElem.value * 100) / 100 + ',- Kč';
     }
 
     function updateTotalPrice(productId, shortUrl) {
-        var quantityElem = document.getElementById("productQuantity_" + shortUrl).value;
+        var quantityElem = document.getElementById("productQuantity_" + shortUrl);
         updateTotalPriceQuantityElement(productId, quantityElem);
     }
     function updateTotalPriceFruitKs(productId, gramPerKs, shortUrl) {
-        var quantity = document.getElementById("productQuantity_" + shortUrl).value;
+        var quantityElem = document.getElementById("productQuantity_" + shortUrl);
+        var quantityKs = document.getElementById("productQuantityKs_" + shortUrl).value;
         var productPriceHiddenId = "productPrice" + productId;
         var totalPriceId = "totalPrice" + productId;
         var productPriceHidden = document.getElementById(productPriceHiddenId);
         var pricePerGram = productPriceHidden.value;
-        var totalWeight = gramPerKs * quantity;
+        var totalWeight = gramPerKs * quantityKs;
+        quantityElem.value = totalWeight;
 
         var totalPriceSpan = document.getElementById(totalPriceId);
         // totalPriceSpan.innerText = Math.round(pricePerGram*totalWeight * 100) / 100 + ',- Kč';
         var labelKc = Math.round(pricePerGram*totalWeight * 100) / 100 + ',- Kč';
 
-        document.getElementById("productQuantity" + productId).value = totalWeight;
+
         totalPriceSpan.innerText = labelKc + '; ' + Math.round(totalWeight*100) / (100*1000) + ' Kg';
     }
