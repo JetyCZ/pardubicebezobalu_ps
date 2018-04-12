@@ -29,6 +29,8 @@
     Objednávaný objem stáčeného zboží (1000 = 1 litr)
     {elseif strpos($product.name, 'na váhu') != false}
       Objednávaná váha zboží (v gramech: 1000 = 1Kg)
+    {elseif strpos($product.name, 'váží zhruba') != false}
+      Objednávaná váha zboží (v gramech: 1000 = 1Kg)
     {else}
     Objednávaný počet kusů
     {/if}

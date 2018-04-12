@@ -49,7 +49,7 @@
 
               {if strpos($product.name, 'stáčený produkt') != false}
                   {$product.price_amount * 1000},- Kč za 1 litr
-              {elseif strpos($product.name, 'na váhu') != false}
+              {elseif (strpos($product.name, 'na váhu') != false) || (strpos($product.name, 'váží zhruba') != false)}
                   {if $product.price_amount>0.1}
                       {$product.price_amount*100},- Kč za 100g
                       {else}
