@@ -53,7 +53,8 @@
       {/if}
       <div class="current-price">
         <br>
-        <span class="price">{$product.price} <br><span style="color:silver">cena&nbsp;za&nbsp;1&nbsp;gram/kus/mililitr<br>zaokrouhleno&nbsp;na&nbsp;2&nbsp;desetinná&nbsp;místa</span></span>
+        <span class="price">{$product.price} <br><span style="color:silver">cena&nbsp;za&nbsp;1&nbsp;gram/kus/ml</span></span>
+
         {if $product.unit_price_full}
           <div class="unit-price-cart">{$product.unit_price_full}</div>
         {/if}
@@ -132,6 +133,13 @@
                       name="product-quantity-spin"
                       min="{$product.minimal_quantity}"
                     />
+                {if strpos($product.name, 'stáčený produkt') != false}
+                    mililitrů
+                {elseif (strpos($product.name, 'na váhu') != false) || (strpos($product.name, 'váží zhruba') != false)}
+                    gramů
+                {else}
+                    kusů
+                {/if}
                   {/if}
                 </div>
                 <div class="col-md-6 col-xs-2 price">

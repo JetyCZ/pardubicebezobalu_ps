@@ -7,6 +7,9 @@
  * 6. the productsform: orderlines
  */
 /* section 1: handling $_GET/$_POST variables and initialization */
+
+require_once '../../classes/custom/CustomUtils.php';
+
 if(!@include 'approve.php') die( "approve.php was not found!");
 /* flags for addon fields */
 $showdate = 0;
@@ -118,9 +121,7 @@ else if ($order_reference != "")
 <form name="searchform" method="post" action="order-edit.php">
 	<label for="order_number">Order number:</label><input name="id_order" type="text" value="<?php echo $id_order ?>" size="10" maxlength="10" />
     <label for="order_number">Order reference:</label><input name="order_reference" type="text" value="<?php echo $order_reference ?>" size="10" maxlength="10" />
-    <a href="/admin313uriemy/index.php?controller=AdminOrders&id_order=<?php echo $id_order; ?>&&vieworder">
-        <h3>Administrace objednávky</h3>
-    </a>
+    <?php echo CustomUtils::orderLink($id_order, "<h3>Administrace objednávky</h3>")?>
 </td><td width="100px">
 	<input name="send" type="submit" value="Find order" />
 </form>

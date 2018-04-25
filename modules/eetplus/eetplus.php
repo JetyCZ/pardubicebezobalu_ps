@@ -421,8 +421,12 @@ class Eetplus extends Module
    // pojistka pokud brana zmeni stav bez spusteni hooku 
     public function hookDisplayOrderConfirmation($params)
     {
-        
-        $order      = $params['objOrder'];
+        if (isset($params['objOrder'])) {
+            $order      = $params['objOrder'];
+        } else {
+            $order      = $params['order'];
+        }
+
         $id_order   = $order->id;
         $modulename = $order->module;
         if ($order->total_paid <= 0) {

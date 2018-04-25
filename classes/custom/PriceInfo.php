@@ -23,9 +23,13 @@ class PriceInfo
             $pricePerUnitLabel = "\n".$this->zaLabelPrice . ",- Kč&nbsp;".
                 "\n"."<span style='color: #909090;'>" . $this->zaLabelUnit . "</span>";
         } else {
-            $pricePerUnitLabel .= "\n".round($this->gramPerKs * $this->price,1) .",- Kč ".
-            "\n<span style='color: #909090;'>za ks</span>".
-                "\n<br><span style='color: #909090;'>".($this->price * 1000) . ",- Kč&nbsp;za Kg</span>";
+
+                $ksPrice = $this->gramPerKs * $this->price;
+                $ksPriceRounded = round($ksPrice, 1);
+                $pricePerUnitLabel .= "\n" . $ksPriceRounded . ",- Kč " .
+                    "\n<span style='color: #909090;'>za ks</span>" .
+                    "\n<br><span style='color: #909090;'>" . ($this->price * 1000) . ",- Kč&nbsp;za Kg</span>";
+
 
         }
         return $pricePerUnitLabel;

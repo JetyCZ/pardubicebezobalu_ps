@@ -1,19 +1,20 @@
 <?php
+
 try {
 
-if (!defined('_PS_ADMIN_DIR_')) {
-    define('_PS_ADMIN_DIR_', getcwd());
-}
-if (!defined('_PS_ROOT_DIR_')) {
-    define('_PS_ROOT_DIR_',getcwd()."/..");
-}
+    if (!defined('_PS_ADMIN_DIR_')) {
+        define('_PS_ADMIN_DIR_', getcwd());
+    }
+    if (!defined('_PS_ROOT_DIR_')) {
+        define('_PS_ROOT_DIR_',getcwd()."/..");
+    }
 
 
-require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
-require_once _PS_ROOT_DIR_ . '/classes/jety/Cron/CronExpression.php';
+    require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
+    require_once _PS_ROOT_DIR_ . '/classes/jety/Cron/CronExpression.php';
 
 
-echo '<!DOCTYPE html> 
+    echo '<!DOCTYPE html> 
 <html lang="en"><head><meta charset="utf-8">';
 
 
@@ -21,43 +22,78 @@ echo '<!DOCTYPE html>
     connect_to_database();
 
     $sql = <<<'EOD'
-select
-s.id_supplier as sid, s.name as sname,psl.name as pname, p.*, c.*
-from ps_supplier s 
-left join ps_product p on p.id_supplier = s.id_supplier
-left join ps_jety_supplier_cron c on s.id_supplier = c.id_supplier
-left join ps_product_lang psl on psl.id_product = p.id_product
-where (psl.name <> '') and (psl.id_lang=2) 
-order by s.id_supplier
+select 
+  p.id_product, cr.*,c.id_customer as cid,
+  s.id_supplier, s.name as sname, 
+  pl.name as pname,pl.link_rewrite, 
+  o.id_order,
+  od.product_quantity as mnozstvi_objednavane, 
+  p.quantity as mnozstvi_nasklade, o.date_add, c.firstname, c.lastname, osl.name from ps_order_detail od
+  join ps_orders o on o.id_order = od.id_order
+  join ps_order_state_lang osl on osl.id_order_state = o.current_state
+  join ps_customer c on c.id_customer = o.id_customer
+  join ps_product p on p.id_product = od.product_id
+  join ps_product_lang pl on p.id_product = pl.id_product
+  join ps_product_supplier ps on p.id_product = ps.id_product
+  join ps_supplier s on ps.id_supplier = s.id_supplier
+  left join ps_jety_supplier_cron cr on s.id_supplier = cr.id_supplier
+where
+  osl.id_lang = 2
+  and (osl.name='Probíhá příprava' or osl.name like '%Dodavatele%')
+  and pl.id_lang = 2
+order by p.id_supplier, p.id_product
 EOD;
 
 
     $result = $conn->query($sql);
     $lastIdSupplier = -1;
-    $storeQuantities = "";
+    $lastIdProduct = -1;
+    $storeQuantities = "<table border=1 cellpadding=2 cellspacing=0>";
+    $productQuantityOrder = 0;
     while($row = $result->fetch_assoc()) {
-        $idSupplier = $row['sid'];
+        $idSupplier = $row['id_supplier'];
+        $idProduct = $row['id_product'];
         $name = $row['sname'];
         $pname = $row['pname'];
-        $quantity = $row['quantity'];
+        $mnozstviObjednavane = $row['mnozstvi_objednavane'];
 
         if ($idSupplier!=$lastIdSupplier) {
-            echo $storeQuantities;
-            $storeQuantities = "<br>";
+            $storeQuantities .= "<tr style='background-color: #50FFFF'>\n".
+                "<td>".$name."</td>\n".
+                "<td>ID: ".$idSupplier."</td>\n".
+                "<td>Příští doručení: ".CustomUtils::calculateNextSupplyDate($row)."</td>\n".
+                "</tr>\n\n";
+        }
+        if ($idProduct!=$lastIdProduct) {
+            $storeQuantities = replaceProductRow($lastIdProduct, $productQuantityOrder, $storeQuantities);
+            $storeQuantities .= "<tr style='background-color: #C0FFFF'>\n".
+                "<td></td>\n".
+                // https://pardubicebezobalu.cz/admin313uriemy/index.php/product/form/97?_token=6adX_6N5uHX1gPxK7cpllNSUhcD9GWDJ1umavpLA2s8#tab-step1
+                "<td><a href='/admin313uriemy/index.php/product/form/".$idProduct."'>".$row['pname']."</a></td>\n".
+                "<td>Objednat celkem: productQuantityOrder".$idProduct."</td>\n".
+                "<td>Množství v e-shopu: ".$row["mnozstvi_nasklade"]."</td>\n".
+                "</tr>";
+            $productQuantityOrder = $mnozstviObjednavane;
+        } else {
+            $productQuantityOrder += $mnozstviObjednavane;
+        }
 
-            echo "<hr>";
-            echo "<h1>".$name."</h1>";
-            echo "<h3>ID: ".$idSupplier."</h3>";
-            echo "Příští objednávka: ".CustomUtils::calculateNextSupplyDate($row)."<br>";
-        }
-        if ($quantity<0) {
-            echo "Objednávám " . (-$quantity) ." ". $pname ."<br>";
-        } else if ($quantity>0){
-            $storeQuantities .= "Na skladě máme: " . ($quantity) ." ". $pname ."<br>";
-        }
+        $storeQuantities .= "<tr>\n".
+            "<td>now:".$mnozstviObjednavane." sum:".$productQuantityOrder."</td>\n".
+            "<td></td>\n".
+            "<td>".$row["mnozstvi_objednavane"]."</td>\n".
+            "<td>Obj. ".CustomUtils::orderLink($row['id_order'], $row["date_add"])."</td>\n".
+            "<td title='".$row["cid"]."'>".$row["firstname"]."</td>\n".
+            "<td>".$row["lastname"]."</td>\n".
+            "<td>".$row["name"]."</td>\n".
+            "</tr>\n\n";
+
         $lastIdSupplier = $idSupplier;
+        $lastIdProduct = $idProduct;
 
     }
+    $storeQuantities = replaceProductRow($lastIdProduct, $productQuantityOrder, $storeQuantities);
+    $storeQuantities.="</table>";
     echo $storeQuantities;
 } catch (Throwable $e) {
     var_dump($e);
@@ -152,3 +188,8 @@ function connect_to_database()
 }
 
 echo '</html>';
+
+function replaceProductRow($lastIdProduct, $productQuantityOrder, $storeQuantities): string
+{
+    return str_replace("productQuantityOrder" . $lastIdProduct, $productQuantityOrder, $storeQuantities);
+}

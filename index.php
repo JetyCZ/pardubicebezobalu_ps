@@ -26,4 +26,12 @@
 
 require(dirname(__FILE__).'/config/config.inc.php');
 
-Dispatcher::getInstance()->dispatch();
+$dispatcher = Dispatcher::getInstance();
+if (isset($_POST['bulkAddToCartButton'])) {
+    $dispatcher->dispatch();
+
+
+} else {
+    $dispatcher->dispatch();
+}
+

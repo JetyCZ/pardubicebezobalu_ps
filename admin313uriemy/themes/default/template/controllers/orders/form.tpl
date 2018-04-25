@@ -476,9 +476,11 @@
 	function searchCustomers()
 	{
     var customer_search = $('#customer').val();
+    var url = "{$link->getAdminLink('AdminCustomers')}";
+    url = url.replace("http:","https:");
 		$.ajax({
 			type:"POST",
-			url : "{$link->getAdminLink('AdminCustomers')}",
+			url : url,
 			async: true,
 			dataType: "json",
 			data : {

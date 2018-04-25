@@ -23,8 +23,9 @@ class CustomUtils {
 
     public static function priceInfo($productName, $price) {
         $vaziZhrubaPos = strpos($productName, CustomUtils::vaziZhrubaLabel);
-        $isWeightedKs = false;
         $isWeighted = false;
+        $result = new PriceInfo();
+        $result->isWeightedKs = false;
 
         if (strpos($productName, 'stáčený produkt') != false) {
             $unitX = "ml ";
@@ -52,7 +53,14 @@ class CustomUtils {
             $zaLabelUnit = "za kus";
             $zaLabelPrice = $price;
 
-            $isWeightedKs = true;
+
+
+            $start = $vaziZhrubaPos + strlen(CustomUtils::vaziZhrubaLabel) + 1;
+            $length = strlen($productName) - strlen(CustomUtils::vaziZhrubaLabel) - $vaziZhrubaPos - 1;
+            $gramPerKs = substr($productName, $start, strlen($productName) - $start - 2);
+            $result->gramPerKs = $gramPerKs;
+            $result->isWeightedKs = true;
+
         } else {
             $unitX = "ks ";
             $help = "(kusové zboží)";
@@ -61,16 +69,12 @@ class CustomUtils {
 
         }
 
-        $result = new PriceInfo();
         $result->unitX = $unitX;
         $result->help = $help;
-        $result->isWeightedKs = $isWeightedKs;
         $result->isWeighted = $isWeighted;
         $result->zaLabelUnit = $zaLabelUnit;
         $result->zaLabelPrice = $zaLabelPrice;
         $result->price = $price;
-
-        $result->gramPerKs = substr($productName, $vaziZhrubaPos + strlen(CustomUtils::vaziZhrubaLabel), strlen($productName) - strlen(CustomUtils::vaziZhrubaLabel) - $vaziZhrubaPos - 1);
 
         return $result;
     }
@@ -85,4 +89,17 @@ class CustomUtils {
         }
         return ($context->customer->email == 'hhrom@email.cz' || $context->customer->email == 'pavel.jetensky@seznam.cz');
     }
+
+    public static function ordersWithProductLink($idProduct)
+    {
+        return '<a href="/admin313uriemy/index.php?controller=AdminOrders&idProduct='.$idProduct.'">OBJ</a>';
+    }
+
+    public static function orderLink($idOrder, $linkBody)
+    {
+        return '<a href="/admin313uriemy/index.php?controller=AdminOrders&id_order='.$idOrder.'&&vieworder">'.
+        $linkBody.
+    '</a>';
+    }
+
 }

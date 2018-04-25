@@ -1,0 +1,1 @@
+UPDATE ps_shop_url set domain='localhost', domain_ssl='localhost' where domain='pardubicebezobalu.cz' or domain='pardubicebezobalulocal.cz';

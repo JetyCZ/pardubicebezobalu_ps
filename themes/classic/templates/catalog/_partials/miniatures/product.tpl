@@ -56,7 +56,20 @@
               {hook h='displayProductPriceBlock' product=$product type="before_price"}
 
               <span class="sr-only">{l s='Price' d='Shop.Theme.Catalog'}</span>
-              <span itemprop="price" class="price">{$product.price}</span>
+              <span itemprop="price" class="price">
+                  {if strpos($product.name, 'stáčený produkt') != false}
+                      {$product.price_amount * 1000},- Kč za 1 litr
+                  {elseif (strpos($product.name, 'na váhu') != false) || (strpos($product.name, 'váží zhruba') != false)}
+                      {if $product.price_amount>0.1}
+                          {$product.price_amount*100},- Kč za 100g
+                      {else}
+                          {$product.price_amount*1000},- Kč za 1Kg
+                      {/if}
+                  {else}
+                      {$product.price} za kus
+                  {/if}
+                  {* puvodne $product.price*}
+              </span>
 
               {hook h='displayProductPriceBlock' product=$product type='unit_price'}
 

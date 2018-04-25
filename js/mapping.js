@@ -148,15 +148,30 @@
         */
     });
 
+    var cart = {};
+
+
+    function refreshTotalPrice() {
+        var totalPrice = 0;
+        Object.keys(cart).forEach(function(productId) {
+            totalPrice+=cart[productId];
+        });
+        document.getElementById('cartTotalPrice').innerHTML =  Math.round(totalPrice * 100) / 100 + ',- Kč'
+    }
 
     function updateTotalPriceQuantityElement(productId, quantityElem) {
         var productPriceHiddenId = "productPrice" + productId;
         var totalPriceId = "totalPrice" + productId;
         var productPriceHidden = document.getElementById(productPriceHiddenId);
         var totalPriceSpan = document.getElementById(totalPriceId);
-        var price = productPriceHidden.value;
-        totalPriceSpan.innerText = Math.round(price * quantityElem.value * 100) / 100 + ',- Kč';
+        var pricePerUnit = productPriceHidden.value;
+        let priceForQuantity = pricePerUnit * quantityElem.value;
+        totalPriceSpan.innerText = Math.round(priceForQuantity * 100) / 100 + ',- Kč';
+        cart[productId] = priceForQuantity;
+        refreshTotalPrice();
     }
+
+
 
     function updateTotalPrice(productId, shortUrl) {
         var quantityElem = document.getElementById("productQuantity_" + shortUrl);

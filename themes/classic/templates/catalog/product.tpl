@@ -26,6 +26,18 @@
 
 {block name='head_seo' prepend}
     <link rel="canonical" href="{$product.canonical_url}">
+    <style type="text/css">
+        .product-description-div p {
+            color:#232323;
+            border-radius: 25px;
+            padding:2%;
+        }
+        .product-description-block {
+            background: rgba(225, 225, 225, 0.5);color:#000000;
+            border-radius: 25px;
+            padding: 2%;
+        }
+    </style>
 {/block}
 
 {block name='head' append}
@@ -73,7 +85,7 @@
                     </section>
                 {/block}
             </div>
-            <div class="col-md-6">
+            <div class="product-description-block">
                 {block name='page_header_container'}
                     {block name='page_header'}
                         <h1 class="h1" itemprop="name">{block name='page_title'}{$product.name}{/block}</h1>
@@ -82,10 +94,9 @@
                 {block name='product_prices'}
                     {include file='catalog/_partials/product-prices.tpl'}
                 {/block}
-
                 <div class="product-information">
                     {block name='product_description_short'}
-                        <div id="product-description-short-{$product.id}"
+                        <div class="product-description-div" id="product-description-short-{$product.id}"
                              itemprop="description">{$product.description_short nofilter}</div>
                     {/block}
 

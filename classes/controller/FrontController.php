@@ -368,123 +368,21 @@ class FrontControllerCore extends Controller
 
         /* Cart already exists */
         if ((int) $this->context->cookie->id_cart) {
-            if (!isset($cart)) {
-                $cart = new Cart($this->context->cookie->id_cart);
-            }
-
-            if (Validate::isLoadedObject($cart) && $cart->OrderExists()) {
-                PrestaShopLogger::addLog('Frontcontroller::init - Cart cannot be loaded or an order has already been placed using this cart', 1, null, 'Cart', (int) $this->context->cookie->id_cart, true);
-                unset($this->context->cookie->id_cart, $cart, $this->context->cookie->checkedTOS);
-                $this->context->cookie->check_cgv = false;
-            } elseif (intval(Configuration::get('PS_GEOLOCATION_ENABLED'))
-                && !in_array(strtoupper($this->context->cookie->iso_code_country), explode(';', Configuration::get('PS_ALLOWED_COUNTRIES')))
-                && $cart->nbProducts()
-                && intval(Configuration::get('PS_GEOLOCATION_NA_BEHAVIOR')) != -1
-                && !FrontController::isInWhitelistForGeolocation()
-                && !in_array($_SERVER['SERVER_NAME'], array('localhost', '127.0.0.1'))
-            ) {
-                /* Delete product of cart, if user can't make an order from his country */
-                PrestaShopLogger::addLog('Frontcontroller::init - GEOLOCATION is deleting a cart', 1, null, 'Cart', (int) $this->context->cookie->id_cart, true);
-                unset($this->context->cookie->id_cart, $cart);
-            } elseif ($this->context->cookie->id_customer != $cart->id_customer || $this->context->cookie->id_lang != $cart->id_lang || $currency->id != $cart->id_currency) {
-                // update cart values
-                if ($this->context->cookie->id_customer) {
-                    $cart->id_customer = (int) $this->context->cookie->id_customer;
-                }
-                $cart->id_lang = (int) $this->context->cookie->id_lang;
-                $cart->id_currency = (int) $currency->id;
-                $cart->update();
-            }
-            /* Select an address if not set */
-            if (isset($cart) && (!isset($cart->id_address_delivery) || $cart->id_address_delivery == 0 ||
-                !isset($cart->id_address_invoice) || $cart->id_address_invoice == 0) && $this->context->cookie->id_customer) {
-                $to_update = false;
-                if (!isset($cart->id_address_delivery) || $cart->id_address_delivery == 0) {
-                    $to_update = true;
-                    $cart->id_address_delivery = (int) Address::getFirstCustomerAddressId($cart->id_customer);
-                }
-                if (!isset($cart->id_address_invoice) || $cart->id_address_invoice == 0) {
-                    $to_update = true;
-                    $cart->id_address_invoice = (int) Address::getFirstCustomerAddressId($cart->id_customer);
-                }
-                if ($to_update) {
-                    $cart->update();
-                }
-            }
+            $cart = $this->handleExistingCart($cart, $currency);
         }
 
         if (!isset($cart) || !$cart->id) {
-            $cart = new Cart();
-            $cart->id_lang = (int) $this->context->cookie->id_lang;
-            $cart->id_currency = (int) $this->context->cookie->id_currency;
-            $cart->id_guest = (int) $this->context->cookie->id_guest;
-            $cart->id_shop_group = (int) $this->context->shop->id_shop_group;
-            $cart->id_shop = $this->context->shop->id;
-            if ($this->context->cookie->id_customer) {
-                $cart->id_customer = (int) $this->context->cookie->id_customer;
-                $cart->id_address_delivery = (int) Address::getFirstCustomerAddressId($cart->id_customer);
-                $cart->id_address_invoice = (int) $cart->id_address_delivery;
-            } else {
-                $cart->id_address_delivery = 0;
-                $cart->id_address_invoice = 0;
-            }
-
-            // Needed if the merchant want to give a free product to every visitors
-            $this->context->cart = $cart;
-            CartRule::autoAddToCart($this->context);
+            $cart = $this->createNewCart();
         } else {
             $this->context->cart = $cart;
         }
 
-        // try {
         $formPosted = !empty($_POST);
-
         if ($formPosted && isset($_POST['bulkAddToCartButton'])) {
-
-            $context = Context::getContext();
-            $lang = (int)$context->language->id;
-
-
-
-            $context = Context::getContext();
-            if (!$context->cart->id) {
-                $context->cart->add();
-                $context->cookie->id_cart = $context->cart->id;
-            }
-            $id_cart = $context->cart->id;
-
-            $rootCat = Category::getRootCategory();
-            $children = Category::getChildren($rootCat->id_category, $lang);
-            $productIds = array();
-
-            foreach ($children as $childCat) {
-                $catName = $childCat["name"];
-                $idCategory = $childCat["id_category"];
-                $cat = new Category($idCategory);
-                $products = $cat->getProducts($lang, 0, 1000);
-                if (!($catName === "BIO") && count($products) > 0) {
-                    foreach ($products as $product) {
-                        $idProduct = $product["id_product"];
-                        if (!array_key_exists($idProduct, $productIds)) {
-                            $fieldName = "productQuantity" . $idProduct;
-                            if ($formPosted && isset($_POST[$fieldName])) {
-                                $quantity = $_POST[$fieldName];
-                                if (isset($quantity) && $quantity > 0) {
-
-                                    $cart->updateQty($quantity, $idProduct);
-                                }
-                            }
-                            $productIds[$idProduct] = 1;
-                        }
-                    }
-                }
-            }
+            $this->bulkAddProductsToCart($formPosted, $cart);
         }
 
-
-
         $this->context->cart->checkAndUpdateAddresses();
-
         $this->context->smarty->assign('request_uri', Tools::safeOutput(urldecode($_SERVER['REQUEST_URI'])));
 
         // Automatically redirect to the canonical URL if needed
@@ -641,6 +539,127 @@ class FrontControllerCore extends Controller
         }
 
         return $jsFileList;
+    }
+
+    public function bulkAddProductsToCart($formPosted, $cart)
+    {
+        $context = Context::getContext();
+        $lang = (int)$context->language->id;
+
+
+        $context = Context::getContext();
+        if (!$context->cart->id) {
+            $context->cart->add();
+            $context->cookie->id_cart = $context->cart->id;
+        }
+        $id_cart = $context->cart->id;
+
+        $rootCat = Category::getRootCategory();
+        $children = Category::getChildren($rootCat->id_category, $lang);
+        $productIds = array();
+
+        foreach ($children as $childCat) {
+            $catName = $childCat["name"];
+            $idCategory = $childCat["id_category"];
+            $cat = new Category($idCategory);
+            $products = $cat->getProducts($lang, 0, 1000);
+            if (!($catName === "BIO") && count($products) > 0) {
+                foreach ($products as $product) {
+                    $idProduct = $product["id_product"];
+                    if (!array_key_exists($idProduct, $productIds)) {
+                        $fieldName = "productQuantity" . $idProduct;
+                        if ($formPosted && isset($_POST[$fieldName])) {
+                            $quantity = $_POST[$fieldName];
+                            if (isset($quantity) && $quantity > 0) {
+
+                                $cart->updateQty($quantity, $idProduct);
+                            }
+                        }
+                        $productIds[$idProduct] = 1;
+                    }
+                }
+            }
+        }
+
+    }
+
+    /**
+     * @param $cart
+     * @param $currency
+     * @return Cart
+     */
+    public function handleExistingCart($cart, $currency): Cart
+    {
+        if (!isset($cart)) {
+            $cart = new Cart($this->context->cookie->id_cart);
+        }
+
+        if (Validate::isLoadedObject($cart) && $cart->OrderExists()) {
+            PrestaShopLogger::addLog('Frontcontroller::init - Cart cannot be loaded or an order has already been placed using this cart', 1, null, 'Cart', (int)$this->context->cookie->id_cart, true);
+            unset($this->context->cookie->id_cart, $cart, $this->context->cookie->checkedTOS);
+            $this->context->cookie->check_cgv = false;
+        } elseif (intval(Configuration::get('PS_GEOLOCATION_ENABLED'))
+            && !in_array(strtoupper($this->context->cookie->iso_code_country), explode(';', Configuration::get('PS_ALLOWED_COUNTRIES')))
+            && $cart->nbProducts()
+            && intval(Configuration::get('PS_GEOLOCATION_NA_BEHAVIOR')) != -1
+            && !FrontController::isInWhitelistForGeolocation()
+            && !in_array($_SERVER['SERVER_NAME'], array('localhost', '127.0.0.1'))
+        ) {
+            /* Delete product of cart, if user can't make an order from his country */
+            PrestaShopLogger::addLog('Frontcontroller::init - GEOLOCATION is deleting a cart', 1, null, 'Cart', (int)$this->context->cookie->id_cart, true);
+            unset($this->context->cookie->id_cart, $cart);
+        } elseif ($this->context->cookie->id_customer != $cart->id_customer || $this->context->cookie->id_lang != $cart->id_lang || $currency->id != $cart->id_currency) {
+            // update cart values
+            if ($this->context->cookie->id_customer) {
+                $cart->id_customer = (int)$this->context->cookie->id_customer;
+            }
+            $cart->id_lang = (int)$this->context->cookie->id_lang;
+            $cart->id_currency = (int)$currency->id;
+            $cart->update();
+        }
+        /* Select an address if not set */
+        if (isset($cart) && (!isset($cart->id_address_delivery) || $cart->id_address_delivery == 0 ||
+                !isset($cart->id_address_invoice) || $cart->id_address_invoice == 0) && $this->context->cookie->id_customer) {
+            $to_update = false;
+            if (!isset($cart->id_address_delivery) || $cart->id_address_delivery == 0) {
+                $to_update = true;
+                $cart->id_address_delivery = (int)Address::getFirstCustomerAddressId($cart->id_customer);
+            }
+            if (!isset($cart->id_address_invoice) || $cart->id_address_invoice == 0) {
+                $to_update = true;
+                $cart->id_address_invoice = (int)Address::getFirstCustomerAddressId($cart->id_customer);
+            }
+            if ($to_update) {
+                $cart->update();
+            }
+        }
+        return $cart;
+    }
+
+    /**
+     * @return Cart
+     */
+    public function createNewCart(): Cart
+    {
+        $cart = new Cart();
+        $cart->id_lang = (int)$this->context->cookie->id_lang;
+        $cart->id_currency = (int)$this->context->cookie->id_currency;
+        $cart->id_guest = (int)$this->context->cookie->id_guest;
+        $cart->id_shop_group = (int)$this->context->shop->id_shop_group;
+        $cart->id_shop = $this->context->shop->id;
+        if ($this->context->cookie->id_customer) {
+            $cart->id_customer = (int)$this->context->cookie->id_customer;
+            $cart->id_address_delivery = (int)Address::getFirstCustomerAddressId($cart->id_customer);
+            $cart->id_address_invoice = (int)$cart->id_address_delivery;
+        } else {
+            $cart->id_address_delivery = 0;
+            $cart->id_address_invoice = 0;
+        }
+
+        // Needed if the merchant want to give a free product to every visitors
+        $this->context->cart = $cart;
+        CartRule::autoAddToCart($this->context);
+        return $cart;
     }
 
     /**

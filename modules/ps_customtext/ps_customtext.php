@@ -107,12 +107,15 @@ EOD;
 
             $formPosted = !empty($_POST);
             // http://jsbin.com/xecacojave/edit?html,js,output
+            $result .= "<div style='position:fixed;top:0pt;left:0pt;background-color:#FFF0F0;color:black;' id='cartTotalPrice'></div>";
+            $result .= "<div style='position:fixed;top:100pt;left:0pt;background-color:#FFF0F0;color:#FFF0FF;' id='btnAddAllTopLeft'>Vložit vše</div>";
             $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
                     <th>Zboží</th>
                     <th>Cena za jednotku <br>vč. DPH</th>
                     <th>Objednané množství</th>
                     <th>Cena za objednáno</th>
                     <th>Info</th>
+                    
                     </tr>";
 
             $supplierCrons = Db::getInstance()->executeS("select * from " . _DB_PREFIX_ . "jety_supplier_cron");
@@ -161,18 +164,17 @@ EOD;
                                 $productName .
                                 "</a>" ;
 
-                            
+
                             if (CustomUtils::isAdmin($this->context)) {
-                                $resultOneCategory.=' |&nbsp;<a href="/admin313uriemy/index.php?controller=AdminOrders&idProduct='.$idProduct.'">OBJ</a>';
+                                $resultOneCategory.=' |&nbsp;'.
+                                    CustomUtils::ordersWithProductLink($idProduct);
                             }
                             $resultOneCategory.="</td>";
 
 
-                            try {
-                                $priceInfo = null;
-                                $priceInfo = CustomUtils::priceInfo($productName, $price);
-                            } catch (Throwable $e) {
-                            }
+
+                            $priceInfo = null;
+                            $priceInfo = CustomUtils::priceInfo($productName, $price);
 
                             $resultOneCategory .= "\n<td nowrap='nowrap'>";
                             $resultOneCategory .= $priceInfo->pricePerUnitLabel();
@@ -209,9 +211,9 @@ EOD;
                                     $productIdSupplier = $product["id_supplier"];
                                     $cronIdSupplier = $supplierCron["id_supplier"];
                                     if ($cronIdSupplier == $productIdSupplier) {
-                                        $nextOrder = CustomUtils::calculateNextSupplyDate($supplierCron);
+                                        $nextDeliveryDate = CustomUtils::calculateNextSupplyDate($supplierCron);
 
-                                        $stockLabel .= $this->infoLabel("Zboží budeme objednávat ".$nextOrder,"Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.");
+                                        $stockLabel .= $this->infoLabel("Zboží budeme objednávat, k vyzvednutí bude <b>".$nextDeliveryDate."</b>","Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.");
                                         break;
                                     }
 
