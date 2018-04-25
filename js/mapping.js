@@ -84,6 +84,7 @@
         83: '216-japonska-smes-na-vahu',
 };
 
+
     function focusQuantity(shortUrl) {
         let input = document.getElementById('productQuantity_' + shortUrl);
         if (input != null) {
@@ -124,6 +125,11 @@
                 qrcodeInput.focus();
             }
         });
+
+        $("#btnAddAllTopLeft").click(function(){
+            document.getElementById('bulkAddToCartButton').click()
+        });
+
         /*
         $('.quantity').on('key',function(e) {
 

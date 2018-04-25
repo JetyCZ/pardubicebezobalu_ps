@@ -86,6 +86,7 @@ EOD;
     {
 
         if (strpos($this->smarty->getTemplateVars("request_uri"), 'zrychlena-objednavka-zbozi') !== false) {
+            try {
 
             $result = "";
 
@@ -107,8 +108,10 @@ EOD;
 
             $formPosted = !empty($_POST);
             // http://jsbin.com/xecacojave/edit?html,js,output
-            $result .= "<div style='position:fixed;top:0pt;left:0pt;background-color:#FFF0F0;color:black;' id='cartTotalPrice'></div>";
-            $result .= "<div style='position:fixed;top:100pt;left:0pt;background-color:#FFF0F0;color:#FFF0FF;' id='btnAddAllTopLeft'>Vložit vše</div>";
+            $result .= "<div style='position:fixed;top:0pt;left:0pt;background-color:#FFF0F0;color:black;' id='cartTotalPrice'>0,- Kč</div>";
+            if (CustomUtils::isAdmin($this->context)) {
+                $result .= "<div style='position:fixed;top:50pt;height:50pt;left:0pt;background-color:#FFF0FF;' id='btnAddAllTopLeft'>Vložit vše</div>";
+            }
             $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
                     <th>Zboží</th>
                     <th>Cena za jednotku <br>vč. DPH</th>
@@ -323,7 +326,8 @@ EOD;
 
             }
             $result .= "<tr ><td style='padding-top: 30pt;' colspan='6' align='center'>" .
-                "<input name='bulkAddToCartButton' style='font-size: 150%;padding:20pt;background-color:#F0FFF0;' value='Vložit zboží všechno najednou do košíku' type='submit'/>" .
+                "<input id='bulkAddToCartButton'
+                    name='bulkAddToCartButton' style='font-size: 150%;padding:20pt;background-color:#F0FFF0;' value='Vložit zboží všechno najednou do košíku' type='submit'/>" .
                 "</td> </tr>";
             $result .= "</table>";
 
@@ -332,13 +336,25 @@ EOD;
             $result.="<a href=\"http://www.reliablecounter.com\" target=\"_blank\"><img src=\"http://www.reliablecounter.com/count.php?page=pardubicebezobalu.cz&digit=style/creative/13/&reloads=0\" alt=\"www.reliablecounter.com\" title=\"www.reliablecounter.com\" border=\"0\"></a><br />";
             // $result.="<textarea rows=1 cols=5>".$cats."</textarea>";
             $result .= "<input id='qrcode' name='qrcode' onkeyup='checkQrCode(false);'>";
+
+            $formPosted = !empty($_POST);
+            if ($formPosted && isset($_POST['bulkAddToCartButton'])) {
+                if (CustomUtils::isAdmin($this->context)) {
+                    $redirectUrl = '/objednávku';
+                } else {
+                    $redirectUrl = '/kosik?action=show';
+                }
+                $result.='<a href="http://doc.prestashop.com/display/PS17/Installing+PrestaShop?utm_source=html_installer">You will be redirected to the getting started guide</a>                
+                <script type="text/javascript">document.location.href = \''.$redirectUrl.'\';</script>';
+            }
+
             return $result;
 
-            /*
+
             } catch (Exception $e) {
                 var_dump($e);
                 return "Došlo k chybě při zobrazení stránky pro zrychlenou objednávku zboží, prosím přidejte zboží po jednom.";
-            }*/
+            }
 
         } else {
             return "";
