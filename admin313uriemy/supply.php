@@ -61,7 +61,7 @@ EOD;
             $storeQuantities .= "<tr style='background-color: #50FFFF'>\n".
                 "<td>".$name."</td>\n".
                 "<td>ID: ".$idSupplier."</td>\n".
-                "<td>Příští doručení: ".CustomUtils::calculateNextSupplyDate($row)."</td>\n".
+                "<td>Příští doručení: ".CustomUtils::calculateDeliveryInfo($row)->deliveryDate."</td>\n".
                 "</tr>\n\n";
         }
         if ($idProduct!=$lastIdProduct) {

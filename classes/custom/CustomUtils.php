@@ -1,24 +1,42 @@
 <?php
 require_once 'PriceInfo.php';
+require_once 'DeliveryInfo.php';
 class CustomUtils {
 
     const vaziZhrubaLabel = "váží zhruba";
-    const czechDateFormat = 'd.m.Y H:i';
+    const czechDateFormat = 'D d.m.Y H:i';
+    const czechDateFormatNoYear = 'D d.m. H:i';
 
-    public static function calculateNextSupplyDate($dbRow)
+    public static function calculateDeliveryInfo($dbRow)
     {
-        $cronstr = $dbRow['cronstr'];
-        $orderDate = $dbRow['order_date'];
+        $result = new DeliveryInfo();
 
+        $cronstr = $dbRow['cronstr'];
+        $deliveryDate = $dbRow['delivery_date'];
+        $orderDeliveryDiffHours = $dbRow["order_delivery_diff_hours"];
 
         $nextOrder = "";
+        $timestamp = (new DateTime())->getTimestamp();
         if (strlen($cronstr) > 0) {
             $cron = Cron\CronExpression::factory($cronstr);
-            $nextOrder = $cron->getNextRunDate()->format(CustomUtils::czechDateFormat);
-        } else if (isset($orderDate)) {
-            $nextOrder = date(CustomUtils::czechDateFormat, strtotime($orderDate));
+            // $nextOrder = $cron->getNextRunDate()->format(CustomUtils::czechDateFormat);
+            $result->deliveryDate = $cron->getNextRunDate()->getTimestamp();
+            $result->orderDate = $result->deliveryDate - 60 * 60 * $orderDeliveryDiffHours;
+            if ($result->orderDate< $timestamp) {
+                $result->deliveryDate = $cron->getNextRunDate(1)->getTimestamp();
+                $result->orderDate = $result->deliveryDate - 60 * 60 * $orderDeliveryDiffHours;
+            }
+        } else if (isset($deliveryDate)) {
+            // $nextOrder = date(CustomUtils::czechDateFormat, strtotime($orderDate));
+            $result->deliveryDate = strtotime($deliveryDate);
+            $result->orderDate = $result->deliveryDate - 60 * 60 * $orderDeliveryDiffHours;
+            if ($result->orderDate<$timestamp) {
+                $result->deliveryDate = null;
+                $result->orderDate = null;
+            }
         }
-        return $nextOrder;
+
+        return $result;
     }
 
     public static function priceInfo($productName, $price) {
@@ -57,8 +75,8 @@ class CustomUtils {
 
             $start = $vaziZhrubaPos + strlen(CustomUtils::vaziZhrubaLabel) + 1;
             $length = strlen($productName) - strlen(CustomUtils::vaziZhrubaLabel) - $vaziZhrubaPos - 1;
-            $gramPerKs = substr($productName, $start, strlen($productName) - $start - 2);
-            $result->gramPerKs = $gramPerKs;
+            $gramPerKs = substr($productName, $start, strlen($productName) - $start - 1);
+            $result->gramPerKs = intval(trim($gramPerKs));
             $result->isWeightedKs = true;
 
         } else {
@@ -100,6 +118,19 @@ class CustomUtils {
         return '<a href="/admin313uriemy/index.php?controller=AdminOrders&id_order='.$idOrder.'&&vieworder">'.
         $linkBody.
     '</a>';
+    }
+
+    public static function czechDate($date)
+    {
+        $result = date(CustomUtils::czechDateFormatNoYear, $date);
+        $result = str_replace('Mon', 'Po', $result);
+        $result = str_replace('Tue', 'Út', $result);
+        $result = str_replace('Wed', 'St', $result);
+        $result = str_replace('Thu', 'Čt', $result);
+        $result = str_replace('Fri', 'Pá', $result);
+        $result = str_replace('Sat', 'So', $result);
+        $result = str_replace('Sun', 'Ne', $result);
+        return $result;
     }
 
 }

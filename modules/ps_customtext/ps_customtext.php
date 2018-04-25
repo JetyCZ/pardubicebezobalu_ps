@@ -209,15 +209,33 @@ EOD;
                                     }
                                 }
 
-                                foreach ($supplierCrons as $supplierCron) {
+                                foreach ($supplierCrons as $supplierCronDbRow) {
 
                                     $productIdSupplier = $product["id_supplier"];
-                                    $cronIdSupplier = $supplierCron["id_supplier"];
-                                    if ($cronIdSupplier == $productIdSupplier) {
-                                        $nextDeliveryDate = CustomUtils::calculateNextSupplyDate($supplierCron);
+                                    $cronIdSupplier = $supplierCronDbRow["id_supplier"];
+                                    try {
+                                        if ($cronIdSupplier == $productIdSupplier) {
+                                            $deliveryInfo = CustomUtils::calculateDeliveryInfo($supplierCronDbRow);
 
-                                        $stockLabel .= $this->infoLabel("Zboží budeme objednávat, k vyzvednutí bude <b>".$nextDeliveryDate."</b>","Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.");
-                                        break;
+                                            $orderDateStr = $deliveryInfo->orderDateStr();
+                                            $deliveryDateStr = $deliveryInfo->deliveryDateStr();
+                                            $infoLabel = "Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.";
+
+                                            if ($deliveryDateStr==null) {
+                                                $infoText = "Zboží už jsme objednali, termín další objednávky zatím dosud není stanoven.";
+                                            } else {
+                                                $infoText = "Zboží budeme objednávat "
+                                                    . $orderDateStr
+                                                    . ", k vyzvednutí bude <b>"
+                                                    . $deliveryDateStr
+                                                    ."</b>";
+                                            }
+
+                                            $stockLabel .= $this->infoLabel($infoText, $infoLabel);
+                                            break;
+                                        }
+                                    } catch (Exception $e) {
+                                        var_dump($e);
                                     }
 
                                 }
@@ -352,7 +370,7 @@ EOD;
 
 
             } catch (Exception $e) {
-                var_dump($e);
+                var_dump("<!--".$e."-->");
                 return "Došlo k chybě při zobrazení stránky pro zrychlenou objednávku zboží, prosím přidejte zboží po jednom.";
             }
 

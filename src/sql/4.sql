@@ -1,0 +1,1 @@
+ALTER TABLE ps_jety_supplier_cron CHANGE order_date delivery_date timestamp;
