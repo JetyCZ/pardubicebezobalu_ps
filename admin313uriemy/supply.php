@@ -18,7 +18,6 @@ try {
 <html lang="en"><head><meta charset="utf-8">';
 
 
-
     connect_to_database();
 
     $sql = <<<'EOD'
@@ -50,20 +49,35 @@ EOD;
     $lastIdProduct = -1;
     $storeQuantities = "<table border=1 cellpadding=2 cellspacing=0>";
     $productQuantityOrder = 0;
+
+    $x = Cron\CronExpression::factory("0 15 * * *")->getNextRunDate('now', 1);
+
+
     while($row = $result->fetch_assoc()) {
+
         $idSupplier = $row['id_supplier'];
         $idProduct = $row['id_product'];
         $name = $row['sname'];
         $pname = $row['pname'];
         $mnozstviObjednavane = $row['mnozstvi_objednavane'];
 
+
+
+        try {
+            $nextD = CustomUtils::calculateDeliveryInfo($row)->deliveryDateStr();
+        } catch (Exception $e) {
+            $nextD = "ERROR" . $row['cronstr'];
+        }
+
         if ($idSupplier!=$lastIdSupplier) {
             $storeQuantities .= "<tr style='background-color: #50FFFF'>\n".
                 "<td>".$name."</td>\n".
                 "<td>ID: ".$idSupplier."</td>\n".
-                "<td>Příští doručení: ".CustomUtils::calculateDeliveryInfo($row)->deliveryDate."</td>\n".
+                "<td>Příští doručení: ".$nextD."</td>\n".
+                "<td>Příští doručení: ".$row['cronstr']."</td>\n".
                 "</tr>\n\n";
         }
+
         if ($idProduct!=$lastIdProduct) {
             $storeQuantities = replaceProductRow($lastIdProduct, $productQuantityOrder, $storeQuantities);
             $storeQuantities .= "<tr style='background-color: #C0FFFF'>\n".

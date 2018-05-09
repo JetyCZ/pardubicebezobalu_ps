@@ -9,11 +9,13 @@ class CustomUtils {
 
     public static function calculateDeliveryInfo($dbRow)
     {
+
         $result = new DeliveryInfo();
 
         $cronstr = $dbRow['cronstr'];
-        $deliveryDate = $dbRow['delivery_date'];
+        $deliveryDateExact = $dbRow['delivery_date'];
         $orderDeliveryDiffHours = $dbRow["order_delivery_diff_hours"];
+
 
         $nextOrder = "";
         $timestamp = (new DateTime())->getTimestamp();
@@ -22,13 +24,25 @@ class CustomUtils {
             // $nextOrder = $cron->getNextRunDate()->format(CustomUtils::czechDateFormat);
             $result->deliveryDate = $cron->getNextRunDate()->getTimestamp();
             $result->orderDate = $result->deliveryDate - 60 * 60 * $orderDeliveryDiffHours;
-            if ($result->orderDate< $timestamp) {
-                $result->deliveryDate = $cron->getNextRunDate(1)->getTimestamp();
-                $result->orderDate = $result->deliveryDate - 60 * 60 * $orderDeliveryDiffHours;
+            if ($result->orderDate < $timestamp) {
+                $freshFound = false;
+                $nth = 1;
+                while (!$freshFound) {
+                    $result->deliveryDate = $cron->getNextRunDate('now', $nth)->getTimestamp();
+                    $result->orderDate = $result->deliveryDate - 60 * 60 * $orderDeliveryDiffHours;
+                    $freshFound = $result->orderDate > $timestamp;
+                    $nth++;
+                }
             }
-        } else if (isset($deliveryDate)) {
+            $dayOfWeek = date('N', $result->deliveryDate);
+            if ($dayOfWeek == 6) {
+                $result->deliveryDate += 60 * 60 * 2 * 24;
+            } else if ($dayOfWeek == 7) {
+                $result->deliveryDate += 60 * 60 * 1 * 24;
+            }
+        } else if (isset($deliveryDateExact)) {
             // $nextOrder = date(CustomUtils::czechDateFormat, strtotime($orderDate));
-            $result->deliveryDate = strtotime($deliveryDate);
+            $result->deliveryDate = strtotime($deliveryDateExact);
             $result->orderDate = $result->deliveryDate - 60 * 60 * $orderDeliveryDiffHours;
             if ($result->orderDate<$timestamp) {
                 $result->deliveryDate = null;
@@ -110,7 +124,8 @@ class CustomUtils {
 
     public static function ordersWithProductLink($idProduct)
     {
-        return '<a href="/admin313uriemy/index.php?controller=AdminOrders&idProduct='.$idProduct.'">OBJ</a>';
+        return
+            '<a href="/admin313uriemy/index.php?controller=AdminOrders&idProduct='.$idProduct.'">OBJ</a>';
     }
 
     public static function orderLink($idOrder, $linkBody)

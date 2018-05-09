@@ -143,7 +143,8 @@ EOD;
 
                         $quantity = $product["quantity"];
                         $outOfStock = (int) $product["out_of_stock"];
-                        $shortUrl = $product["id_product"] . "-" . $product["link_rewrite"];
+                        $linkRewrite = $product["link_rewrite"];
+                        $shortUrl = $product["id_product"] . "-" . $linkRewrite;
 
                         if (
                             !array_key_exists($idProduct, $productIds) &&
@@ -158,6 +159,8 @@ EOD;
                             $cats.="\n".($catProductCounter++).": '".$shortUrl."',";
 
                             $resultOneCategory .= "\n<tr>";
+                            $resultOneCategory.='<a name="'.$linkRewrite.'"></a>';
+
                             $productName = $product["name"];
                             $price = $product["price"];
                             $link = $product["link"];
