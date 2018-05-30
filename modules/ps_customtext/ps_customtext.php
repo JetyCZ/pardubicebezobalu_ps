@@ -97,7 +97,7 @@ EOD;
             // try {
             $context = Context::getContext();
             $lang = (int)$context->language->id;
-
+            $isAdmin = CustomUtils::isAdmin($this->context);
 
             $rootCat = Category::getRootCategory();
 
@@ -108,11 +108,13 @@ EOD;
 
             $formPosted = !empty($_POST);
             // http://jsbin.com/xecacojave/edit?html,js,output
-            $result .= "<div style='position:fixed;top:0pt;left:0pt;background-color:#FFF0F0;color:black;' id='cartTotalPrice'>0,- Kč</div>";
-            if (CustomUtils::isAdmin($this->context)) {
-                $result .= "<div style='position:fixed;top:50pt;height:50pt;left:0pt;background-color:#FFF0FF;' id='btnAddAllTopLeft'>Vložit vše</div>";
-            }
-            $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
+            $result .= "<div style='position:fixed;top:0pt;left:0pt;' >";
+                $result .= "<h2 style='background-color:#FFF0F0;color:black;' id='cartTotalPrice'>0,- Kč</h2>";
+                if ($isAdmin) {
+                    $result .= "<h2 style='background-color:#FFF0FF;' id='btnAddAllTopLeft'>Vložit vše</h2>";
+                }
+                $result .= "</div>";
+                $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
                     <th>Zboží</th>
                     <th>Cena za jednotku <br>vč. DPH</th>
                     <th>Objednané množství</th>
@@ -130,6 +132,9 @@ EOD;
                 $catName = $childCat["name"];
 
                 $idCategory = $childCat["id_category"];
+                if ($idCategory==28 && !$isAdmin) {
+                    continue;
+                }
                 $cat = new Category($idCategory);
                 $products = $cat->getProducts($lang, 0, 1000);
 
@@ -171,7 +176,7 @@ EOD;
                                 "</a>" ;
 
 
-                            if (CustomUtils::isAdmin($this->context)) {
+                            if ($isAdmin) {
                                 $resultOneCategory.=' |&nbsp;'.
                                     CustomUtils::ordersWithProductLink($idProduct);
                             }
@@ -258,7 +263,7 @@ EOD;
                                 $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl ."' ";
                                 $resultOneCategory .= "<input ".$productQuantityKsIdAttr." class='quantity' style='width:100px' oninput=" . $updateFunctionFruitKs . " onchange=". $updateFunctionFruitKs . " type='number' value='0' name='" . $fieldName . "Ks' min=0 ".$maxAttribute . ">";
 
-                                if (CustomUtils::isAdmin($this->context)) {
+                                if ($isAdmin) {
                                     $type="type='text' ".$oninput.$onchange;
                                     $resultOneCategory .= " " . $priceInfo->unitX;
                                     $resultOneCategory .= "&nbsp;<input ".$type." value='0' name='" . $fieldName . "' ".$productQuantityIdAttr.">";
@@ -360,7 +365,7 @@ EOD;
 
             $formPosted = !empty($_POST);
             if ($formPosted && isset($_POST['bulkAddToCartButton'])) {
-                if (CustomUtils::isAdmin($this->context)) {
+                if ($isAdmin) {
                     $redirectUrl = '/objednávku';
                 } else {
                     $redirectUrl = '/kosik?action=show';

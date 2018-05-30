@@ -26,6 +26,8 @@
 
 require(dirname(__FILE__).'/config/config.inc.php');
 
+
+
 $dispatcher = Dispatcher::getInstance();
 if (isset($_POST['bulkAddToCartButton'])) {
     $dispatcher->dispatch();
@@ -34,4 +36,3 @@ if (isset($_POST['bulkAddToCartButton'])) {
 } else {
     $dispatcher->dispatch();
 }
-

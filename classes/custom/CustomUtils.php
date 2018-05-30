@@ -119,7 +119,11 @@ class CustomUtils {
         if (!isset($context->customer->email)) {
             return false;
         }
-        return ($context->customer->email == 'hhrom@email.cz' || $context->customer->email == 'pavel.jetensky@seznam.cz');
+        return ($context->customer->email == 'hhrom@email.cz' ||
+            $context->customer->email == 'pavel.jetensky@seznam.cz' ||
+            $context->customer->email == 'KatkaMartincova@email.cz' ||
+            $context->customer->email == 'lada.hrochova@mailinator.com'
+        );
     }
 
     public static function ordersWithProductLink($idProduct)
