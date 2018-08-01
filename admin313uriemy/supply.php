@@ -40,9 +40,12 @@ where
   osl.id_lang = 2
   and (osl.name='Probíhá příprava' or osl.name like '%Dodavatele%')
   and pl.id_lang = 2
+  and lastname not like '%stnanec%' 
 order by p.id_supplier, p.id_product
 EOD;
 
+
+    $emails = "";
 
     $result = $conn->query($sql);
     $lastIdSupplier = -1;
