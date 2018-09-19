@@ -118,9 +118,22 @@
 
   <div id="payment-confirmation">
     <div class="ps-shown-by-js">
-      <button type="submit" {if !$selected_payment_option} disabled {/if} class="btn btn-primary center-block">
+      <button id='orderBtn' type="submit" {if !$selected_payment_option} disabled {/if} class="btn btn-primary center-block">
         {l s='Order with an obligation to pay' d='Shop.Theme.Checkout'}
       </button>
+      {if $isAdmin}
+        <script type="text/javascript">
+            if (document.getElementById('checkout-payment-step').classList.contains('-current')) {
+                document.getElementById('orderBtn').disabled = false;
+                document.getElementById('payment-option-1').click();
+                document.getElementById('conditions_to_approve[terms-and-conditions]').click();
+                setTimeout(function (){
+                    document.getElementById('orderBtn').click();
+                }, 500);
+
+            }
+        </script>
+      {/if}
       {if $show_final_summary}
         <article class="alert alert-danger mt-2 js-alert-payment-conditions" role="alert" data-alert="danger">
           {l

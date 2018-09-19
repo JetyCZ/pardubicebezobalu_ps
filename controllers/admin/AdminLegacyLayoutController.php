@@ -51,12 +51,12 @@ class AdminLegacyLayoutControllerCore extends AdminController
         $this->helpLink = $helpLink;
     }
 
-    public function setMedia()
+    public function setMedia($isNewTheme = false)
     {
         parent::setMedia(true);
     }
 
-    public function viewAccess()
+    public function viewAccess($disable = false)
     {
         return true;
     }

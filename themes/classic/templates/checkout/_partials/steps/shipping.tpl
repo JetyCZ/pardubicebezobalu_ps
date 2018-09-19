@@ -107,9 +107,16 @@
 
           </div>
         </div>
-        <button type="submit" class="continue btn btn-primary float-xs-right" name="confirmDeliveryOption" value="1">
+        <button id="confirmDeliveryOptionBtn" type="submit" class="continue btn btn-primary float-xs-right" name="confirmDeliveryOption" value="1">
           {l s='Continue' d='Shop.Theme.Actions'}
         </button>
+        {if $isAdmin}
+          <script type="text/javascript">
+              if (document.getElementById('checkout-delivery-step').classList.contains('-current')) {
+                  document.getElementById('confirmDeliveryOptionBtn').click();
+              }
+          </script>
+        {/if}
       </form>
     {else}
       <p class="alert alert-danger">{l s='Unfortunately, there are no carriers available for your delivery address.' d='Shop.Theme.Checkout'}</p>

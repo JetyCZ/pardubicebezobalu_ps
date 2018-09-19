@@ -93,4 +93,7 @@ try {
     }
     // Prepare and trigger LEGACY admin dispatcher
     Dispatcher::getInstance()->dispatch();
+} catch (Exception $e) {
+    // correct Apache charset (except if it's too late)
+    var_dump($e);
 }

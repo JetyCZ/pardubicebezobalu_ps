@@ -214,6 +214,7 @@ class CheckoutAddressesStepCore extends AbstractCheckoutStep
             'show_delivery_address_form' => $this->show_delivery_address_form,
             'show_invoice_address_form' => $this->show_invoice_address_form,
             'form_has_continue_button' => $this->form_has_continue_button,
+            'isAdmin' => CustomUtils::isAdminEmail($this->getCheckoutSession()->getCustomer()->email),
         );
     }
 

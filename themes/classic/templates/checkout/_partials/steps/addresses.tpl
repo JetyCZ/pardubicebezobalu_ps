@@ -28,6 +28,7 @@
   <div class="js-address-form">
     <form
       method="POST"
+      id="addressForm"
       action="{$urls.pages.order}"
       data-refresh-url="{url entity='order' params=['ajax' => 1, 'action' => 'addressForm']}"
     >
@@ -113,9 +114,16 @@
 
       {if !$form_has_continue_button}
         <div class="clearfix">
-          <button type="submit" class="btn btn-primary continue float-xs-right" name="confirm-addresses" value="1">
+            <button id='confirmAddressesBtn' type="submit" class="btn btn-primary continue float-xs-right" name="confirm-addresses" value="1">
               {l s='Continue' d='Shop.Theme.Actions'}
           </button>
+            {if $isAdmin}
+             <script type="text/javascript">
+                 if (document.getElementById('checkout-addresses-step').classList.contains('-current')) {
+                     document.getElementById('confirmAddressesBtn').click();
+                 }
+             </script>
+            {/if}
         </div>
       {/if}
 

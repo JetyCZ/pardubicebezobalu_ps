@@ -338,7 +338,7 @@ class AdminOrdersControllerCore extends AdminController
         return $res;
     }
 
-    public function setMedia()
+    public function setMedia($isNewTheme = false)
     {
         parent::setMedia();
 

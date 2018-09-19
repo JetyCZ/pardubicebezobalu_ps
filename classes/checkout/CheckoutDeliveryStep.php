@@ -185,6 +185,7 @@ class CheckoutDeliveryStepCore extends AbstractCheckoutStep
                     ),
                     'message' => $this->getCheckoutSession()->getGift()['message'],
                 ),
+                'isAdmin' => CustomUtils::isAdminEmail($this->getCheckoutSession()->getCustomer()->email),
             )
         );
     }

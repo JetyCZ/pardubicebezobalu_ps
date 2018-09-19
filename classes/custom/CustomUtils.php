@@ -116,14 +116,11 @@ class CustomUtils {
         if (!isset($context->customer)) {
             return false;
         }
-        if (!isset($context->customer->email)) {
+        $email = $context->customer->email;
+        if (!isset($email)) {
             return false;
         }
-        return ($context->customer->email == 'hhrom@email.cz' ||
-            $context->customer->email == 'pavel.jetensky@seznam.cz' ||
-            $context->customer->email == 'KatkaMartincova@email.cz' ||
-            $context->customer->email == 'lada.hrochova@mailinator.com'
-        );
+        return self::isAdminEmail($email);
     }
 
     public static function ordersWithProductLink($idProduct)
@@ -150,6 +147,20 @@ class CustomUtils {
         $result = str_replace('Sat', 'So', $result);
         $result = str_replace('Sun', 'Ne', $result);
         return $result;
+    }
+
+    /**
+     * @param $email
+     * @return bool
+     */
+    public static function isAdminEmail($email): bool
+    {
+        return ($email == 'hhrom@email.cz' ||
+            $email == 'pavel.jetensky@seznam.cz' ||
+            $email == 'KatkaMartincova@email.cz' ||
+            $email == 'sona.zavacka@seznam.cz' ||
+            $email == 'lada.hrochova@mailinator.com'
+        );
     }
 
 }

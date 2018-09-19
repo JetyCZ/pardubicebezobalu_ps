@@ -25,14 +25,15 @@
  */
 
 require(dirname(__FILE__).'/config/config.inc.php');
-
-
-
+try {
 $dispatcher = Dispatcher::getInstance();
+
 if (isset($_POST['bulkAddToCartButton'])) {
     $dispatcher->dispatch();
-
-
 } else {
-    $dispatcher->dispatch();
+
+        $dispatcher->dispatch();
 }
+} catch (Exception $e) {
+        var_dump($e);
+    }

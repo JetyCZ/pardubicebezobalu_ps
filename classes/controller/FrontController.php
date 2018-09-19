@@ -633,6 +633,7 @@ class FrontControllerCore extends Controller
                 $cart->update();
             }
         }
+        if (!isset($cart)) $cart = $this->createNewCart();
         return $cart;
     }
 
