@@ -41,9 +41,10 @@ where
   and (osl.name='Probíhá příprava' or osl.name like '%Dodavatele%')
   and pl.id_lang = 2
   and lastname not like '%stnanec%' 
+  and lastname not like '% Soukromé%' 
+  and lastname not like '%- dobrovolník%' 
 order by p.id_supplier, p.id_product
 EOD;
-
 
     $emails = "";
 
@@ -55,7 +56,7 @@ EOD;
 
     $x = Cron\CronExpression::factory("0 15 * * *")->getNextRunDate('now', 1);
 
-
+    $supplierEmail = "blabla";
     while($row = $result->fetch_assoc()) {
 
         $idSupplier = $row['id_supplier'];
@@ -73,37 +74,48 @@ EOD;
         }
 
         if ($idSupplier!=$lastIdSupplier) {
+
+            if ($lastIdSupplier!=-1) {
+                $storeQuantities.= "<tr><td colspan='3'>EMAIL pro ".$supplierEmail."</td>";
+            }
+
+
+            $supplierEmail = "";
             $storeQuantities .= "<tr style='background-color: #50FFFF'>\n".
-                "<td>".$name."</td>\n".
-                "<td>ID: ".$idSupplier."</td>\n".
+                "<td>".$name." ID: ".$idSupplier."</td>\n".
                 "<td>Příští doručení: ".$nextD."</td>\n".
-                "<td>Příští doručení: ".$row['cronstr']."</td>\n".
+                "<td colspan='3'>Příští doručení: ".$row['cronstr']."</td>\n".
                 "</tr>\n\n";
         }
 
         if ($idProduct!=$lastIdProduct) {
             $storeQuantities = replaceProductRow($lastIdProduct, $productQuantityOrder, $storeQuantities);
             $storeQuantities .= "<tr style='background-color: #C0FFFF'>\n".
-                "<td></td>\n".
                 // https://pardubicebezobalu.cz/admin313uriemy/index.php/product/form/97?_token=6adX_6N5uHX1gPxK7cpllNSUhcD9GWDJ1umavpLA2s8#tab-step1
                 "<td><a href='/admin313uriemy/index.php/product/form/".$idProduct."'>".$row['pname']."</a></td>\n".
                 "<td>Objednat celkem: productQuantityOrder".$idProduct."</td>\n".
-                "<td>Množství v e-shopu: ".$row["mnozstvi_nasklade"]."</td>\n".
+                "<td colspan='3'>Množství v e-shopu: ".$row["mnozstvi_nasklade"]."</td>\n".
                 "</tr>";
             $productQuantityOrder = $mnozstviObjednavane;
         } else {
             $productQuantityOrder += $mnozstviObjednavane;
         }
 
+        $orderDateStr = $row["date_add"];
+        //  2018-09-13 07:10:29
+        //$orderDate = DateTime::createFromFormat("Y-m-d H:i:s", $orderDateStr);
+        //$orderAge = date_diff($orderDate, new DateTime( ));
+        $orderAge = "0";
         $storeQuantities .= "<tr>\n".
-            "<td>now:".$mnozstviObjednavane." sum:".$productQuantityOrder."</td>\n".
             "<td></td>\n".
             "<td>".$row["mnozstvi_objednavane"]."</td>\n".
-            "<td>Obj. ".CustomUtils::orderLink($row['id_order'], $row["date_add"])."</td>\n".
+            "<td>Obj. stará ".$orderAge."  dní, ".CustomUtils::orderLink($row['id_order'], $orderDateStr)."</td>\n".
             "<td title='".$row["cid"]."'>".$row["firstname"]."</td>\n".
             "<td>".$row["lastname"]."</td>\n".
             "<td>".$row["name"]."</td>\n".
             "</tr>\n\n";
+
+
 
         $lastIdSupplier = $idSupplier;
         $lastIdProduct = $idProduct;
