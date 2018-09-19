@@ -217,36 +217,7 @@ EOD;
                                     }
                                 }
 
-                                foreach ($supplierCrons as $supplierCronDbRow) {
-
-                                    $productIdSupplier = $product["id_supplier"];
-                                    $cronIdSupplier = $supplierCronDbRow["id_supplier"];
-                                    try {
-                                        if ($cronIdSupplier == $productIdSupplier) {
-                                            $deliveryInfo = CustomUtils::calculateDeliveryInfo($supplierCronDbRow);
-
-                                            $orderDateStr = $deliveryInfo->orderDateStr();
-                                            $deliveryDateStr = $deliveryInfo->deliveryDateStr();
-                                            $infoLabel = "Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.";
-
-                                            if ($deliveryDateStr==null) {
-                                                $infoText = "Zboží už jsme objednali, termín další objednávky zatím dosud není stanoven.";
-                                            } else {
-                                                $infoText = "Zboží budeme objednávat "
-                                                    . $orderDateStr
-                                                    . ", k vyzvednutí bude <b>"
-                                                    . $deliveryDateStr
-                                                    ."</b>";
-                                            }
-
-                                            $stockLabel .= $this->infoLabel($infoText, $infoLabel);
-                                            break;
-                                        }
-                                    } catch (Exception $e) {
-                                        var_dump($e);
-                                    }
-
-                                }
+                                $stockLabel = $this->calculateStockLabel($supplierCrons, $product, $stockLabel);
 
                             } else {
                                 $stockLabel = $inStoreLabel;
@@ -625,6 +596,47 @@ EOD;
                 ."\n\t<i class=\"glyphicon glyphicon-info-sign\"></i> "
                 ."\n".$text
             . " \n</div>";
+    }
+
+    /**
+     * @param $supplierCrons
+     * @param $product
+     * @param $stockLabel
+     * @return array
+     */
+    public function calculateStockLabel($supplierCrons, $product, $stockLabel)
+    {
+        foreach ($supplierCrons as $supplierCronDbRow) {
+
+            $productIdSupplier = $product["id_supplier"];
+            $cronIdSupplier = $supplierCronDbRow["id_supplier"];
+            try {
+                if ($cronIdSupplier == $productIdSupplier) {
+                    $deliveryInfo = CustomUtils::calculateDeliveryInfo($supplierCronDbRow);
+
+                    $orderDateStr = $deliveryInfo->orderDateStr();
+                    $deliveryDateStr = $deliveryInfo->deliveryDateStr();
+                    $infoLabel = "Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.";
+
+                    if ($deliveryDateStr == null) {
+                        $infoText = "Zboží už jsme objednali, termín další objednávky zatím dosud není stanoven.";
+                    } else {
+                        $infoText = "Zboží budeme objednávat "
+                            . $orderDateStr
+                            . ", k vyzvednutí bude <b>"
+                            . $deliveryDateStr
+                            . "</b>";
+                    }
+
+                    $stockLabel .= $this->infoLabel($infoText, $infoLabel);
+                    break;
+                }
+            } catch (Exception $e) {
+                var_dump($e);
+            }
+
+        }
+        return $stockLabel;
     }
 
 }
