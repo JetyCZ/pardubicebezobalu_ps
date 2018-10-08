@@ -133,7 +133,7 @@
                       name="product-quantity-spin"
                       min="{$product.minimal_quantity}"
                     />
-                {if strpos($product.name, 'stáčený produkt') != false}
+                {if strpos($product.name, 'stáčený produkt') != false || strpos($product.name, 'stá?ený produkt') != false}
                     mililitrů
                 {elseif (strpos($product.name, 'na váhu') != false) || (strpos($product.name, 'váží zhruba') != false)}
                     gramů

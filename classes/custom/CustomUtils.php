@@ -58,13 +58,16 @@ class CustomUtils {
         $isWeighted = false;
         $result = new PriceInfo();
         $result->isWeightedKs = false;
+        $result->isPoured = false;
 
-        if (strpos($productName, 'stáčený produkt') != false) {
+        if (CustomUtils::isPouredProduct($productName)) {
             $unitX = "ml ";
 
             $help = "(1000 = 1 litr)";
             $zaLabelUnit = "za litr";
             $zaLabelPrice = $price*1000;
+
+            $result->isPoured = true;
         } elseif (strpos($productName, 'na váhu') != false) {
             $isWeighted = true;
             $unitX = "g ";
@@ -161,6 +164,11 @@ class CustomUtils {
             $email == 'sona.zavacka@seznam.cz' ||
             $email == 'lada.hrochova@mailinator.com'
         );
+    }
+
+    public static function isPouredProduct($productName)
+    {
+        return strpos($productName, 'stáčený produkt') != false || strpos($productName, 'stá?ený produkt') != false;
     }
 
 }

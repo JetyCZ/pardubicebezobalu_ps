@@ -25,7 +25,7 @@
 <div class="product-add-to-cart">
   {if !$configuration.is_catalog}
     <span class="control-label">
-    {if strpos($product.name, 'stáčený produkt') != false}
+    {if strpos($product.name, 'stáčený produkt') != false || strpos($product.name, 'stá?ený produkt') != false}
     Objednávaný objem stáčeného zboží (1000 = 1 litr)
     {elseif strpos($product.name, 'na váhu') != false}
       Objednávaná váha zboží (v gramech: 1000 = 1Kg)

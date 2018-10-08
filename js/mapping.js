@@ -1,3 +1,12 @@
+    var tierreGramPerLitrMapping = {
+
+        '52-praci-gel-z-mydlovych-orechu-bez-vune-staceny':1065,
+        '54-praci-gel-z-mydlovych-orechu-se-silici-vavrinu-kubeboveho-staceny':1080,
+        '58-gel-do-mycky-na-nadobi-z-mydlovych-orechu-staceny':1099,
+        '59-gel-na-nadobi-staceny':1011,
+        '60-wc-cistic-staceny':1025,
+    };
+
     var map = {
         1: '133-merunky-cele-na-vahu',
         2: '135-cokoladove-kaminky-na-vahu',
@@ -199,4 +208,24 @@
 
 
         totalPriceSpan.innerText = labelKc + '; ' + Math.round(totalWeight*100) / (100*1000) + ' Kg';
+    }
+
+
+    function updateMililitersInput(productId, shortUrl) {
+        var tierreGramPerLitr = tierreGramPerLitrMapping[shortUrl];
+        if (tierreGramPerLitr > 0) {
+            var quantityElem = document.getElementById("productQuantity_" + shortUrl);
+            var pouredGramElem = document.getElementById("productPouredGram_" + shortUrl);
+            quantityElem.value = Math.round(pouredGramElem.value * tierreGramPerLitr/1000);
+        }
+        updateTotalPrice(productId, shortUrl);
+
+    }
+    function updateProductPouredGramInput(productId, shortUrl) {
+        var tierreGramPerLitr = tierreGramPerLitrMapping[shortUrl];
+        if (tierreGramPerLitr > 0) {
+            var quantityElem = document.getElementById("productQuantity_" + shortUrl);
+            var pouredGramElem = document.getElementById("productPouredGram_" + shortUrl);
+            pouredGramElem.value = Math.round(quantityElem.value * (1000/tierreGramPerLitr));
+        }
     }

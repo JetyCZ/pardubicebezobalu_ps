@@ -16,6 +16,7 @@ class PriceInfo
     public $zaLabelPrice;
     public $price;
     public $gramPerKs;
+    public $isPoured;
 
     public function pricePerUnitLabel() {
         $pricePerUnitLabel = "";

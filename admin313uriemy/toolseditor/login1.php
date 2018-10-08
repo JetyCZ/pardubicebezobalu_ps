@@ -87,8 +87,8 @@ else  /* when login1.php is called stand-alone ( = not from approve.php) */
   echo "<br/>";
   if($usecookies) echo "Cookie"; else echo "Session";
   echo "<br/>IP address = ".$_SERVER['REMOTE_ADDR'];
-  if(!isset($_POST['username'])) $_POST['username'] = "";
-  if(!isset($_POST['pswd'])) $_POST['pswd'] = "";
+  if(!isset($_POST['username'])) $_POST['username'] = "w175205";
+  if(!isset($_POST['pswd'])) $_POST['pswd'] = "A5a0b1_570df";
   echo '
 <p/>&nbsp;<p/>&nbsp;<p/><p/><p/><p/>
 <center>

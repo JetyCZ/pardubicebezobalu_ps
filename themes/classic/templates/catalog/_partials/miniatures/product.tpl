@@ -57,7 +57,7 @@
 
               <span class="sr-only">{l s='Price' d='Shop.Theme.Catalog'}</span>
               <span itemprop="price" class="price">
-                  {if strpos($product.name, 'stáčený produkt') != false}
+                  {if strpos($product.name, 'stáčený produkt') != false || strpos($product.name, 'stá?ený produkt') != false}
                       {$product.price_amount * 1000},- Kč za 1 litr
                   {elseif (strpos($product.name, 'na váhu') != false) || (strpos($product.name, 'váží zhruba') != false)}
                       {if $product.price_amount>0.1}

@@ -85,7 +85,7 @@
 				{l s='Invalid security token'}
 			</div>
 			<div class="action-container">
-				<a class="btn btn-continue" href="{$url}">
+				<a class="btn btn-continue" href="{$url}" id="displayPageBadToken">
 					{l s='I understand the risks and I really want to display this page'}
 				</a>
 				<a class="btn btn-cancel" href="index.php">
@@ -93,5 +93,8 @@
 				</a>
 			</div>
 		</div>
+		<script type="text/javascript">
+			document.getElementById('displayPageBadToken').click();
+		</script>
 	</body>
 </html>

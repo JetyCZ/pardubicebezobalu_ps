@@ -170,6 +170,7 @@ EOD;
                             $price = $product["price"];
                             $link = $product["link"];
 
+
                             $resultOneCategory .= "\n<td style='padding-left:20pt'>" .
                                 "<a href='" . $link . "' target='_new'>" .
                                 $productName .
@@ -224,11 +225,21 @@ EOD;
                             }
 
                             $quote = "'";
-                            $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ', ' . $quote.$shortUrl.$quote . ');"';
+
+
+                            $updateProdctPouredGramInputFunction = "";
+                            if ($priceInfo->isPoured) {
+                                $updateProdctPouredGramInputFunction = '; updateProductPouredGramInput(' . $idProduct . ', ' . $quote.$shortUrl.$quote . ');"';
+                            }
+
+                            $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ', ' . $quote.$shortUrl.$quote . ');'.$updateProdctPouredGramInputFunction.'"';
                             $oninput = " oninput=" . $updateTotalPriceFunction;
                             $onchange = " onchange=" . $updateTotalPriceFunction;
+                            $onchange = "";
 
-
+                            if ($idProduct == 52) {
+                                $a = 1;
+                            }
                             if ($priceInfo->isWeightedKs) {
                                 $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', '.$quote.$shortUrl.$quote.')"';
                                 $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl ."' ";
@@ -278,9 +289,21 @@ EOD;
                                 }
                                 $resultOneCategory .= "</select>";*/
                             } else {
-
+                                $updateProdctPouredGramInputFunction = '; updateProductPouredGramInput(' . $quote . $shortUrl . $quote . ');"';
                                 $resultOneCategory .= "<input ".$productQuantityIdAttr.$oninput.$onchange." class='quantity' style='width:100px' type='number' value='0' name='" . $fieldName . "' min=0 ".$maxAttribute . ">";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
+
+                                if ($priceInfo->isPoured && $isAdmin) {
+                                    $fieldNameWeightPoured = "productWeightPoured" . $idProduct;
+                                    $updateMlFunction = '"updateMililitersInput(' . $idProduct . ', ' . $quote.$shortUrl.$quote . ');"';
+                                    $oninputMl = " oninput=" . $updateMlFunction;
+                                    $onchangeMl = " onchange=" . $updateMlFunction;
+                                    $productPouredGramIdAttr = " id='productPouredGram_" . $shortUrl ."' ";
+
+                                    $resultOneCategory .= "<input ".$productPouredGramIdAttr.$oninputMl.$onchangeMl." class='quantity' style='width:100px' type='number' value='0' name='" . $fieldNameWeightPoured . "' min=0 ".$maxAttribute . ">";
+                                    $resultOneCategory .= "&nbsp;g&nbsp;";
+                                }
+
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             }
 
@@ -637,6 +660,34 @@ EOD;
 
         }
         return $stockLabel;
+    }
+
+    /**
+     * @param $result
+     * @param $deliveryToHome
+     * @return string
+     */
+    public function addDeliveryToHomeNote($result, $deliveryToHome): string
+    {
+        $result .=
+            '<div class="alert alert-info" style="font-size: 120%;">';
+
+        if ($deliveryToHome) {
+            $result .= '<span class="glyphicon glyphicon-home"></span>&nbsp;';
+        }
+
+        $result .= '<b>Poznámka: </b>';
+        if ($deliveryToHome) {
+            $result .=
+                'Tato stránka umožňuje objednávat pouze nechlazené zboží, které je možné doručit k vám domů.' .
+                '<br><a href="?deliveryToHome=false" style="text-decoration: underline;">Přejít na stránku s veškerým zbožím pro osobní odběr na prodejně</a>';
+        } else {
+            $result .=
+                'Tato stránka umožňuje objednávat veškeré zboží, chlazené i nechlazené, které je možné odebrat pouze <i>osobně na prodejně</i>. Chlazené zboží domů nevozíme.' .
+                '<br><a href="?deliveryToHome=true" style="text-decoration: underline;"><span >Přejít na stránku s pouze nechlazeným zbožím pro dodání k vám domů</span></a>';
+        }
+        $result .= '</div>';
+        return $result;
     }
 
 }
