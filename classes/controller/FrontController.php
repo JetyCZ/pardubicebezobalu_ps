@@ -570,8 +570,7 @@ class FrontControllerCore extends Controller
                         $fieldName = "productQuantity" . $idProduct;
                         if ($formPosted && isset($_POST[$fieldName])) {
                             $quantity = $_POST[$fieldName];
-                            if (isset($quantity) && $quantity > 0) {
-
+                            if (isset($quantity) && $quantity != 0) {
                                 $cart->updateQty($quantity, $idProduct);
                             }
                         }

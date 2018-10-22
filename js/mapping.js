@@ -5,6 +5,9 @@
         '58-gel-do-mycky-na-nadobi-z-mydlovych-orechu-staceny':1099,
         '59-gel-na-nadobi-staceny':1011,
         '60-wc-cistic-staceny':1025,
+        '85-bio-olej-slunecnicovy-na-smazeni-a-peceni-5-l-staceny-produkt':896,
+        '438-bio-olej-slunecnicovy-na-smazeni-a-peceni-5-l-staceny-produkt':878
+
     };
 
     var map = {
@@ -216,7 +219,7 @@
         if (tierreGramPerLitr > 0) {
             var quantityElem = document.getElementById("productQuantity_" + shortUrl);
             var pouredGramElem = document.getElementById("productPouredGram_" + shortUrl);
-            quantityElem.value = Math.round(pouredGramElem.value * tierreGramPerLitr/1000);
+            quantityElem.value = Math.round(pouredGramElem.value / (tierreGramPerLitr/1000));
         }
         updateTotalPrice(productId, shortUrl);
 
@@ -226,6 +229,6 @@
         if (tierreGramPerLitr > 0) {
             var quantityElem = document.getElementById("productQuantity_" + shortUrl);
             var pouredGramElem = document.getElementById("productPouredGram_" + shortUrl);
-            pouredGramElem.value = Math.round(quantityElem.value * (1000/tierreGramPerLitr));
+            pouredGramElem.value = Math.round(quantityElem.value * (tierreGramPerLitr/1000));
         }
     }

@@ -44,7 +44,8 @@ else
   $vat_number = $row["vat_number"];	
 $order_currency = $row['id_currency'];
 $order_currname = $row['currname'];
-$id_lang = (int)$row['id_currency'];
+//$id_lang = (int)$row['id_currency'];
+$id_lang = 2; // Čeština
 $conversion_rate = $row['currrate'] / $cur_rate;
 
 /* get shop group and its shared_stock status */

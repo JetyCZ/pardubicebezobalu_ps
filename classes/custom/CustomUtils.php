@@ -166,9 +166,13 @@ class CustomUtils {
         );
     }
 
-    public static function isPouredProduct($productName)
+    public static function isPouredProduct($productName):bool
     {
-        return strpos($productName, 'stáčený produkt') != false || strpos($productName, 'stá?ený produkt') != false;
+        $isPoured = !(strpos($productName, 'stáčený produkt') === false) || !(strpos($productName, 'stá?ený produkt') === false);
+        return $isPoured;
+    }
+    public static function contains($hay, $needle):bool {
+        return !(strpos($hay, $needle) === false);
     }
 
 }

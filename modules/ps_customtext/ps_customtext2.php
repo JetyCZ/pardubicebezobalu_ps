@@ -74,7 +74,7 @@ class Ps_Customtext extends Module implements WidgetInterface
         $javascript = <<<'EOD'
 <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"></link>
 
-<script type='text/javascript' src="/js/mapping.js?v=3"></script>
+<script type='text/javascript' src="/js/mapping.js?v=1"></script>
 
 
 EOD;
@@ -84,7 +84,7 @@ EOD;
 
     public function hookcustomCMS($params)
     {
-
+        return;
         if (strpos($this->smarty->getTemplateVars("request_uri"), 'zrychlena-objednavka-zbozi') !== false) {
             try {
 
@@ -175,7 +175,6 @@ EOD;
                                 ((int)$quantity > 0)
                             )
                         ) {
-
                             $productQuantityIdAttr = " id='productQuantity_" . $shortUrl ."' ";
 
                             // 1: '133-merunky-cele-na-vahu',
@@ -195,32 +194,32 @@ EOD;
                                 "</a>" ;
 
 
-                                if ($isAdmin) {
-                                    $resultOneCategory.=' |&nbsp;'.
-                                        CustomUtils::ordersWithProductLink($idProduct);
-                                }
-                                $resultOneCategory.="</td>";
+                            if ($isAdmin) {
+                                $resultOneCategory.=' |&nbsp;'.
+                                    CustomUtils::ordersWithProductLink($idProduct);
+                            }
+                            $resultOneCategory.="</td>";
 
 
 
-                                $priceInfo = null;
-                                $priceInfo = CustomUtils::priceInfo($productName, $price);
+                            $priceInfo = null;
+                            $priceInfo = CustomUtils::priceInfo($productName, $price);
 
-                                $resultOneCategory .= "\n<td nowrap='nowrap'>";
-                                $resultOneCategory .= $priceInfo->pricePerUnitLabel();
-                                $resultOneCategory .= "</td>";
-                                $resultOneCategory .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
+                            $resultOneCategory .= "\n<td nowrap='nowrap'>";
+                            $resultOneCategory .= $priceInfo->pricePerUnitLabel();
+                            $resultOneCategory .= "</td>";
 
-                                $fieldName = "productQuantity" . $idProduct;
-                                $resultOneCategory .= "\n<td nowrap='nowrap'>";
+                            $resultOneCategory .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
 
-                                $updateFunction = "updateTotalPrice(" . $idProduct . ")";
+                            $fieldName = "productQuantity" . $idProduct;
+                            $resultOneCategory .= "\n<td nowrap='nowrap'>";
 
-                                $maxAttribute = " max=" . $quantity;
-                                $stockLabel = "";
-                                $inStoreLabel = $this->infoLabel("Skladem: " . $priceInfo->quantityToAmountAndUnit($quantity, 1) ,
-                                    "Množství zboží, které máme fyzicky v prodejně v Brozanech k volnému prodeju. Objednáním přes e-shop si zboží rezervujete pro sebe.");
+                            $updateFunction = "updateTotalPrice(" . $idProduct . ")";
 
+                            $maxAttribute = " max=" . $quantity;
+                            $stockLabel = "";
+                            $inStoreLabel = $this->infoLabel("Skladem: " . $priceInfo->quantityToAmountAndUnit($quantity, 1) ,
+                                "Množství zboží, které máme fyzicky v prodejně v Brozanech k volnému prodeju. Objednáním přes e-shop si zboží rezervujete pro sebe.");
 
                             if ($outOfStock==1) {
                                 $maxAttribute = "";
@@ -242,7 +241,6 @@ EOD;
                                 $stockLabel = $inStoreLabel;
                             }
 
-
                             $quote = "'";
 
 
@@ -256,6 +254,9 @@ EOD;
                             $onchange = " onchange=" . $updateTotalPriceFunction;
                             $onchange = "";
 
+                            if ($idProduct == 52) {
+                                $a = 1;
+                            }
                             if ($priceInfo->isWeightedKs) {
                                 $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', '.$quote.$shortUrl.$quote.')"';
                                 $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl ."' ";
@@ -278,7 +279,6 @@ EOD;
 
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help);
                             } else {
-
                                 $inputMin = 0;
                                 if (CustomUtils::contains($shortUrl,'lahev-na-mleko')) {
                                     $inputMin = -1000;
@@ -287,7 +287,6 @@ EOD;
                                     ." class='quantity' style='width:100px' type='number' value='0' name='" . $fieldName
                                     . "' min=".$inputMin." ".$maxAttribute . ">";
                                 $resultOneCategory .= " " . $priceInfo->unitX;
-
 
                                 if ($priceInfo->isPoured && $isAdmin) {
                                     $fieldNameWeightPoured = "productWeightPoured" . $idProduct;
@@ -301,9 +300,7 @@ EOD;
                                 }
 
                                 $resultOneCategory .= $this->toGraySpan($priceInfo->help).$priceInfo->isPoured ;
-
                             }
-
 
 
 
@@ -324,7 +321,6 @@ EOD;
 
                             $productIds[$idProduct] = 1;
                             $resultOneCategory .= "</tr>";
-
                         }
 
                     }

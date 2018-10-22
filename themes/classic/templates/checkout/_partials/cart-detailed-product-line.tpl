@@ -131,7 +131,12 @@
                       type="text"
                       value="{$product.quantity}"
                       name="product-quantity-spin"
-                      min="{$product.minimal_quantity}"
+                      {if $product.minimal_quantity == 0}
+                        min=-1000
+                        {else}
+                        min={$product.minimal_quantity}
+                      {/if}
+                      min="<if ($min"
                     />
                 {if strpos($product.name, 'stáčený produkt') != false || strpos($product.name, 'stá?ený produkt') != false}
                     mililitrů
