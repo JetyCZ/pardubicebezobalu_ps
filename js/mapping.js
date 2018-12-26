@@ -1,3 +1,4 @@
+    // https://babylon.tierraverde.cz/index.php/s/HKYpUwoIg6au36t#pdfviewer
     var tierreGramPerLitrMapping = {
 
         '52-praci-gel-z-mydlovych-orechu-bez-vune-staceny':1065,
@@ -6,7 +7,9 @@
         '59-gel-na-nadobi-staceny':1011,
         '60-wc-cistic-staceny':1025,
         '85-bio-olej-slunecnicovy-na-smazeni-a-peceni-5-l-staceny-produkt':896,
-        '438-bio-olej-slunecnicovy-na-smazeni-a-peceni-5-l-staceny-produkt':878
+        '438-bio-olej-slunecnicovy-na-smazeni-a-peceni-5-l-staceny-produkt':878,
+        '392-bzenecky-ocet-kvasny-staceny-produkt':1004,
+        '62-avivaz-staceny-produkt':1000
 
     };
 
