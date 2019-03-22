@@ -38,7 +38,7 @@ select
   left join ps_jety_supplier_cron cr on s.id_supplier = cr.id_supplier
 where
   osl.id_lang = 2
-  and (osl.name='Probíhá příprava' or osl.name like '%Dodavatele%')
+  and (osl.name='Probíhá příprava' or osl.name like '%Dodavatele%' or osl.name like 'Stálá objednávka%')
   and pl.id_lang = 2
   and lastname not like '%stnanec%' 
   and lastname not like '% Soukromé%' 
@@ -61,6 +61,8 @@ EOD;
 
         $idSupplier = $row['id_supplier'];
         $idProduct = $row['id_product'];
+        $idOrder = $row['id_order'];
+
         $name = $row['sname'];
         $pname = $row['pname'];
         $mnozstviObjednavane = $row['mnozstvi_objednavane'];
@@ -103,13 +105,12 @@ EOD;
 
         $orderDateStr = $row["date_add"];
         //  2018-09-13 07:10:29
-        //$orderDate = DateTime::createFromFormat("Y-m-d H:i:s", $orderDateStr);
-        //$orderAge = date_diff($orderDate, new DateTime( ));
-        $orderAge = "0";
+        $orderDate = DateTime::createFromFormat("Y-m-d H:i:s", $orderDateStr);
+        $orderAge = date_diff($orderDate, new DateTime())->format('%a');
         $storeQuantities .= "<tr>\n".
             "<td></td>\n".
             "<td>".$row["mnozstvi_objednavane"]."</td>\n".
-            "<td>Obj. stará ".$orderAge."  dní, ".CustomUtils::orderLink($row['id_order'], $orderDateStr)."</td>\n".
+            "<td>".CustomUtils::orderLink($idOrder, $orderAge." dní (".$idOrder.")")."</td>\n".
             "<td title='".$row["cid"]."'>".$row["firstname"]."</td>\n".
             "<td>".$row["lastname"]."</td>\n".
             "<td>".$row["name"]."</td>\n".

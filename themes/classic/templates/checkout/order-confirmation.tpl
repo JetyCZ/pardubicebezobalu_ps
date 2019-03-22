@@ -13,7 +13,12 @@
 
 
                 <br>
-                {if ($customer.email eq 'pavel.jetensky@seznam.cz') or ($customer.email eq 'hhrom@email.cz')}
+                {if ($customer.email eq 'pavel.jetensky@seznam.cz')
+                or ($customer.email eq 'hhrom@email.cz')
+                or ($customer.email eq 'KatkaMartincova@email.cz')
+                or ($customer.email eq 'sona.zavacka@seznam.cz')
+                or ($customer.email eq 'iva.velkomarsovska@gmail.com')
+                }
                 <a href="/admin313uriemy/index.php?controller=AdminOrders&id_order={$order.details.id}&vieworder">
                   Administrace objednávky
                 </a> |

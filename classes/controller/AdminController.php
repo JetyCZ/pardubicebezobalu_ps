@@ -3203,7 +3203,7 @@ class AdminControllerCore extends Controller
     if (isset($_GET["idProduct"])) {
         $this->_filter .= " AND EXISTS (select * from ps_order_detail pod where pod.id_order = a.id_order AND pod.product_id = "
             .$_GET['idProduct']
-            ." AND osl.name NOT IN ('Zrušeno','Dodáno'))";
+            ." AND osl.name NOT IN ('Zrušeno'))";
     }
 
         $whereClause = $this->getWhereClause();

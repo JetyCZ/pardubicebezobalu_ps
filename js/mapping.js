@@ -9,7 +9,8 @@
         '85-bio-olej-slunecnicovy-na-smazeni-a-peceni-5-l-staceny-produkt':896,
         '438-bio-olej-slunecnicovy-na-smazeni-a-peceni-5-l-staceny-produkt':878,
         '392-bzenecky-ocet-kvasny-staceny-produkt':1004,
-        '62-avivaz-staceny-produkt':1000
+        '62-avivaz-staceny-produkt':1000,
+        '504-olej-repkovy-staceny-produkt':916
 
     };
 
@@ -99,75 +100,103 @@
         83: '216-japonska-smes-na-vahu',
 };
 
+    document.addEventListener("keydown", myFunction);
+    var readingPreffix = false;
+    var readingCommand = false;
+    var readingData = false;
+    var qrBufferPreffix='';
+    var qrBufferData='';
+    var qrBufferCommand='';
+    function myFunction(event) {
+        var code = event.keyCode;
+        var prevent = true;
+        if (code==221) {
+            console.log('START');
+            readingPreffix = true;
+            readingData = false;
+            readingCommand = false;
+
+            qrBufferPreffix='221_';
+            qrBufferData='';
+            qrBufferCommand='';
+        } else if (
+            !readingPreffix &&
+            !readingCommand &&
+            !readingData){
+            prevent = false;
+        } else if (code==13){
+            readingPreffix = false;
+            readingCommand = false;
+            readingData = false;
+            console.log('ENTER CMD:' + qrBufferCommand);
+            console.log('ENTER DATA:' + qrBufferData);
+            if (qrBufferCommand=='Skl') {
+                focusProduct(qrBufferData);
+            }
+            qrBufferPreffix='';
+            qrBufferData='';
+            qrBufferCommand='';
+        } else if (code==187 || code==189){
+            console.log('DATA');
+            readingPreffix = false;
+            readingCommand = false;
+            readingData = true;
+
+        } else if (code==16){ // Shift
+            // Do nothing
+        } else if (code==13){
+            readingPreffix = false;
+            readingData = false;
+            readingCommand = false;
+        } else {
+            if (readingPreffix) {
+                qrBufferPreffix += event.keyCode+'_';
+                if (qrBufferPreffix=='221_67_48_') {
+                    qrBufferPreffix = '';
+                    readingPreffix = false;
+                    readingCommand = true;
+                }
+            } else if (readingCommand) {
+                qrBufferCommand += event.key;
+            } else if (readingData) {
+                var key = event.key;
+                if (event.keyCode>=49 && event.keyCode<=57)
+                    key = (event.keyCode - 48)+'';
+                else if (event.keyCode=58)
+                    key = '0';
+                qrBufferData += key;
+            } else {
+                prevent=false;
+            }
+        }
+        if (prevent) event.preventDefault();
+    }
+
+
+
 
     function focusQuantity(shortUrl) {
         let input = document.getElementById('productQuantity_' + shortUrl);
         if (input != null) {
             input.focus();
-            input.value = null;
+            input.select();
         }
     }
 
-    function checkQrCode(timeoutCall) {
-        let qrcodeInput = document.getElementById('qrcode');
-        var pref = "https://www.pardubicebezobalu.cz/s.php?id=";
-        var text = qrcodeInput.value;
-        if (text.startsWith(pref)) {
-            var idSklenice = text.replace(pref,"");
-            if (idSklenice.length>0) {
-                if (idSklenice<10 && !timeoutCall) {
-                    setTimeout(
-                        function(){
-                            checkQrCode(true);
-                            }, 500);
-                } else {
-                    var shortUrl = map[idSklenice];
-                    focusQuantity(shortUrl);
-                }
-
-            }
-        }
+    function focusProduct(idSklenice) {
+        var shortUrl = map[idSklenice];
+        focusQuantity(shortUrl);
     }
 
-
+/*
     document.addEventListener("DOMContentLoaded", function(event) {
-
-        $( ".quantity" ).keypress(function( event ) {
-            if ( event.which == 104 ) {
-                event.preventDefault();
-                let qrcodeInput = document.getElementById('qrcode');
-                qrcodeInput.value = 'h';
-                qrcodeInput.focus();
-            }
-        });
 
         $("#btnAddAllTopLeft").click(function(){
             document.getElementById('bulkAddToCartButton').click()
         });
 
-        /*
-        $('.quantity').on('key',function(e) {
-
-            e.preventDefault();
-            var text = (e.originalEvent || e).clipboardData.getData('text/plain');
-            // https://pardubicebezobalu.cz/s.php?id=2
-            var pref = "https://pardubicebezobalu.cz/s.php?id=";
-            if (text.startsWith(pref)) {
-                var idSklenice = text.replace(pref,"");
-                if (idSklenice.length>0) {
-                    var shortUrl = map[idSklenice];
-                    let input = document.getElementById('productQuantity_' + shortUrl);
-                    if (input!=null) {
-                        input.focus();
-                        input.value = null;
-                    }
-                }
-            } else {
-                document.execCommand("insertText", false, text);
-            }
-        });
-        */
     });
+    */
 
     var cart = {};
 

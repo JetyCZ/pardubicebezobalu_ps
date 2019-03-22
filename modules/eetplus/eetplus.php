@@ -565,7 +565,7 @@ class Eetplus extends Module
           $vars = self::getCodesForOrder($id_order);    
           
           Context::getContext()->smarty->assign('vars', $vars);
-          $output = Context::getContext()->smarty->fetch(_PS_MODULE_DIR_ . $this->name . '/views/templates/pdf.tpl');
+          $output = Context::getContext()->smarty->fetch(_PS_MODULE_DIR_ . $this->name . '/views/templates/rpdf.tpl');
          return $output;
       }
       

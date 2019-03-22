@@ -131,6 +131,11 @@ class CustomUtils {
         return
             '<a href="/admin313uriemy/index.php?controller=AdminOrders&idProduct='.$idProduct.'">OBJ</a>';
     }
+    public static function productLink($idProduct)
+    {
+        return
+            '<a href="/admin313uriemy/index.php/product/form/'.$idProduct.'">P</a>';
+    }
 
     public static function orderLink($idOrder, $linkBody)
     {
@@ -162,6 +167,7 @@ class CustomUtils {
             $email == 'pavel.jetensky@seznam.cz' ||
             $email == 'KatkaMartincova@email.cz' ||
             $email == 'sona.zavacka@seznam.cz' ||
+            $email == 'iva.velkomarsovska@gmail.com' ||
             $email == 'lada.hrochova@mailinator.com'
         );
     }

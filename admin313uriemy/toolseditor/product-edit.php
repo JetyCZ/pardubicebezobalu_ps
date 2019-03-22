@@ -1338,6 +1338,11 @@ if ($search_txt1 != "")
    else if(($search_fld1 != "discount") && ($search_fld1 != "virtualp"))
      $wheretext .= " AND ".$nottext1.$search_fld1." ".$inc." ";
 }
+/*
+$wheretext=str_replace("AND EXISTS(SELECT NULL FROM ps_product_supplier psu LEFT JOIN ps_supplier su ON psu.id_supplier=su.id_supplier WHERE psu.id_product = p.id_product AND su.name like '%NULL%')",
+    "id_supplier IS NULL",$wheretext);
+*/
+var_dump($wheretext);
 if($search_fld1 == "discount") /* this works also when search_txt field is empty */
 	 $wheretext .= " AND EXISTS(SELECT NULL FROM ". _DB_PREFIX_."specific_price sp WHERE sp.id_product = p.id_product)";
 if($search_fld1 == "virtualp")

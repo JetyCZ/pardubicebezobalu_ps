@@ -23,17 +23,33 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 <table id="payment-tab" width="100%">
-	<tr>
-		<td class="payment center small grey bold" width="44%">{l s='Payment Method' d='Shop.Pdf' pdf='true'}</td>
-		<td class="payment left white" width="56%">
-			<table width="100%" border="0">
-				{foreach from=$order_invoice->getOrderPaymentCollection() item=payment}
-					<tr>
-						<td class="right small">{$payment->payment_method}</td>
-						<td class="right small">{displayPrice currency=$payment->id_currency price=$payment->amount}</td>
-					</tr>
-				{/foreach}
-			</table>
-		</td>
-	</tr>
+    <tr>
+        <td class="payment center small grey bold" width="44%">{l s='Payment Method' d='Shop.Pdf' pdf='true'}</td>
+        <td class="payment left white" width="56%">
+            <table width="100%" border="0">
+                {foreach from=$order_invoice->getOrderPaymentCollection() item=payment}
+                    {if $payment->payment_method eq 'Platba v hotovosti'}
+                        <tr>
+                            <td class="right small">{$payment->payment_method}</td>
+                            <td class="right small">{displayPrice currency=$payment->id_currency price=$payment->amount}</td>
+                        </tr>
+                    {else}
+                        <tr>
+                            <td class="right small">Platba převodem</td>
+                            <td class="right small">{displayPrice currency=$payment->id_currency price=$payment->amount}</td>
+                        </tr>
+                        <tr>
+                            <td class="right small">Na účet</td>
+                            <td class="right small">285763334/0300</td>
+                        </tr>
+                        <tr>
+                            <td class="right small">Variabilní symbol</td>
+                            <td class="right small">{$title|escape:'html':'UTF-8'|replace:'#IN':''}</td>
+                        </tr>
+                    {/if}
+
+                {/foreach}
+            </table>
+        </td>
+    </tr>
 </table>

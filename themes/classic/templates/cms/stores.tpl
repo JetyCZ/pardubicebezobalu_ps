@@ -30,7 +30,6 @@
 
 {block name='page_content_container'}
   <section id="content" class="page-content page-stores">
-
     {foreach $stores as $store}
       <article id="store-{$store.id}" class="store-item card">
         <div class="store-item-container clearfix">
