@@ -74,6 +74,7 @@ class Ps_Customtext extends Module implements WidgetInterface
 <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"></link>
 
 <script type='text/javascript' src="/js/mapping.js?v=6"></script>
+<script type='text/javascript' src="/admin313uriemy/mapping.php?v=6"></script>
 
 
 EOD;
@@ -212,9 +213,6 @@ EOD;
 
                                 $fieldName = "productQuantity" . $idProduct;
                                 $resultOneCategory .= "\n<td nowrap='nowrap'>";
-
-                                $updateFunction = "updateTotalPrice(" . $idProduct . ")";
-
                                 $maxAttribute = " max=" . $quantity;
                                 $stockLabel = "";
                                 $inStoreLabel = $this->infoLabel("Skladem: " . $priceInfo->quantityToAmountAndUnit($quantity, 1),
@@ -250,7 +248,7 @@ EOD;
                                     $updateProdctPouredGramInputFunction = '; updateProductPouredGramInput(' . $idProduct . ', ' . $quote . $shortUrl . $quote . ');"';
                                 }
 
-                                $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ', ' . $quote . $shortUrl . $quote . ');' . $updateProdctPouredGramInputFunction . '"';
+                                $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ');' . $updateProdctPouredGramInputFunction . '"';
                                 $oninput = " oninput=" . $updateTotalPriceFunction;
                                 $onchange = " onchange=" . $updateTotalPriceFunction;
                                 $onchange = "";
@@ -259,7 +257,8 @@ EOD;
                                     $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', ' . $quote . $shortUrl . $quote . ')"';
                                     $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl . "' ";
                                     $resultOneCategory .= "<input " . $productQuantityKsIdAttr
-                                        . " class='quantity' style='width:100px' oninput=" . $updateFunctionFruitKs
+                                        . " class='quantity"
+                                        ."' style='width:100px' oninput=" . $updateFunctionFruitKs
                                         . " onchange=" . $updateFunctionFruitKs . " type='number' value='0' name='"
                                         . $fieldName . "Ks' min=0 " . $maxAttribute . ">";
 
@@ -282,8 +281,11 @@ EOD;
                                     if (CustomUtils::contains($shortUrl, 'lahev-na-mleko')) {
                                         $inputMin = -1000;
                                     }
+                                    $appendKsClass = ($priceInfo->unitX == "ks ") ? " kusove-zbozi" : "";
                                     $resultOneCategory .= "<input " . $productQuantityIdAttr . $oninput . $onchange
-                                        . " class='quantity' style='width:100px' type='number' value='0' name='" . $fieldName
+                                        . " class='quantity"
+                                        . $appendKsClass
+                                        ."' style='width:100px' type='number' value='0' name='" . $fieldName
                                         . "' min=" . $inputMin . " " . $maxAttribute . ">";
                                     $resultOneCategory .= " " . $priceInfo->unitX;
 

@@ -14,192 +14,131 @@
 
     };
 
-    var map = {
-        1: '133-merunky-cele-na-vahu',
-        2: '135-cokoladove-kaminky-na-vahu',
-        3: '136-rajcata',
-        4: '139-svestky-ashlock-na-vahu',
-        5: '164-vlasska-jadra-na-vahu',
-        6: '165-pistacie-raw-neloupane-na-vahu',
-        7: '167-raw-kesu-jumbo-na-vahu',
-        8: '168-raw-mandle-valencia',
-        9: '169-mandle-loupane-na-vahu',
-        10: '173-kesu-na-vahu',
-        11: '170-kustovnice-cinska-na-vahu',
-        12: '218-rozinky-sirene-na-vahu',
-        13: '219-zazvor-kostky-sireny-s-cukrem-na-vahu',
-        14: '8-konopny-vegansky-protein',
-        15: '10-sacek-na-chleb-25-x-37-cm',
-        16: '84-bio-olej-olivovy-5-l-staceny-produkt',
-        17: '85-bio-olej-slunecnicovy-na-smazeni-a-peceni-5-l-staceny-produkt',
-        18: '211-zalohovany-5l-kyblik-na-mleko',
-        19: '226-sklenice-na-jogurt',
-        20: '25-bio-bazalka',
-        21: '28-bio-citronela-rezana',
-        22: '179-bio-majoranka-na-vahu',
-        23: '180-bio-oregano-na-vahu',
-        24: '183-bio-pepr-bily-cely-na-vahu',
-        25: '186-bio-skorice-mleta-na-vahu',
-        26: '203-bio-trtinova-stava-panela-na-vahu',
-        27: '34-jogurt-rakytnik',
-        28: '35-jogurt-boruvkovy',
-        29: '36-jogurt-jahodovy',
-        30: '37-jogurt-cokoladovy',
-        31: '174-farmarske-maslo-na-vahu',
-        32: '175-farmarske-mleko-5l',
-        33: '191-farmarske-mleko-3l',
-        34: '198-jogurt-merunkovy-20kc-sklo',
-        35: '199-jogurt-visnovy-20kc-sklo',
-        36: '200-jogurt-lesni-plody-20kc-sklo',
-        37: '201-jogurt-malinovy-20kc-sklo',
-        38: '202-jogurt-brusinkovy-20kc-sklo',
-        39: '204-farmarske-mleko-1l-20kc-sklo-',
-        40: '208-farmarsky-jogurt-bily-v-cene-20-kc-kyblik',
-        41: '220-cesnek-na-vahu',
-        42: '221-cibule-zluta-na-vahu',
-        43: '49-bio-zito',
-        44: '69-bio-psenice-na-vahu',
-        45: '70-bio-amarant-na-vahu',
-        46: '72-jahly-na-vahu',
-        47: '74-bio-pohanka-loupana-kroupy-na-vahu',
-        48: '75-bio-quinoa-na-vahu',
-        49: '76-bio-ryze-kulatozrnna-natural-na-vahu',
-        50: '77-bio-ryze-dlouhozrnna-natural-na-vahu',
-        51: '78-bio-ryze-jasminova-na-vahu',
-        52: '79-bio-ryze-jasminova-natural-na-vahu',
-        53: '80-bio-ryze-basmati-natural-na-vahu',
-        54: '95-bio-kuskus-celozrnny-na-vahu',
-        55: '96-bio-bulgur-psenicny-na-vahu',
-        56: '158-bio-hrach-zluty-puleny-na-vahu',
-        57: '188-bio-oves-bezpluchy-na-vahu',
-        58: '207-bio-cocka-cervena-pulena',
-        59: '52-praci-gel-z-mydlovych-orechu-bez-vune-staceny',
-        60: '54-praci-gel-z-mydlovych-orechu-se-silici-vavrinu-kubeboveho-staceny',
-        61: '58-gel-do-mycky-na-nadobi-z-mydlovych-orechu-staceny',
-        62: '59-gel-na-nadobi-staceny',
-        63: '60-wc-cistic-staceny',
-        64: '64-belici-prasek-a-odstranovac-skvrn-na-bazi-kysliku-na-vahu',
-        65: '67-praci-prasek-z-mydlovych-orechu-na-bile-pradlo-a-latkove-pleny-na-vahu',
-        66: '86-frolikova-zrnkova-kava-na-vahu',
-        67: '103-cajova-smes-k-uvolneni-na-vahu',
-        68: '115-mata-peprna-na-vahu',
-        69: '119-medunka-lekarska-na-vahu',
-        70: '121-echinacea-na-vahu',
-        71: '122-materidouska',
-        72: '123-jitrocel-kopinaty',
-        73: '215-petrzelovo-celerova-nat-na-vahu',
-        74: '224-matovy-sirup-v-cene-3-kc-sklo',
-        75: '225-slezovy-sirup-v-cene-3-kc-sklo',
-        76: '92-srchovsky-med-kvetovy-',
-        77: '94-srchovsky-med-kvetovy-pastovy',
-        78: '193-srchovsky-med-dvoubarevny-10kc-sklo-',
-        79: '98-teleci-parky-na-vahu',
-        80: '209-jurova-klobasa-na-vahu',
-        81: '212-netinsky-vostrak-na-vahu',
-        82: '213-netinske-uzene-maso-na-vahu',
-        83: '216-japonska-smes-na-vahu',
-};
-
-    document.addEventListener("keydown", myFunction);
+    document.addEventListener("keydown", handleKeyDown);
     var readingPreffix = false;
-    var readingCommand = false;
     var readingData = false;
     var qrBufferPreffix='';
     var qrBufferData='';
-    var qrBufferCommand='';
-    function myFunction(event) {
+
+    function isKsProduct(productId) {
+        let input = productQuantityJQueryObj(productId);
+        if (input!=null) {
+            return input.hasClass("kusove-zbozi");
+        } else {
+            alert('Produkt neexistuje na stránce: ' + productId);
+            return false;
+        }
+
+    }
+
+    function handleKeyDown(event) {
         var code = event.keyCode;
         var prevent = true;
         if (code==221) {
             console.log('START');
             readingPreffix = true;
             readingData = false;
-            readingCommand = false;
-
             qrBufferPreffix='221_';
             qrBufferData='';
-            qrBufferCommand='';
         } else if (
             !readingPreffix &&
-            !readingCommand &&
             !readingData){
             prevent = false;
         } else if (code==13){
             readingPreffix = false;
-            readingCommand = false;
             readingData = false;
-            console.log('ENTER CMD:' + qrBufferCommand);
             console.log('ENTER DATA:' + qrBufferData);
-            if (qrBufferCommand=='Skl') {
-                focusProduct(qrBufferData);
+
+
+            var productId = map[qrBufferData];
+
+            if (productId!=null) {
+                focusQuantity(productId, isKsProduct(productId));
+            } else {
+                var activeId = document.activeElement.id;
+                var msg = 'Neznámý produkt (čár. kód:' + qrBufferData + '). ';
+                let preffix = 'productQuantity_';
+
+
+                if (activeId.indexOf(preffix)==0) {
+                    var shortUrl = activeId.substring(preffix.length);
+                    if (confirm(msg +' Chcete ho namapovat na ' + shortUrl + '?')) {
+                        map[qrBufferData] = shortUrl;
+                        $.get( "/admin313uriemy/mapping.php?qrcode=" + qrBufferData +
+                            "&idproduct=" + shortUrl.substring(0, shortUrl.indexOf("-")), function( data ) {
+                            alert( "Mapping saved to database." );
+                        });
+                        if (isKsProduct(shortUrl)) {
+                            increaseByOne(shortUrl);
+                        }
+
+                    }
+                } else {
+                    alert(msg + 'Prosím vlezte do obj. množství produktu a pípněte znovu...')
+                }
+
+
+                console.log(productId);
             }
+
             qrBufferPreffix='';
             qrBufferData='';
-            qrBufferCommand='';
-        } else if (code==187 || code==189){
-            console.log('DATA');
-            readingPreffix = false;
-            readingCommand = false;
-            readingData = true;
-
         } else if (code==16){ // Shift
             // Do nothing
-        } else if (code==13){
-            readingPreffix = false;
-            readingData = false;
-            readingCommand = false;
         } else {
             if (readingPreffix) {
                 qrBufferPreffix += event.keyCode+'_';
-                if (qrBufferPreffix=='221_67_48_') {
+                if (qrBufferPreffix=='221_67_48_' // CODE128
+                    || qrBufferPreffix=='221_69_48_' // Other format - milk
+                ) {
+                    console.log('Preffix FOUND');
                     qrBufferPreffix = '';
                     readingPreffix = false;
-                    readingCommand = true;
+                    readingData = true;
                 }
-            } else if (readingCommand) {
-                qrBufferCommand += event.key;
             } else if (readingData) {
                 var key = event.key;
                 if (event.keyCode>=49 && event.keyCode<=57)
                     key = (event.keyCode - 48)+'';
-                else if (event.keyCode=58)
+                else if (event.keyCode==48)
                     key = '0';
+                else if (event.keyCode == 187|| event.keyCode == 189)
+                    key = '_';
                 qrBufferData += key;
+                console.log('DATA APPEND: ' + qrBufferData);
             } else {
                 prevent=false;
             }
         }
         if (prevent) event.preventDefault();
+        console.log(event.key + ' = ' + event.keyCode);
     }
 
 
+    function increaseByOne(productId) {
+        let input = productQuantityJQueryObj(productId);
+        if (input.hasClass('kusove-zbozi')) {
+            input.val(parseInt(input.val()) + 1);
+            updateTotalPrice(productId);
+        }
+    }
 
+    function productQuantityJQueryObj(productId) {
+        return $('[name="productQuantity' + productId + '"]')
+    }
 
-    function focusQuantity(shortUrl) {
-        let input = document.getElementById('productQuantity_' + shortUrl);
+    function focusQuantity(productId, shouldIncreaseByOne = false) {
+        let input = productQuantityJQueryObj(productId);
         if (input != null) {
             input.focus();
+            if (shouldIncreaseByOne) {
+                increaseByOne(productId);
+            }
             input.select();
         }
     }
 
-    function focusProduct(idSklenice) {
-        var shortUrl = map[idSklenice];
-        focusQuantity(shortUrl);
-    }
-
-/*
-    document.addEventListener("DOMContentLoaded", function(event) {
-
-        $("#btnAddAllTopLeft").click(function(){
-            document.getElementById('bulkAddToCartButton').click()
-        });
-
-    });
-    */
-
     var cart = {};
-
 
     function refreshTotalPrice() {
         var totalPrice = 0;
@@ -209,23 +148,22 @@
         document.getElementById('cartTotalPrice').innerHTML =  Math.round(totalPrice * 100) / 100 + ',- Kč'
     }
 
-    function updateTotalPriceQuantityElement(productId, quantityElem) {
+    function updateTotalPriceQuantityElement(productId, quantityJQueryObj) {
         var productPriceHiddenId = "productPrice" + productId;
         var totalPriceId = "totalPrice" + productId;
         var productPriceHidden = document.getElementById(productPriceHiddenId);
         var totalPriceSpan = document.getElementById(totalPriceId);
         var pricePerUnit = productPriceHidden.value;
-        let priceForQuantity = pricePerUnit * quantityElem.value;
+        let priceForQuantity = pricePerUnit * quantityJQueryObj.val();
         totalPriceSpan.innerText = Math.round(priceForQuantity * 100) / 100 + ',- Kč';
         cart[productId] = priceForQuantity;
         refreshTotalPrice();
     }
 
 
-
-    function updateTotalPrice(productId, shortUrl) {
-        var quantityElem = document.getElementById("productQuantity_" + shortUrl);
-        updateTotalPriceQuantityElement(productId, quantityElem);
+    function updateTotalPrice(productId) {
+        var quantityJQueryObj =  $('[name="productQuantity' + productId + '"]');
+        updateTotalPriceQuantityElement(productId, quantityJQueryObj);
     }
     function updateTotalPriceFruitKs(productId, gramPerKs, shortUrl) {
         var quantityElem = document.getElementById("productQuantity_" + shortUrl);
@@ -243,6 +181,7 @@
 
 
         totalPriceSpan.innerText = labelKc + '; ' + Math.round(totalWeight*100) / (100*1000) + ' Kg';
+        updateTotalPrice(productId);
     }
 
 
@@ -253,7 +192,7 @@
             var pouredGramElem = document.getElementById("productPouredGram_" + shortUrl);
             quantityElem.value = Math.round(pouredGramElem.value / (tierreGramPerLitr/1000));
         }
-        updateTotalPrice(productId, shortUrl);
+        updateTotalPrice(productId);
 
     }
     function updateProductPouredGramInput(productId, shortUrl) {
