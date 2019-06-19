@@ -72,10 +72,9 @@ class Ps_Customtext extends Module implements WidgetInterface
     {
         $javascript = <<<'EOD'
 <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"></link>
-
-<script type='text/javascript' src="/js/mapping.js?v=6"></script>
+<script type='text/javascript' src="/js/mapping.js?v=7"></script>
 <script type='text/javascript' src="/admin313uriemy/mapping.php?v=6"></script>
-
+<script src="//code.responsivevoice.org/responsivevoice.js?key=hLFPNIz1"></script>
 
 EOD;
         return $javascript;
@@ -90,7 +89,7 @@ EOD;
 
                 $deliveryToHome = isset($_GET['deliveryToHome']) && ($_GET['deliveryToHome'] == 'true');
                 $result = "";
-
+                $isAdmin = CustomUtils::isAdmin($this->context);
                 $javascript = $this->getJavascript();
                 $result .= $javascript;
 
@@ -98,7 +97,7 @@ EOD;
                 // try {
                 $context = Context::getContext();
                 $lang = (int)$context->language->id;
-                $isAdmin = CustomUtils::isAdmin($this->context);
+
 
                 $rootCat = Category::getRootCategory();
 
@@ -189,7 +188,7 @@ EOD;
 
 
                                 $resultOneCategory .= "\n<td style='padding-left:20pt'>" .
-                                    "<a href='" . $link . "' target='_new'>" .
+                                    "<a id='productLabel" . $idProduct . "' href='" . $link . "' target='_new'>" .
                                     $productName .
                                     "</a>";
 
@@ -258,7 +257,7 @@ EOD;
                                     $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl . "' ";
                                     $resultOneCategory .= "<input " . $productQuantityKsIdAttr
                                         . " class='quantity"
-                                        ."' style='width:100px' oninput=" . $updateFunctionFruitKs
+                                        . "' style='width:100px' oninput=" . $updateFunctionFruitKs
                                         . " onchange=" . $updateFunctionFruitKs . " type='number' value='0' name='"
                                         . $fieldName . "Ks' min=0 " . $maxAttribute . ">";
 
@@ -285,7 +284,7 @@ EOD;
                                     $resultOneCategory .= "<input " . $productQuantityIdAttr . $oninput . $onchange
                                         . " class='quantity"
                                         . $appendKsClass
-                                        ."' style='width:100px' type='number' value='0' name='" . $fieldName
+                                        . "' style='width:100px' type='number' value='0' name='" . $fieldName
                                         . "' min=" . $inputMin . " " . $maxAttribute . ">";
                                     $resultOneCategory .= " " . $priceInfo->unitX;
 

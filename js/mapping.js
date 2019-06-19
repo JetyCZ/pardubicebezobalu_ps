@@ -30,12 +30,11 @@
         }
 
     }
-
+    var ctrl
     function handleKeyDown(event) {
         var code = event.keyCode;
         var prevent = true;
         if (code==221) {
-            console.log('START');
             readingPreffix = true;
             readingData = false;
             qrBufferPreffix='221_';
@@ -47,54 +46,83 @@
         } else if (code==13){
             readingPreffix = false;
             readingData = false;
-            console.log('ENTER DATA:' + qrBufferData);
-
+            // console.log('ENTER DATA:' + qrBufferData);
+            let activeElement = document.activeElement;
 
             var productId = map[qrBufferData];
+            var activeName = null;
+            var activeId = null;
+            if (activeElement!=null) {
+                activeName = activeElement.name;
+                activeId = activeElement.id;
+            }
 
             if (productId!=null) {
-                focusQuantity(productId, isKsProduct(productId));
-            } else {
-                var activeId = document.activeElement.id;
-                var msg = 'Neznámý produkt (čár. kód:' + qrBufferData + '). ';
-                let preffix = 'productQuantity_';
-
-
-                if (activeId.indexOf(preffix)==0) {
-                    var shortUrl = activeId.substring(preffix.length);
-                    if (confirm(msg +' Chcete ho namapovat na ' + shortUrl + '?')) {
-                        map[qrBufferData] = shortUrl;
-                        $.get( "/admin313uriemy/mapping.php?qrcode=" + qrBufferData +
-                            "&idproduct=" + shortUrl.substring(0, shortUrl.indexOf("-")), function( data ) {
-                            alert( "Mapping saved to database." );
+                if (activeName!=null && activeName=='s') {
+                    let quantityElemId = $('[name="productQuantity' + productId + '"]').attr('id')
+                    let shortUrl = quantityElemId.substring('productQuantity_'.length);
+                    if (confirm('Chcete zrušit mapování čárového kódu ' + qrBufferData + ' na produkt ' + shortUrl + ' ?')) {
+                        delete map[qrBufferData];
+                        let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
+                        $.get( deleteUrl, function(data ) {
                         });
-                        if (isKsProduct(shortUrl)) {
-                            increaseByOne(shortUrl);
+                    }
+                } else if (event.ctrlKey) {
+                    let productLink = document.getElementById('productLink_'+productId);
+                    if (productLink!=null) {
+                        window.open(productLink.getAttribute('href'), '_blank');
+                    }
+                } else {
+                    var labelToSay = $('#productLabel'+productId).text().replace(' - na váhu','').replace(' - stáčený produkt')
+                    responsiveVoice.speak(labelToSay);
+
+                    focusQuantity(productId, isKsProduct(productId));
+                }
+            } else {
+
+                var msg = 'Neznámý produkt (čár. kód:' + qrBufferData + '). ';
+                let preffix = 'productQuantity';
+
+
+                if (activeElement!=null && activeId.startsWith('productQuantity_')) {
+                    var productId = activeName.substring(preffix.length);
+                    if (confirm(msg +' Chcete ho namapovat na ' + activeId.substring('productQuantity_'.length) + '?')) {
+                        map[qrBufferData] = productId;
+                        let addUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&idproduct=" + productId;
+                        $.get( addUrl, function( data ) {
+                        });
+                        if (isKsProduct(productId)) {
+                            increaseByOne(productId);
                         }
 
                     }
                 } else {
-                    alert(msg + 'Prosím vlezte do obj. množství produktu a pípněte znovu...')
+                    alert(msg + 'Pro namapování na produkt, prosím vlezte do obj. množství a pípněte znovu...')
                 }
 
 
-                console.log(productId);
+                // console.log(productId);
             }
 
             qrBufferPreffix='';
             qrBufferData='';
-        } else if (code==16){ // Shift
+        } else if (code==16 || code==17){ // Shift
             // Do nothing
         } else {
             if (readingPreffix) {
                 qrBufferPreffix += event.keyCode+'_';
-                if (qrBufferPreffix=='221_67_48_' // CODE128
+                if (
+                    qrBufferPreffix=='221_67_48_' // CODE128
+                    || qrBufferPreffix=='221_48_' // CODE128 with CTRL
                     || qrBufferPreffix=='221_69_48_' // Other format - milk
+                    || qrBufferPreffix=='221_48_' // Other format - milk - with CTRL
                 ) {
-                    console.log('Preffix FOUND');
+                    // console.log('Preffix FOUND');
                     qrBufferPreffix = '';
                     readingPreffix = false;
                     readingData = true;
+                } else {
+                    console.log('Preffix NOT FOUND: ' + qrBufferPreffix);
                 }
             } else if (readingData) {
                 var key = event.key;
@@ -105,7 +133,7 @@
                 else if (event.keyCode == 187|| event.keyCode == 189)
                     key = '_';
                 qrBufferData += key;
-                console.log('DATA APPEND: ' + qrBufferData);
+                // console.log('DATA APPEND: ' + qrBufferData);
             } else {
                 prevent=false;
             }
@@ -137,6 +165,25 @@
             input.select();
         }
     }
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+
+        responsiveVoice.setDefaultVoice("Czech Female");
+
+        $("#btnAddAllTopLeft").click(function(){
+            document.getElementById('bulkAddToCartButton').click()
+        });
+
+
+        $('.quantity').focus(function () {
+            var parentTr = $(this).closest('tr');
+            parentTr.siblings().css('background-color', 'white');
+            parentTr.css('background-color', 'yellow');
+        });
+
+
+
+    });
 
     var cart = {};
 

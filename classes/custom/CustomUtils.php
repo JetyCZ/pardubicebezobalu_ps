@@ -134,7 +134,7 @@ class CustomUtils {
     public static function productLink($idProduct)
     {
         return
-            '<a href="/admin313uriemy/index.php/product/form/'.$idProduct.'">P</a>';
+            '<a id="productLink_'.$idProduct.'" href="/admin313uriemy/index.php/product/form/'.$idProduct.'">P</a>';
     }
 
     public static function orderLink($idOrder, $linkBody)
