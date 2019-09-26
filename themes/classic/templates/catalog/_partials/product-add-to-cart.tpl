@@ -27,13 +27,26 @@
     <span class="control-label">
     {if strpos($product.name, 'stáčený produkt') != false || strpos($product.name, 'stá?ený produkt') != false}
     Objednávaný objem stáčeného zboží (1000 = 1 litr)
+      , {if $product.quantity>-1}
+        Skladem {$product.quantity} mililitrů
+      {/if}
     {elseif strpos($product.name, 'na váhu') != false}
       Objednávaná váha zboží (v gramech: 1000 = 1Kg)
-    {elseif strpos($product.name, 'váží zhruba') != false}
+      , {if $product.quantity>-1}
+        Skladem {$product.quantity} gramů
+      {/if}
+      {elseif strpos($product.name, 'váží zhruba') != false}
       Objednávaná váha zboží (v gramech: 1000 = 1Kg)
-    {else}
-    Objednávaný počet kusů
+        , {if $product.quantity>-1}
+        Skladem {$product.quantity} gramů
+      {/if}
+      {else}
+      Objednávaný počet kusů
+        , {if $product.quantity>-1}
+        Skladem {$product.quantity} kusů
     {/if}
+
+      {/if}
 
     </span>
 
@@ -70,7 +83,7 @@
 
     {block name='product_availability'}
       <span id="product-availability">
-        {if $product.show_availability && $product.availability_message}
+        {if true || $product.show_availability && $product.availability_message}
           {if $product.availability == 'available'}
             <i class="material-icons product-available">&#xE5CA;</i>
           {elseif $product.availability == 'last_remaining_items'}
@@ -82,7 +95,7 @@
         {/if}
       </span>
     {/block}
-    
+
     {block name='product_minimal_quantity'}
       <p class="product-minimal-quantity">
         {if $product.minimal_quantity > 1}

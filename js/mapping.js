@@ -74,9 +74,29 @@
                     }
                 } else {
                     var labelToSay = $('#productLabel'+productId).text().replace(' - na váhu','').replace(' - stáčený produkt')
-                    responsiveVoice.speak(labelToSay);
+                    var toSay = labelToSay;
 
-                    focusQuantity(productId, isKsProduct(productId));
+                    let shouldIncreaseByOne = isKsProduct(productId);
+                    focusQuantity(productId, shouldIncreaseByOne);
+
+                    try {
+                        if (!shouldIncreaseByOne) {
+                            $.get("/vaha.php", function (data) {
+                                if (data != -1) {
+                                    var input = productQuantityJQueryObj(productId).val(100);
+                                    input.val(data);
+                                    toSay += " " + data + " gramů";
+                                }
+                                responsiveVoice.speak(toSay);
+                            });
+                        } else {
+                            responsiveVoice.speak(toSay);
+                        }
+                    } catch (e) {
+                        console.debug("Error trying to output weight " + e);
+                        responsiveVoice.speak("Chyba váhy.");
+                    }
+
                 }
             } else {
 
