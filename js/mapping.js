@@ -24,46 +24,35 @@
     function handleKeyDown(event) {
         var code = event.keyCode;
         var prevent = true;
-        if (code==221) {
-            readingPreffix = true;
-            readingData = false;
-            qrBufferPreffix='221_';
-            qrBufferData='';
-        } else if (
-            !readingPreffix &&
-            !readingData){
-            prevent = false;
-        } else if (code==13){
-            readingPreffix = false;
-            readingData = false;
-            // console.log('ENTER DATA:' + qrBufferData);
+
+        function processQRCode() {
             let activeElement = document.activeElement;
 
             var productId = map[qrBufferData];
             var activeName = null;
             var activeId = null;
-            if (activeElement!=null) {
+            if (activeElement != null) {
                 activeName = activeElement.name;
                 activeId = activeElement.id;
             }
 
-            if (productId!=null) {
-                if (activeName!=null && activeName=='s') {
+            if (productId != null) {
+                if (activeName != null && activeName == 's') {
                     let quantityElemId = $('[name="productQuantity' + productId + '"]').attr('id')
                     let shortUrl = quantityElemId.substring('productQuantity_'.length);
                     if (confirm('Chcete zrušit mapování čárového kódu ' + qrBufferData + ' na produkt ' + shortUrl + ' ?')) {
                         delete map[qrBufferData];
                         let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
-                        $.get( deleteUrl, function(data ) {
+                        $.get(deleteUrl, function (data) {
                         });
                     }
                 } else if (event.ctrlKey) {
-                    let productLink = document.getElementById('productLink_'+productId);
-                    if (productLink!=null) {
+                    let productLink = document.getElementById('productLink_' + productId);
+                    if (productLink != null) {
                         window.open(productLink.getAttribute('href'), '_blank');
                     }
                 } else {
-                    var labelToSay = $('#productLabel'+productId).text().replace(' - na váhu','').replace(' - stáčený produkt')
+                    var labelToSay = $('#productLabel' + productId).text().replace(' - na váhu', '').replace(' - stáčený produkt')
                     var toSay = labelToSay;
 
                     let shouldIncreaseByOne = isKsProduct(productId);
@@ -95,12 +84,12 @@
                 let preffix = 'productQuantity';
 
 
-                if (activeElement!=null && activeId.startsWith('productQuantity_')) {
+                if (activeElement != null && activeId.startsWith('productQuantity_')) {
                     var productId = activeName.substring(preffix.length);
-                    if (confirm(msg +' Chcete ho namapovat na ' + activeId.substring('productQuantity_'.length) + '?')) {
+                    if (confirm(msg + ' Chcete ho namapovat na ' + activeId.substring('productQuantity_'.length) + '?')) {
                         map[qrBufferData] = productId;
                         let addUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&idproduct=" + productId;
-                        $.get( addUrl, function( data ) {
+                        $.get(addUrl, function (data) {
                         });
                         if (isKsProduct(productId)) {
                             increaseByOne(productId);
@@ -114,6 +103,22 @@
 
                 // console.log(productId);
             }
+        }
+
+        if (code==221) {
+            readingPreffix = true;
+            readingData = false;
+            qrBufferPreffix='221_';
+            qrBufferData='';
+        } else if (
+            !readingPreffix &&
+            !readingData){
+            prevent = false;
+        } else if (code==13){
+            readingPreffix = false;
+            readingData = false;
+
+            processQRCode();
 
             qrBufferPreffix='';
             qrBufferData='';
