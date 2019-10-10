@@ -22,6 +22,62 @@
 
     var ctrl
 
+    function handleKeyDown(event) {
+        var code = event.keyCode;
+        var prevent = true;
+        if (code==221) {
+            readingPreffix = true;
+            readingData = false;
+            qrBufferPreffix='221_';
+            qrBufferData='';
+        } else if (
+            !readingPreffix &&
+            !readingData){
+            prevent = false;
+        } else if (code==13){
+            readingPreffix = false;
+            readingData = false;
+
+            processQrData(event);
+
+            qrBufferPreffix='';
+            qrBufferData='';
+        } else if (code==16 || code==17){ // Shift
+            // Do nothing
+        } else {
+            if (readingPreffix) {
+                qrBufferPreffix += event.keyCode+'_';
+                if (
+                    qrBufferPreffix=='221_67_48_' // CODE128
+                    || qrBufferPreffix=='221_48_' // CODE128 with CTRL
+                    || qrBufferPreffix=='221_69_48_' // Other format - milk
+                    || qrBufferPreffix=='221_48_' // Other format - milk - with CTRL
+                ) {
+                    // console.log('Preffix FOUND');
+                    qrBufferPreffix = '';
+                    readingPreffix = false;
+                    readingData = true;
+                } else {
+                    console.log('Preffix NOT FOUND: ' + qrBufferPreffix);
+                }
+            } else if (readingData) {
+                var key = event.key;
+                if (event.keyCode>=49 && event.keyCode<=57)
+                    key = (event.keyCode - 48)+'';
+                else if (event.keyCode==48)
+                    key = '0';
+                else if (event.keyCode == 187|| event.keyCode == 189)
+                    key = '_';
+                qrBufferData += key;
+                // console.log('DATA APPEND: ' + qrBufferData);
+            } else {
+                prevent=false;
+            }
+        }
+        if (prevent) event.preventDefault();
+        console.log(event.key + ' = ' + event.keyCode);
+    }
+
     function processQrData(event) {
         let activeElement = document.activeElement;
 
@@ -101,63 +157,6 @@
             // console.log(productId);
         }
     }
-
-    function handleKeyDown(event) {
-        var code = event.keyCode;
-        var prevent = true;
-        if (code==221) {
-            readingPreffix = true;
-            readingData = false;
-            qrBufferPreffix='221_';
-            qrBufferData='';
-        } else if (
-            !readingPreffix &&
-            !readingData){
-            prevent = false;
-        } else if (code==13){
-            readingPreffix = false;
-            readingData = false;
-
-            processQrData(event);
-
-            qrBufferPreffix='';
-            qrBufferData='';
-        } else if (code==16 || code==17){ // Shift
-            // Do nothing
-        } else {
-            if (readingPreffix) {
-                qrBufferPreffix += event.keyCode+'_';
-                if (
-                    qrBufferPreffix=='221_67_48_' // CODE128
-                    || qrBufferPreffix=='221_48_' // CODE128 with CTRL
-                    || qrBufferPreffix=='221_69_48_' // Other format - milk
-                    || qrBufferPreffix=='221_48_' // Other format - milk - with CTRL
-                ) {
-                    // console.log('Preffix FOUND');
-                    qrBufferPreffix = '';
-                    readingPreffix = false;
-                    readingData = true;
-                } else {
-                    console.log('Preffix NOT FOUND: ' + qrBufferPreffix);
-                }
-            } else if (readingData) {
-                var key = event.key;
-                if (event.keyCode>=49 && event.keyCode<=57)
-                    key = (event.keyCode - 48)+'';
-                else if (event.keyCode==48)
-                    key = '0';
-                else if (event.keyCode == 187|| event.keyCode == 189)
-                    key = '_';
-                qrBufferData += key;
-                // console.log('DATA APPEND: ' + qrBufferData);
-            } else {
-                prevent=false;
-            }
-        }
-        if (prevent) event.preventDefault();
-        console.log(event.key + ' = ' + event.keyCode);
-    }
-
 
     function isKsProduct(productId) {
         let input = productQuantityJQueryObj(productId);
