@@ -153,6 +153,7 @@
         console.log(event.key + ' = ' + event.keyCode);
     }
 
+
     function isKsProduct(productId) {
         let input = productQuantityJQueryObj(productId);
         if (input!=null) {
