@@ -20,16 +20,6 @@
     var qrBufferPreffix='';
     var qrBufferData='';
 
-    function isKsProduct(productId) {
-        let input = productQuantityJQueryObj(productId);
-        if (input!=null) {
-            return input.hasClass("kusove-zbozi");
-        } else {
-            alert('Produkt neexistuje na stránce: ' + productId);
-            return false;
-        }
-
-    }
     var ctrl
     function handleKeyDown(event) {
         var code = event.keyCode;
@@ -85,6 +75,7 @@
                                 if (data != -1) {
                                     var input = productQuantityJQueryObj(productId).val(100);
                                     input.val(data);
+                                    updateTotalPrice(productId);
                                     toSay += " " + data + " gramů";
                                 }
                                 responsiveVoice.speak(toSay);
@@ -160,6 +151,17 @@
         }
         if (prevent) event.preventDefault();
         console.log(event.key + ' = ' + event.keyCode);
+    }
+
+    function isKsProduct(productId) {
+        let input = productQuantityJQueryObj(productId);
+        if (input!=null) {
+            return input.hasClass("kusove-zbozi");
+        } else {
+            alert('Produkt neexistuje na stránce: ' + productId);
+            return false;
+        }
+
     }
 
 
