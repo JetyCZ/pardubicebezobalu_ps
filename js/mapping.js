@@ -21,90 +21,90 @@
     var qrBufferData='';
 
     var ctrl
-    function handleKeyDown(event) {
-        var code = event.keyCode;
-        var prevent = true;
 
-        function processQRCode() {
-            let activeElement = document.activeElement;
+    function processQrData(event) {
+        let activeElement = document.activeElement;
 
-            var productId = map[qrBufferData];
-            var activeName = null;
-            var activeId = null;
-            if (activeElement != null) {
-                activeName = activeElement.name;
-                activeId = activeElement.id;
-            }
+        var productId = map[qrBufferData];
+        var activeName = null;
+        var activeId = null;
+        if (activeElement != null) {
+            activeName = activeElement.name;
+            activeId = activeElement.id;
+        }
 
-            if (productId != null) {
-                if (activeName != null && activeName == 's') {
-                    let quantityElemId = $('[name="productQuantity' + productId + '"]').attr('id')
-                    let shortUrl = quantityElemId.substring('productQuantity_'.length);
-                    if (confirm('Chcete zrušit mapování čárového kódu ' + qrBufferData + ' na produkt ' + shortUrl + ' ?')) {
-                        delete map[qrBufferData];
-                        let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
-                        $.get(deleteUrl, function (data) {
-                        });
-                    }
-                } else if (event.ctrlKey) {
-                    let productLink = document.getElementById('productLink_' + productId);
-                    if (productLink != null) {
-                        window.open(productLink.getAttribute('href'), '_blank');
-                    }
-                } else {
-                    var labelToSay = $('#productLabel' + productId).text().replace(' - na váhu', '').replace(' - stáčený produkt')
-                    var toSay = labelToSay;
+        if (productId != null) {
+            if (activeName != null && activeName == 's') {
+                let quantityElemId = $('[name="productQuantity' + productId + '"]').attr('id')
+                let shortUrl = quantityElemId.substring('productQuantity_'.length);
+                if (confirm('Chcete zrušit mapování čárového kódu ' + qrBufferData + ' na produkt ' + shortUrl + ' ?')) {
+                    delete map[qrBufferData];
+                    let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
+                    $.get(deleteUrl, function (data) {
+                    });
+                }
+            } else if (event.ctrlKey) {
+                let productLink = document.getElementById('productLink_' + productId);
+                if (productLink != null) {
+                    window.open(productLink.getAttribute('href'), '_blank');
+                }
+            } else {
+                var labelToSay = $('#productLabel' + productId).text().replace(' - na váhu', '').replace(' - stáčený produkt')
+                var toSay = labelToSay;
 
-                    let shouldIncreaseByOne = isKsProduct(productId);
-                    focusQuantity(productId, shouldIncreaseByOne);
+                let shouldIncreaseByOne = isKsProduct(productId);
+                focusQuantity(productId, shouldIncreaseByOne);
 
-                    try {
-                        if (!shouldIncreaseByOne) {
-                            $.get("/vaha.php", function (data) {
-                                if (data != -1) {
-                                    var input = productQuantityJQueryObj(productId).val(100);
-                                    input.val(data);
-                                    updateTotalPrice(productId);
-                                    toSay += " " + data + " gramů";
-                                }
-                                responsiveVoice.speak(toSay);
-                            });
-                        } else {
+                try {
+                    if (!shouldIncreaseByOne) {
+                        $.get("/vaha.php", function (data) {
+                            if (data != -1) {
+                                var input = productQuantityJQueryObj(productId).val(100);
+                                input.val(data);
+                                updateTotalPrice(productId);
+                                toSay += " " + data + " gramů";
+                            }
                             responsiveVoice.speak(toSay);
-                        }
-                    } catch (e) {
-                        console.debug("Error trying to output weight " + e);
-                        responsiveVoice.speak("Chyba váhy.");
+                        });
+                    } else {
+                        responsiveVoice.speak(toSay);
+                    }
+                } catch (e) {
+                    console.debug("Error trying to output weight " + e);
+                    responsiveVoice.speak("Chyba váhy.");
+                }
+
+            }
+        } else {
+
+            var msg = 'Neznámý produkt (čár. kód:' + qrBufferData + '). ';
+            let preffix = 'productQuantity';
+
+
+            if (activeElement != null && activeId.startsWith('productQuantity_')) {
+                var productId = activeName.substring(preffix.length);
+                if (confirm(msg + ' Chcete ho namapovat na ' + activeId.substring('productQuantity_'.length) + '?')) {
+                    map[qrBufferData] = productId;
+                    let addUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&idproduct=" + productId;
+                    $.get(addUrl, function (data) {
+                    });
+                    if (isKsProduct(productId)) {
+                        increaseByOne(productId);
                     }
 
                 }
             } else {
-
-                var msg = 'Neznámý produkt (čár. kód:' + qrBufferData + '). ';
-                let preffix = 'productQuantity';
-
-
-                if (activeElement != null && activeId.startsWith('productQuantity_')) {
-                    var productId = activeName.substring(preffix.length);
-                    if (confirm(msg + ' Chcete ho namapovat na ' + activeId.substring('productQuantity_'.length) + '?')) {
-                        map[qrBufferData] = productId;
-                        let addUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&idproduct=" + productId;
-                        $.get(addUrl, function (data) {
-                        });
-                        if (isKsProduct(productId)) {
-                            increaseByOne(productId);
-                        }
-
-                    }
-                } else {
-                    alert(msg + 'Pro namapování na produkt, prosím vlezte do obj. množství a pípněte znovu...')
-                }
-
-
-                // console.log(productId);
+                alert(msg + 'Pro namapování na produkt, prosím vlezte do obj. množství a pípněte znovu...')
             }
-        }
 
+
+            // console.log(productId);
+        }
+    }
+
+    function handleKeyDown(event) {
+        var code = event.keyCode;
+        var prevent = true;
         if (code==221) {
             readingPreffix = true;
             readingData = false;
@@ -118,7 +118,7 @@
             readingPreffix = false;
             readingData = false;
 
-            processQRCode();
+            processQrData(event);
 
             qrBufferPreffix='';
             qrBufferData='';
