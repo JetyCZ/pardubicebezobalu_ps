@@ -269,4 +269,39 @@ class CustomUtils {
             $headermsgs .= "Collation is '".$row["COLLATION_NAME"]."' instead of 'utf8mb4_unicode_ci'.";
     }
 
+    /**
+     * @param $result
+     * @param $deliveryToHome
+     * @return string
+     */
+    public static function addDeliveryToHomeNote($result, $deliveryToHome): string
+    {
+        $result .=
+            '<div class="alert alert-info">';
+
+        if ($deliveryToHome) {
+            $result .= '<span class="glyphicon glyphicon-home"></span>&nbsp;';
+        }
+
+        $result .=
+            '<span style="font-size: 120%;"><b>Poznámka: </b>Zboží, které si objednáte, <b style="color:darkgreen">NEPOSÍLÁME</b> poštou k vám domů.</span><br>'
+            .'<i>Nevnímáme to jako ekologicky udržitelnou variantu (uhlíková stopa a nutné obaly). Zboží si tedy vyzvednete na kamenné prodejně v Brozanech u Pardubic.' .
+            ' Další možností je vyzvednutí každou středu v Pardubicích v 8 hodin na Dukle u Waldorfské školy.<br>'
+            .' Zároveň připravujeme projekt <b>BIO kurýr</b> - komunitní dopravu zboží k vám domů po Pardubicích na kole :)</i>';
+        /*
+        if ($deliveryToHome) {
+            $result .=
+                'Tato stránka umožňuje objednávat pouze nechlazené zboží, které je možné doručit k vám domů.' .
+                '<br><a href="?deliveryToHome=false" style="text-decoration: underline;">Přejít na stránku s veškerým zbožím pro osobní odběr na prodejně</a>';
+        } else {
+            $result .=
+                'Tato stránka umožňuje objednávat veškeré zboží, chlazené i nechlazené, které je možné odebrat pouze <i>osobně na prodejně</i>. Chlazené zboží domů nevozíme.' .
+                '<br><a href="?deliveryToHome=true" style="text-decoration: underline;"><span >Přejít na stránku s pouze nechlazeným zbožím pro dodání k vám domů</span></a>';
+        }
+        */
+
+        $result .= '</div>';
+        return $result;
+    }
+
 }

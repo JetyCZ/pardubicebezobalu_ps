@@ -66,7 +66,7 @@
                           {$product.price_amount*1000},- Kč za 1Kg
                       {/if}
                   {else}
-                      {$product.price} za kus
+                      {$product.price|round:0},- Kč za kus
                   {/if}
                   {* puvodne $product.price*}
               </span>

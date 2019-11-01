@@ -23,6 +23,7 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -249,7 +250,10 @@ class Ps_FeaturedProducts extends Module implements WidgetInterface
             $this->smarty->assign($variables);
         }
 
-        return $this->fetch($this->templateFile, $this->getCacheId('ps_featuredproducts'));
+        $result = $this->fetch($this->templateFile, $this->getCacheId('ps_featuredproducts'));
+        $note = CustomUtils::addDeliveryToHomeNote("",false);
+
+        return $note.$result;
     }
 
     public function getWidgetVariables($hookName = null, array $configuration = [])

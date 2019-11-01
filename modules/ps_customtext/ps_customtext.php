@@ -119,7 +119,7 @@ EOD;
                 $result .= "</div>";
 
 
-                $result = $this->addDeliveryToHomeNote($result, $deliveryToHome);
+                $result = CustomUtils::addDeliveryToHomeNote($result, $deliveryToHome);
 
                 $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
                     <th>Zboží</th>
@@ -666,32 +666,6 @@ EOD;
         return $stockLabel;
     }
 
-    /**
-     * @param $result
-     * @param $deliveryToHome
-     * @return string
-     */
-    public function addDeliveryToHomeNote($result, $deliveryToHome): string
-    {
-        $result .=
-            '<div class="alert alert-info" style="font-size: 120%;">';
 
-        if ($deliveryToHome) {
-            $result .= '<span class="glyphicon glyphicon-home"></span>&nbsp;';
-        }
-
-        $result .= '<b>Poznámka: </b>';
-        if ($deliveryToHome) {
-            $result .=
-                'Tato stránka umožňuje objednávat pouze nechlazené zboží, které je možné doručit k vám domů.' .
-                '<br><a href="?deliveryToHome=false" style="text-decoration: underline;">Přejít na stránku s veškerým zbožím pro osobní odběr na prodejně</a>';
-        } else {
-            $result .=
-                'Tato stránka umožňuje objednávat veškeré zboží, chlazené i nechlazené, které je možné odebrat pouze <i>osobně na prodejně</i>. Chlazené zboží domů nevozíme.' .
-                '<br><a href="?deliveryToHome=true" style="text-decoration: underline;"><span >Přejít na stránku s pouze nechlazeným zbožím pro dodání k vám domů</span></a>';
-        }
-        $result .= '</div>';
-        return $result;
-    }
 
 }
