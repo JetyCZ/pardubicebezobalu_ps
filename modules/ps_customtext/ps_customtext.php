@@ -115,6 +115,9 @@ EOD;
                 $result .= "<h2 style='background-color:#FFF0F0;color:black;' id='cartTotalPrice'>0,- Kč</h2>";
                 if ($isAdmin) {
                     $result .= "<h2 style='background-color:#FFF0FF;' id='btnAddAllTopLeft'>Vložit vše</h2>";
+                    $result .= "<a target='_new' href='http://pardubicebezobalu.cz/admin313uriemy/sells.php'><h4 style='background-color:#FFF0FF;' >Co objednat</h4></a>";
+                    $result .= "<a target='_new' href='http://pardubicebezobalu.cz/admin313uriemy/supply.php'><h4 style='background-color:#FFF0FF;' >Objednávky dle dodavatelů</h4></a>";
+                    $result .= "<a target='_new' href='http://bezobalu.herokuapp.com'><h4 style='background-color:#FFF0FF;' >Ceníky dodavatelů (info@pardubicebezobalu.cz)</h4></a>";
                 }
                 $result .= "</div>";
 
@@ -198,6 +201,8 @@ EOD;
                                         CustomUtils::ordersWithProductLink($idProduct);
                                     $resultOneCategory .= ' |&nbsp;' .
                                         CustomUtils::productLink($idProduct);
+                                    $resultOneCategory .= ' |&nbsp;' .
+                                        CustomUtils::supplyLink($productName);
                                 }
                                 $resultOneCategory .= "</td>";
 

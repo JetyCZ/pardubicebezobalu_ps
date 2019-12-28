@@ -134,7 +134,12 @@ class CustomUtils {
     public static function productLink($idProduct)
     {
         return
-            '<a id="productLink_'.$idProduct.'" href="/admin313uriemy/index.php/product/form/'.$idProduct.'">P</a>';
+            '<a target="_product" id="productLink_'.$idProduct.'" href="/admin313uriemy/index.php/product/form/'.$idProduct.'">P</a>';
+    }
+    public static function supplyLink($productName)
+    {
+        return
+            '<a target="_bezobalu" href="https://bezobalu.herokuapp.com/items/search/?productName='.str_replace(" - na váhu","",$productName).'">C</a>';
     }
 
     public static function orderLink($idOrder, $linkBody)
