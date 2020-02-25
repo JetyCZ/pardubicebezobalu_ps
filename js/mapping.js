@@ -1,5 +1,5 @@
     // https://babylon.tierraverde.cz/index.php/s/HKYpUwoIg6au36t#pdfviewer
-    var tierreGramPerLitrMapping = {
+    var gramPerLitrMapping = {
 
         '52-praci-gel-z-mydlovych-orechu-bez-vune-staceny':1065,
         '54-praci-gel-z-mydlovych-orechu-se-silici-vavrinu-kubeboveho-staceny':1080,
@@ -53,7 +53,7 @@
                     || qrBufferPreffix=='221_69_48_' // Other format - milk
                     || qrBufferPreffix=='221_48_' // Other format - milk - with CTRL
                 ) {
-                    // console.log('Preffix FOUND');
+                    console.log('Preffix FOUND');
                     qrBufferPreffix = '';
                     readingPreffix = false;
                     readingData = true;
@@ -69,7 +69,7 @@
                 else if (event.keyCode == 187|| event.keyCode == 189)
                     key = '_';
                 qrBufferData += key;
-                // console.log('DATA APPEND: ' + qrBufferData);
+                console.log('DATA APPEND: ' + qrBufferData);
             } else {
                 prevent=false;
             }
@@ -78,10 +78,13 @@
         console.log(event.key + ' = ' + event.keyCode);
     }
 
+    let preffix = 'productQuantity';
+
     function processQrData(event) {
         let activeElement = document.activeElement;
-
+        console.log("processQrData: " + qrBufferData);
         var productId = map[qrBufferData];
+        console.log('productId:' + productId);
         var activeName = null;
         var activeId = null;
         if (activeElement != null) {
@@ -89,22 +92,58 @@
             activeId = activeElement.id;
         }
 
+        console.log('activeName:' + activeName);
         if (productId != null) {
-            if (activeName != null && activeName == 's') {
-                let quantityElemId = $('[name="productQuantity' + productId + '"]').attr('id')
-                let shortUrl = quantityElemId.substring('productQuantity_'.length);
-                if (confirm('Chcete zrušit mapování čárového kódu ' + qrBufferData + ' na produkt ' + shortUrl + ' ?')) {
+            let productLabelElem = document.getElementById('productLabel'+productId);
+            let productNotVisibleOnPage = productLabelElem==null;
+
+            if ((activeName != null && activeName == 's') ||
+                productNotVisibleOnPage) {
+                let message;
+
+                let productLabel = '';
+                if (!productNotVisibleOnPage) {
+                    productLabel = productLabelElem.text;
+                }
+                if (productNotVisibleOnPage) {
+                    message = 'Čárový kód je namapován na produkt s id ' +productId + ', který již na Zrychlené objednávce není zobrazen. Chcete zrušit toto mapování čárového kódu ' + qrBufferData + ' ?';
+                } else {
+
+                    message = 'Chcete zrušit mapování čárového kódu ' + qrBufferData + ' na produkt ' + productLabel + ' ?';
+                }
+
+                if (confirm(message)) {
                     delete map[qrBufferData];
                     let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
                     $.get(deleteUrl, function (data) {
                     });
                 }
             } else if (event.ctrlKey) {
+                delete map[qrBufferData];
+                let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
+                $.get(deleteUrl, function (data) {});
+                let remapMessage='Mapování zrušeno';
+                if (activeElement != null && activeId.startsWith('productQuantity_')) {
+
+                    var productId = activeName.substring(preffix.length);
+                    let productLabelElem = document.getElementById('productLabel'+productId);
+                    map[qrBufferData] = productId;
+                    let addUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&idproduct=" + productId;
+                    $.get(addUrl, function (data) {});
+                    remapMessage = 'Přemapováno na ' + productLabelElem.text;
+                }
+                responsiveVoice.speak(remapMessage);
+
+                /*
+                Open product in admin
                 let productLink = document.getElementById('productLink_' + productId);
                 if (productLink != null) {
                     window.open(productLink.getAttribute('href'), '_blank');
                 }
+                 */
             } else {
+                console.log('Saying id:' + '#productLabel' + productId);
+                console.log('Saying text:' + $('#productLabel' + productId).text());
                 var labelToSay = $('#productLabel' + productId).text().replace(' - na váhu', '').replace(' - stáčený produkt')
                 var toSay = labelToSay;
 
@@ -134,16 +173,15 @@
         } else {
 
             var msg = 'Neznámý produkt (čár. kód:' + qrBufferData + '). ';
-            let preffix = 'productQuantity';
 
 
             if (activeElement != null && activeId.startsWith('productQuantity_')) {
                 var productId = activeName.substring(preffix.length);
-                if (confirm(msg + ' Chcete ho namapovat na ' + activeId.substring('productQuantity_'.length) + '?')) {
+                let productLabelElem = document.getElementById('productLabel'+productId);
+                if (confirm(msg + ' Chcete ho namapovat na ' + productLabelElem.text + '?')) {
                     map[qrBufferData] = productId;
                     let addUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&idproduct=" + productId;
-                    $.get(addUrl, function (data) {
-                    });
+                    $.get(addUrl, function (data) {});
                     if (isKsProduct(productId)) {
                         increaseByOne(productId);
                     }
@@ -260,17 +298,18 @@
 
 
     function updateMililitersInput(productId, shortUrl) {
-        var tierreGramPerLitr = tierreGramPerLitrMapping[shortUrl];
-        if (tierreGramPerLitr > 0) {
+        var gramPerLitr = gramPerLitrMapping[shortUrl];
+        if (gramPerLitr==null) gramPerLitr = 1000;
+        if (gramPerLitr > 0) {
             var quantityElem = document.getElementById("productQuantity_" + shortUrl);
             var pouredGramElem = document.getElementById("productPouredGram_" + shortUrl);
-            quantityElem.value = Math.round(pouredGramElem.value / (tierreGramPerLitr/1000));
+            quantityElem.value = Math.round(pouredGramElem.value / (gramPerLitr/1000));
         }
         updateTotalPrice(productId);
 
     }
     function updateProductPouredGramInput(productId, shortUrl) {
-        var tierreGramPerLitr = tierreGramPerLitrMapping[shortUrl];
+        var tierreGramPerLitr = gramPerLitrMapping[shortUrl];
         if (tierreGramPerLitr > 0) {
             var quantityElem = document.getElementById("productQuantity_" + shortUrl);
             var pouredGramElem = document.getElementById("productPouredGram_" + shortUrl);

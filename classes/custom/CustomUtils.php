@@ -173,6 +173,7 @@ class CustomUtils {
             $email == 'KatkaMartincova@email.cz' ||
             $email == 'sona.zavacka@seznam.cz' ||
             $email == 'iva.velkomarsovska@gmail.com' ||
+            $email == 'marketka.rakova@seznam.cz' ||
             $email == 'lada.hrochova@mailinator.com'
         );
     }
