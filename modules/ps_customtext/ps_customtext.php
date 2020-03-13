@@ -34,6 +34,7 @@ use PrestaShop\PrestaShop\Adapter\Customer;
 
 require_once _PS_MODULE_DIR_ . 'ps_customtext/classes/CustomText.php';
 require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
+require_once _PS_ROOT_DIR_ . '/classes/custom/CustomInventory.php';
 require_once _PS_ROOT_DIR_ . '/classes/jety/Cron/CronExpression.php';
 
 class Ps_Customtext extends Module implements WidgetInterface
@@ -73,10 +74,15 @@ class Ps_Customtext extends Module implements WidgetInterface
         $javascript = <<<'EOD'
 <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"></link>
 <script type='text/javascript' src="/js/mapping.js?v=13"></script>
-<script type='text/javascript' src="/admin313uriemy/mapping.php?v=6"></script>
+<script type='text/javascript' src="/admin313uriemy/mapping.php?v=6[inventoryUrlParam]"></script>
 <script src="//code.responsivevoice.org/responsivevoice.js?key=hLFPNIz1"></script>
 
 EOD;
+        $inventoryUrlParam = "";
+        if (isset($_GET['id_inventory'])) {
+            $inventoryUrlParam = "&id_inventory=".$_GET['id_inventory'];
+        }
+        $javascript = str_replace( "[inventoryUrlParam]",$inventoryUrlParam,$javascript);
         return $javascript;
     }
 
@@ -123,6 +129,8 @@ EOD;
 
 
                 $result = CustomUtils::addDeliveryToHomeNote($result, $deliveryToHome);
+
+                $invTable = new CustomInventory();
 
                 $result .= "<table style='background-color:#FEFEFE;' border='1'><tr style='background-color:#D0FFD0;'>
                     <th>Zboží</th>
@@ -221,6 +229,7 @@ EOD;
                                 $inStoreLabel = $this->infoLabel("Skladem: " . $priceInfo->quantityToAmountAndUnit($quantity, 1),
                                     "Množství zboží, které máme fyzicky v prodejně v Brozanech k volnému prodeju. Objednáním přes e-shop si zboží rezervujete pro sebe.");
 
+                                $invTable->invRow($quantity, $price, $idProduct, $productName);
 
                                 if ($outOfStock == 1) {
                                     $maxAttribute = "";
@@ -380,7 +389,8 @@ EOD;
                 <script type="text/javascript">document.location.href = \'' . $redirectUrl . '\';</script>';
                 }
 
-                return $result;
+                 return $result.$invTable->outputHtml();
+                //return $result;
 
 
             } catch (Exception $e) {
@@ -649,6 +659,7 @@ EOD;
                     $deliveryDateStr = $deliveryInfo->deliveryDateStr();
                     $infoLabel = "Zboží lze přidat do košíku, i když ho nemáme skladem. Pravidelně objednáváme u dodavatele.";
 
+
                     if ($deliveryDateStr == null) {
                         $infoText = "Zboží už jsme objednali, termín další objednávky zatím dosud není stanoven.";
                     } else {
@@ -669,6 +680,7 @@ EOD;
         }
         return $stockLabel;
     }
+
 
 
 
