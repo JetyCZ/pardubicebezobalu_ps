@@ -31,6 +31,7 @@ class CustomInventory {
             $this->html .= "<table style='background-color:#FEFEFE;' border='1'>";
 
             $this->html .= "<tr>";
+            $this->html .= "<th>Action</th>";
             $this->html .= "<th>ID product</th>";
             $this->html .= "<th>Product name</th>";
             $this->html .= "<th>Unit Price</th>";
@@ -68,7 +69,7 @@ class CustomInventory {
 
     }
 
-    public function invRow($quantity, $price, $idProduct, $productName)
+    public function invRow($quantity, $price, $idProduct, $productName,$shortUrl)
     {
         if ($this->enabled) {
             $inventoryQuantity = $this->quantities[$idProduct];
@@ -85,6 +86,7 @@ class CustomInventory {
             } else {
                 $this->html .= "<tr>";
             }
+            $this->html .= "<td>".$this->resetLink($idProduct, $shortUrl)."</td>";
             $this->html .= "<td>" . $idProduct . "</td>";
             $this->html .= "<td>" . $productName . "</td>";
             $this->html .= "<td>" . $price . "</td>";
@@ -103,5 +105,41 @@ class CustomInventory {
             return "<hr><h1>Stock value:" . $this->sumStock . "</h1>" .
              "<hr><h1>Inventory value:" . $this->sumInventory . "</h1>" . $this->html . "</table>";
         }
+    }
+
+    public function links($idProduct, $shortUrl)
+    {
+        if (!$this->enabled) {
+            return "";
+        }
+        $quote = "'";
+        $link = $this->resetLink($idProduct, $shortUrl);
+        $link.=' |&nbsp;' .
+        '<a href="javascript:callInventoryPHPUrlUpdate('
+        .$idProduct
+        .','
+        .$quote.$shortUrl.$quote
+        .');">INV+</a>';
+        return $link;
+
+    }
+
+    /**
+     * @param $idProduct
+     * @param $shortUrl
+     * @param string $quote
+     * @return string
+     */
+    public function resetLink($idProduct, $shortUrl): string
+    {
+        $quote = "'";
+
+        $link = ' |&nbsp;' .
+            '<a href="javascript:callInventoryPHPUrlReset('
+            . $idProduct
+            . ','
+            . $quote . $shortUrl . $quote
+            . ');">INV-&gt;</a>';
+        return $link;
     }
 }

@@ -116,14 +116,25 @@ EOD;
 
                 // http://jsbin.com/xecacojave/edit?html,js,output
 
-
                 $result .= "<div style='position:fixed;top:0pt;left:0pt;' >";
+                $result .= "<table>";
+                $result .= "<tr>";
+                $result .= "<td>";
                 $result .= "<h2 style='background-color:#FFF0F0;color:black;' id='cartTotalPrice'>0,- Kč</h2>";
+                $result .= "</td>";
+                $result .= "<td><img src='/img/bottle.png'></td>";
+                $result .= "<td><table><tr><td>Koupené</td>";
+                $result .= "<td><input name='bottlesBought' type='number'></td></tr>";
+                $result .= "<tr><td>Vrácené</td>";
+                $result .= "<td><input name='bottlesReturned' type='number'></td></tr>";
+                $result .= "</table></td>";
+                $result .= "</tr>";
+                $result .= "</table>";
                 if ($isAdmin) {
                     $result .= "<h2 style='background-color:#FFF0FF;' id='btnAddAllTopLeft'>Vložit vše</h2>";
                     $result .= "<a target='_new' href='http://pardubicebezobalu.cz/admin313uriemy/sells.php'><h4 style='background-color:#FFF0FF;' >Co objednat</h4></a>";
                     $result .= "<a target='_new' href='http://pardubicebezobalu.cz/admin313uriemy/supply.php'><h4 style='background-color:#FFF0FF;' >Objednávky dle dodavatelů</h4></a>";
-                    $result .= "<a target='_new' href='http://bezobalu.herokuapp.com'><h4 style='background-color:#FFF0FF;' >Ceníky dodavatelů (info@pardubicebezobalu.cz)</h4></a>";
+                    $result .= "<a target='_new' href='http://bezobalu.herokuapp.com'><h4 style='background-color:#FFF0FF;' >Ceníky dodavatelů <br>(info@pardubicebezobalu.cz)</h4></a>";
                 }
                 $result .= "</div>";
 
@@ -143,9 +154,25 @@ EOD;
 
 
                 $supplierCrons = Db::getInstance()->executeS("select * from " . _DB_PREFIX_ . "jety_supplier_cron");
+                $bottles = Db::getInstance()->executeS("select * from " . _DB_PREFIX_ . "jety_bottled_products");
+                $bottleMap = array();
+                $bottleIds = array();
+                $bottleJs = '<script language="JavaScript">let bottledProducts=[];';
+                foreach ($bottles as $bottle) {
+                    $idBottle = $bottle["id_product_bottle"];
+                    $idProduct = $bottle["id_product"];
+                    $bottleMap[$idProduct] = $idBottle;
+                    $bottleIds[$idBottle] = true;
+                    $bottleJs .= "bottledProducts[".$idProduct."]=".$idBottle.";";
+                }
+                $bottleJs .= "</script>\n";
+                $result .= $bottleJs;
+
                 $productIds = array();
                 $cats = "var map = {";
                 $catProductCounter = 1;
+                $resultAllCategories = "";
+                $resultBottles = "";
                 foreach ($children as $childCat) {
 
 
@@ -169,204 +196,44 @@ EOD;
                     ) {
 
                         foreach ($products as $product) {
-                            $idProduct = $product["id_product"];
-
-                            $quantity = $product["quantity"];
-                            $outOfStock = (int)$product["out_of_stock"];
-                            $linkRewrite = $product["link_rewrite"];
-                            $shortUrl = $product["id_product"] . "-" . $linkRewrite;
-
-                            if (
-                                !array_key_exists($idProduct, $productIds) &&
-                                (
-                                    ($outOfStock < 2) ||
-                                    ((int)$quantity > 0)
-                                )
-                            ) {
-
-                                $productQuantityIdAttr = " id='productQuantity_" . $shortUrl . "' ";
-
-                                // 1: '133-merunky-cele-na-vahu',
-                                $cats .= "\n" . ($catProductCounter++) . ": '" . $shortUrl . "',";
-
-                                $resultOneCategory .= "\n<tr>";
-                                $resultOneCategory .= '<a name="' . $linkRewrite . '"></a>';
-
-                                $productName = $product["name"];
-                                $price = $product["price"];
-                                $link = $product["link"];
-
-
-                                $resultOneCategory .= "\n<td style='padding-left:20pt'>" .
-                                    "<a id='productLabel" . $idProduct . "' href='" . $link . "' target='_new'>" .
-                                    $productName .
-                                    "</a>";
-
-
-                                if ($isAdmin) {
-                                    $resultOneCategory .= ' |&nbsp;' .
-                                        CustomUtils::ordersWithProductLink($idProduct);
-                                    $resultOneCategory .= ' |&nbsp;' .
-                                        CustomUtils::productLink($idProduct);
-                                    $resultOneCategory .= ' |&nbsp;' .
-                                        CustomUtils::supplyLink($productName);
-                                }
-                                $resultOneCategory .= "</td>";
-
-
-                                $priceInfo = null;
-                                $priceInfo = CustomUtils::priceInfo($productName, $price);
-
-                                $resultOneCategory .= "\n<td nowrap='nowrap'>";
-                                $resultOneCategory .= $priceInfo->pricePerUnitLabel();
-                                $resultOneCategory .= "</td>";
-                                $resultOneCategory .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
-
-                                $fieldName = "productQuantity" . $idProduct;
-                                $resultOneCategory .= "\n<td nowrap='nowrap'>";
-                                $maxAttribute = " max=" . $quantity;
-                                $stockLabel = "";
-                                $inStoreLabel = $this->infoLabel("Skladem: " . $priceInfo->quantityToAmountAndUnit($quantity, 1),
-                                    "Množství zboží, které máme fyzicky v prodejně v Brozanech k volnému prodeju. Objednáním přes e-shop si zboží rezervujete pro sebe.");
-
-                                $invTable->invRow($quantity, $price, $idProduct, $productName);
-
-                                if ($outOfStock == 1) {
-                                    $maxAttribute = "";
-                                    if ($quantity > 0) {
-                                        $stockLabel .= $inStoreLabel;
-                                    } else {
-                                        $stockLabel .= $this->infoLabel("Není skladem, lze objednat", "Toto zboží nemáme fyzicky v prodejně v Brozanech na skladě, můžeme jej ale objednat od dodavatele.");
-                                        if ($quantity < 0) {
-
-                                            $quantityToOrder = $priceInfo->quantityToAmountAndUnit($quantity, -1);
-                                            $stockLabel .= $this->infoLabel("Budeme objednávat: " . $quantityToOrder,
-                                                "Informace o tom, kolik budeme objednávat v příští objednávce. Jde o množství, co zákazníci objednali mínus kolik máme na skladě.");
-                                        }
-                                    }
-
-                                    $stockLabel = $this->calculateStockLabel($supplierCrons, $product, $stockLabel);
-
-                                } else {
-                                    $stockLabel = $inStoreLabel;
-                                }
-
-
-                                $quote = "'";
-
-
-                                $updateProdctPouredGramInputFunction = "";
-                                if ($priceInfo->isPoured) {
-                                    $updateProdctPouredGramInputFunction = '; updateProductPouredGramInput(' . $idProduct . ', ' . $quote . $shortUrl . $quote . ');"';
-                                }
-
-                                $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ');' . $updateProdctPouredGramInputFunction . '"';
-                                $oninput = " oninput=" . $updateTotalPriceFunction;
-                                $onchange = " onchange=" . $updateTotalPriceFunction;
-                                $onchange = "";
-
-                                if ($priceInfo->isWeightedKs) {
-                                    $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', ' . $quote . $shortUrl . $quote . ')"';
-                                    $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl . "' ";
-                                    $resultOneCategory .= "<input " . $productQuantityKsIdAttr
-                                        . " class='quantity"
-                                        . "' style='width:100px' oninput=" . $updateFunctionFruitKs
-                                        . " onchange=" . $updateFunctionFruitKs . " type='number' value='0' name='"
-                                        . $fieldName . "Ks' min=0 " . $maxAttribute . ">";
-
-                                    if ($isAdmin) {
-                                        $type = "type='text' " . $oninput . $onchange;
-                                        $resultOneCategory .= " " . $priceInfo->unitX;
-                                        $resultOneCategory .= "&nbsp;<input " . $type . " value='0' name='" . $fieldName . "' " . $productQuantityIdAttr . ">";
-                                        $resultOneCategory .= " gramů";
-                                    } else {
-                                        $type = "type='hidden' ";
-                                        $resultOneCategory .= "<input " . $type . " value='0' name='" . $fieldName . "' " . $productQuantityIdAttr . ">";
-                                        $resultOneCategory .= " " . $priceInfo->unitX;
-                                    }
-
-
-                                    $resultOneCategory .= $this->toGraySpan($priceInfo->help);
-                                } else {
-
-                                    $inputMin = 0;
-                                    if (CustomUtils::contains($shortUrl, 'lahev-na-mleko')) {
-                                        $inputMin = -1000;
-                                    }
-                                    $appendKsClass = ($priceInfo->unitX == "ks ") ? " kusove-zbozi" : "";
-                                    $resultOneCategory .= "<input " . $productQuantityIdAttr . $oninput . $onchange
-                                        . " class='quantity"
-                                        . $appendKsClass
-                                        . "' style='width:100px' type='number' value='0' name='" . $fieldName
-                                        . "' min=" . $inputMin . " " . $maxAttribute . ">";
-                                    $resultOneCategory .= " " . $priceInfo->unitX;
-
-
-                                    if ($priceInfo->isPoured && $isAdmin) {
-                                        $fieldNameWeightPoured = "productWeightPoured" . $idProduct;
-                                        $updateMlFunction = '"updateMililitersInput(' . $idProduct . ', ' . $quote . $shortUrl . $quote . ');"';
-                                        $oninputMl = " oninput=" . $updateMlFunction;
-                                        $onchangeMl = " onchange=" . $updateMlFunction;
-                                        $productPouredGramIdAttr = " id='productPouredGram_" . $shortUrl . "' ";
-
-                                        $resultOneCategory .= "<input " . $productPouredGramIdAttr . $oninputMl . $onchangeMl . " class='quantity' style='width:100px' type='number' value='0' name='" . $fieldNameWeightPoured . "' min=0 " . $maxAttribute . ">";
-                                        $resultOneCategory .= "&nbsp;g&nbsp;";
-                                    }
-
-                                    $resultOneCategory .= $this->toGraySpan($priceInfo->help) . $priceInfo->isPoured;
-
-                                }
-
-
-                                $resultOneCategory .= "<br>" . $this->toGraySpan($stockLabel);
-                                $resultOneCategory .= "</td>";
-                                $resultOneCategory .= "\n<td><span id='totalPrice" . $idProduct . "'></span></td>";
-                                $info = "&nbsp;";
-                                if ($formPosted) {
-                                    $quantity = $_POST[$fieldName];
-                                    if (isset($quantity) && $quantity > 0) {
-                                        $info = "Do košíku přidáno: " . $quantity;
-                                    }
-                                }
-                                $resultOneCategory .= "\n<td>";
-                                $resultOneCategory .= $info . "</td>";
-
-
-                                $productIds[$idProduct] = 1;
-                                $resultOneCategory .= "</tr>";
-
+                            $isBottle = $bottleIds[$product["id_product"]] != null;
+                            $oneProduct = $this->displayOneProduct($product, $productIds, $catProductCounter, $cats, $isAdmin, $invTable, $supplierCrons, $formPosted, $resultOneCategory, $isBottle);
+                            if ($isBottle) {
+                                $resultBottles.= $oneProduct;
+                            } else {
+                                $resultOneCategory .= $oneProduct;
                             }
-
                         }
 
                         if (strlen($resultOneCategory) > 0) {
-                            $result .= "<tr>";
+                            $resultAllCategories .= "<tr>";
 
                             $catLink = "/" . $idCategory . "-" . $childCat["link_rewrite"];
-                            $result .= "<td colspan='6' style='background-color:#F0FFF0;'><b>" .
+                            $resultAllCategories .= "<td colspan='6' style='background-color:#F0FFF0;'><b>" .
                                 "<a href='" . $catLink . "' target='_new'>" .
                                 $catName .
                                 "</a>" .
                                 "</b>";
 
+
                             if ($isNoDeliveryToHomeCat) {
-                                $result .=
+                                $resultAllCategories .=
                                     '<div style="font-size: 120%;">';
-                                $result .= '<span class="glyphicon glyphicon-comment"></span>&nbsp;';
-                                $result .= '<b>Poznámka: </b>';
-                                $result .=
+                                $resultAllCategories .= '<span class="glyphicon glyphicon-comment"></span>&nbsp;';
+                                $resultAllCategories .= '<b>Poznámka: </b>';
+                                $resultAllCategories .=
                                     'Produkty v této kategorii nelze přepravovat, vyberte je prosím, jen pokud objednávate pro osobní odběr na prodejně.';
                             }
-                            $result .= "</td>";
+                            $resultAllCategories .= "</td>";
 
-
-                            $result .= "</tr>";
-                            $result .= $resultOneCategory;
+                            $resultAllCategories .= "</tr>";
+                            $resultAllCategories .= $resultOneCategory;
                         }
                     }
-
-
                 }
+                $result .= $resultBottles;
+                $result .= $resultAllCategories;
+
                 $result .= "<tr ><td style='padding-top: 30pt;' colspan='6' align='center'>" .
                     "<input id='bulkAddToCartButton'
                     name='bulkAddToCartButton' style='font-size: 150%;padding:20pt;background-color:#F0FFF0;' value='Vložit zboží všechno najednou do košíku' type='submit'/>" .
@@ -389,8 +256,8 @@ EOD;
                 <script type="text/javascript">document.location.href = \'' . $redirectUrl . '\';</script>';
                 }
 
-                 return $result.$invTable->outputHtml();
-                //return $result;
+                // return $result.$invTable->outputHtml();
+                return $result;
 
 
             } catch (Exception $e) {
@@ -681,7 +548,191 @@ EOD;
         return $stockLabel;
     }
 
+    /**
+     * @param $product
+     * @param array $productIds
+     * @param int $catProductCounter
+     * @param string $cats
+     * @param bool $isAdmin
+     * @param CustomInventory $invTable
+     * @param $supplierCrons
+     * @param bool $formPosted
+     * @param string $resultOneCategory
+     * @return string
+     */
+    public function displayOneProduct($product, array $productIds, int $catProductCounter, string $cats, bool $isAdmin, CustomInventory $invTable, $supplierCrons, bool $formPosted, string $resultOneCategory,$isBottle): string
+    {
+        $idProduct = $product["id_product"];
 
+        $quantity = $product["quantity"];
+        $outOfStock = (int)$product["out_of_stock"];
+        $linkRewrite = $product["link_rewrite"];
+        $shortUrl = $product["id_product"] . "-" . $linkRewrite;
+        $resultOneProduct = "";
+
+        if (
+            !array_key_exists($idProduct, $productIds) &&
+            (
+                ($outOfStock < 2) ||
+                ((int)$quantity > 0)
+            )
+        ) {
+
+            $productQuantityIdAttr = " id='productQuantity_" . $shortUrl . "' ";
+
+            // 1: '133-merunky-cele-na-vahu',
+            $cats .= "\n" . ($catProductCounter++) . ": '" . $shortUrl . "',";
+
+            $resultOneProduct .= "\n<tr>";
+            $resultOneProduct .= '<a name="' . $linkRewrite . '"></a>';
+
+            $productName = $product["name"];
+            $price = $product["price"];
+            $link = $product["link"];
+
+
+            $resultOneProduct .= "\n<td style='padding-left:20pt'>" .
+                "<a id='productLabel" . $idProduct . "' href='" . $link . "' target='_new'>" .
+                $productName .
+                "</a>";
+
+                        if ($isAdmin) {
+                            $resultOneProduct .= ' |&nbsp;' .
+                                CustomUtils::ordersWithProductLink($idProduct);
+                            $resultOneProduct .= ' |&nbsp;' .
+                                CustomUtils::productLink($idProduct);
+                            $resultOneProduct .= ' |&nbsp;' .
+                                CustomUtils::supplyLink($productName);
+                            $resultOneProduct .= $invTable->links($idProduct, $shortUrl);
+                        }
+                        $resultOneProduct .= "</td>";
+
+
+                        $priceInfo = null;
+                        $priceInfo = CustomUtils::priceInfo($productName, $price);
+
+                        $resultOneProduct .= "\n<td nowrap='nowrap'>";
+                        $resultOneProduct .= $priceInfo->pricePerUnitLabel();
+                        $resultOneProduct .= "</td>";
+                        $resultOneProduct .= "<input type='hidden' id='productPrice" . $idProduct . "' value='" . $price . "'></input>";
+
+                        $fieldName = "productQuantity" . $idProduct;
+                        $resultOneProduct .= "\n<td nowrap='nowrap'>";
+                        $maxAttribute = " max=" . $quantity;
+                        $stockLabel = "";
+                        $inStoreLabel = $this->infoLabel("Skladem: " . $priceInfo->quantityToAmountAndUnit($quantity, 1),
+                            "Množství zboží, které máme fyzicky v prodejně v Brozanech k volnému prodeju. Objednáním přes e-shop si zboží rezervujete pro sebe.");
+
+                        $invTable->invRow($quantity, $price, $idProduct, $productName, $shortUrl);
+
+                        if ($outOfStock == 1) {
+                            $maxAttribute = "";
+                            if ($quantity > 0) {
+                                $stockLabel .= $inStoreLabel;
+                            } else {
+                                $stockLabel .= $this->infoLabel("Není skladem, lze objednat", "Toto zboží nemáme fyzicky v prodejně v Brozanech na skladě, můžeme jej ale objednat od dodavatele.");
+                                if ($quantity < 0) {
+
+                                    $quantityToOrder = $priceInfo->quantityToAmountAndUnit($quantity, -1);
+                                    $stockLabel .= $this->infoLabel("Budeme objednávat: " . $quantityToOrder,
+                                        "Informace o tom, kolik budeme objednávat v příští objednávce. Jde o množství, co zákazníci objednali mínus kolik máme na skladě.");
+                                }
+                            }
+
+                            $stockLabel = $this->calculateStockLabel($supplierCrons, $product, $stockLabel);
+
+                        } else {
+                            $stockLabel = $inStoreLabel;
+                        }
+
+
+                        $quote = "'";
+
+
+                        $updateProdctPouredGramInputFunction = "";
+                        if ($priceInfo->isPoured) {
+                            $updateProdctPouredGramInputFunction = '; updateProductPouredGramInput(' . $idProduct . ', ' . $quote . $shortUrl . $quote . ');"';
+                        }
+
+                        $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ');' . $updateProdctPouredGramInputFunction . '"';
+                        $oninput = " oninput=" . $updateTotalPriceFunction;
+                        $onchange = " onchange=" . $updateTotalPriceFunction;
+                        $onchange = "";
+
+                        if ($priceInfo->isWeightedKs) {
+                            $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', ' . $quote . $shortUrl . $quote . ')"';
+                            $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl . "' ";
+                            $resultOneProduct .= "<input " . $productQuantityKsIdAttr
+                                . " class='quantity"
+                                . "' style='width:100px' oninput=" . $updateFunctionFruitKs
+                                . " onchange=" . $updateFunctionFruitKs . " type='number' value='0' name='"
+                                . $fieldName . "Ks' min=0 " . $maxAttribute . ">";
+
+                            if ($isAdmin) {
+                                $type = "type='text' " . $oninput . $onchange;
+                                $resultOneProduct .= " " . $priceInfo->unitX;
+                                $resultOneProduct .= "&nbsp;<input " . $type . " value='0' name='" . $fieldName . "' " . $productQuantityIdAttr . ">";
+                                $resultOneProduct .= " gramů";
+                            } else {
+                                $type = "type='hidden' ";
+                                $resultOneProduct .= "<input " . $type . " value='0' name='" . $fieldName . "' " . $productQuantityIdAttr . ">";
+                                $resultOneProduct .= " " . $priceInfo->unitX;
+                            }
+
+
+                            $resultOneProduct .= $this->toGraySpan($priceInfo->help);
+                        } else {
+
+                            $inputMin = 0;
+                            if (CustomUtils::contains($shortUrl, 'lahev-na-mleko')) {
+                                $inputMin = -1000;
+                            }
+                            $appendKsClass = ($priceInfo->unitX == "ks ") ? " kusove-zbozi" : "";
+                            $resultOneProduct .= "<input " . $productQuantityIdAttr . $oninput . $onchange
+                                . " class='quantity"
+                                . $appendKsClass
+                                . "' style='width:100px' type='number' value='0' name='" . $fieldName
+                                . "' min=" . $inputMin . " " . $maxAttribute . ">";
+                            $resultOneProduct .= " " . $priceInfo->unitX;
+
+
+                            if ($priceInfo->isPoured && $isAdmin) {
+                                $fieldNameWeightPoured = "productWeightPoured" . $idProduct;
+                                $updateMlFunction = '"updateMililitersInput(' . $idProduct . ', ' . $quote . $shortUrl . $quote . ');"';
+                                $oninputMl = " oninput=" . $updateMlFunction;
+                                $onchangeMl = " onchange=" . $updateMlFunction;
+                                $productPouredGramIdAttr = " id='productPouredGram_" . $shortUrl . "' ";
+
+                                $resultOneProduct .= "<input " . $productPouredGramIdAttr . $oninputMl . $onchangeMl . " class='quantity' style='width:100px' type='number' value='0' name='" . $fieldNameWeightPoured . "' min=0 " . $maxAttribute . ">";
+                                $resultOneProduct .= "&nbsp;g&nbsp;";
+                            }
+
+                            if ($isBottle) {
+                                $resultOneProduct.= "Vráceno lahví: "."<input oninput='refreshTotalPrice()' type='number' value='0' id='returnedBottles".$idProduct."'>";
+                            }
+                            $resultOneProduct .= $this->toGraySpan($priceInfo->help) . $priceInfo->isPoured;
+
+                        }
+
+
+                        $resultOneProduct .= "<br>" . $this->toGraySpan($stockLabel);
+                        $resultOneProduct .= "</td>";
+                        $resultOneProduct .= "\n<td><span id='totalPrice" . $idProduct . "'></span></td>";
+                        $info = "&nbsp;";
+                        if ($formPosted) {
+                            $quantity = $_POST[$fieldName];
+                            if (isset($quantity) && $quantity > 0) {
+                                $info = "Do košíku přidáno: " . $quantity;
+                            }
+                        }
+                        $resultOneProduct .= "\n<td>";
+                        $resultOneProduct .= $info . "</td>";
+
+            $productIds[$idProduct] = 1;
+            $resultOneProduct .= "</tr>";
+        }
+        return $resultOneProduct;
+    }
 
 
 }
