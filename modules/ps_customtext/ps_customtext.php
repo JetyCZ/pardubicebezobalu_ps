@@ -73,7 +73,7 @@ class Ps_Customtext extends Module implements WidgetInterface
     {
         $javascript = <<<'EOD'
 <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"></link>
-<script type='text/javascript' src="/js/mapping.js?v=13"></script>
+<script type='text/javascript' src="/js/mapping.js?v=14"></script>
 <script type='text/javascript' src="/admin313uriemy/mapping.php?v=6[inventoryUrlParam]"></script>
 <script src="//code.responsivevoice.org/responsivevoice.js?key=hLFPNIz1"></script>
 
@@ -122,12 +122,6 @@ EOD;
                 $result .= "<td>";
                 $result .= "<h2 style='background-color:#FFF0F0;color:black;' id='cartTotalPrice'>0,- Kč</h2>";
                 $result .= "</td>";
-                $result .= "<td><img src='/img/bottle.png'></td>";
-                $result .= "<td><table><tr><td>Koupené</td>";
-                $result .= "<td><input name='bottlesBought' type='number'></td></tr>";
-                $result .= "<tr><td>Vrácené</td>";
-                $result .= "<td><input name='bottlesReturned' type='number'></td></tr>";
-                $result .= "</table></td>";
                 $result .= "</tr>";
                 $result .= "</table>";
                 if ($isAdmin) {
@@ -706,7 +700,6 @@ EOD;
                                 $resultOneProduct .= "<input " . $productPouredGramIdAttr . $oninputMl . $onchangeMl . " class='quantity' style='width:100px' type='number' value='0' name='" . $fieldNameWeightPoured . "' min=0 " . $maxAttribute . ">";
                                 $resultOneProduct .= "&nbsp;g&nbsp;";
                             }
-
                             if ($isBottle) {
                                 $resultOneProduct.= "Vráceno lahví: "."<input oninput='refreshTotalPrice()' type='number' value='0' id='returnedBottles".$idProduct."'>";
                             }
