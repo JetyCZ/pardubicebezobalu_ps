@@ -120,7 +120,9 @@ EOD;
                 $result .= "<table>";
                 $result .= "<tr>";
                 $result .= "<td>";
-                $result .= "<h2 style='background-color:#FFF0F0;color:black;' id='cartTotalPrice'>0,- Kč</h2>";
+                $result .= "<h2 style='background-color:#FFF0F0;color:black;'>Zaplatit: <span id='whatToPayPrice'>0,- Kč</span></h2>";
+                $result .= "<h4 style='background-color:#FFF0F0;color:black;'>Za zboží: <span id='cartTotalPrice'>0,- Kč</span></h4>";
+                $result .= "<h4 style='background-color:#FFF0F0;color:black;'>Vrácené obaly: -<span id='returnedBottlesPrice'>0,- Kč</span></h4>";
                 $result .= "</td>";
                 $result .= "</tr>";
                 $result .= "</table>";
@@ -180,7 +182,7 @@ EOD;
                     $products = $cat->getProducts($lang, 0, 1000);
 
                     $isNoDeliveryToHomeCat = ($idCategory == 23 || $idCategory == 17);
-                    $resultOneCategory = "";
+                    $productsOneCategory = "";
 
                     $hideBecauseOfDelivery = !$isAdmin && ($deliveryToHome && $isNoDeliveryToHomeCat);
 
@@ -188,22 +190,18 @@ EOD;
                         !$hideBecauseOfDelivery &&
                         !($catName === "BIO") && count($products) > 0
                     ) {
-
+                        $isBottle = ($catName === "Obaly");
+                        if ($isBottle && !$isAdmin) continue;
                         foreach ($products as $product) {
-                            $isBottle = $bottleIds[$product["id_product"]] != null;
-                            $oneProduct = $this->displayOneProduct($product, $productIds, $catProductCounter, $cats, $isAdmin, $invTable, $supplierCrons, $formPosted, $resultOneCategory, $isBottle);
-                            if ($isBottle) {
-                                $resultBottles.= $oneProduct;
-                            } else {
-                                $resultOneCategory .= $oneProduct;
-                            }
+                            $oneProduct = $this->displayOneProduct($product, $productIds, $catProductCounter, $cats, $isAdmin, $invTable, $supplierCrons, $formPosted, $productsOneCategory, $isBottle);
+                            $productsOneCategory .= $oneProduct;
                         }
 
-                        if (strlen($resultOneCategory) > 0) {
-                            $resultAllCategories .= "<tr>";
+                        if (strlen($productsOneCategory) > 0) {
+                            $resultOneCategory = "<tr>";
 
                             $catLink = "/" . $idCategory . "-" . $childCat["link_rewrite"];
-                            $resultAllCategories .= "<td colspan='6' style='background-color:#F0FFF0;'><b>" .
+                            $resultOneCategory .= "<td colspan='6' style='background-color:#F0FFF0;'><b>" .
                                 "<a href='" . $catLink . "' target='_new'>" .
                                 $catName .
                                 "</a>" .
@@ -211,17 +209,22 @@ EOD;
 
 
                             if ($isNoDeliveryToHomeCat) {
-                                $resultAllCategories .=
+                                $resultOneCategory .=
                                     '<div style="font-size: 120%;">';
-                                $resultAllCategories .= '<span class="glyphicon glyphicon-comment"></span>&nbsp;';
-                                $resultAllCategories .= '<b>Poznámka: </b>';
-                                $resultAllCategories .=
+                                $resultOneCategory .= '<span class="glyphicon glyphicon-comment"></span>&nbsp;';
+                                $resultOneCategory .= '<b>Poznámka: </b>';
+                                $resultOneCategory .=
                                     'Produkty v této kategorii nelze přepravovat, vyberte je prosím, jen pokud objednávate pro osobní odběr na prodejně.';
                             }
-                            $resultAllCategories .= "</td>";
+                            $resultOneCategory .= "</td>";
 
-                            $resultAllCategories .= "</tr>";
-                            $resultAllCategories .= $resultOneCategory;
+                            $resultOneCategory .= "</tr>";
+                            $resultOneCategory .= $productsOneCategory;
+                            if ($isBottle) {
+                                $resultBottles = $resultOneCategory;
+                            } else {
+                                $resultAllCategories .= $resultOneCategory;
+                            }
                         }
                     }
                 }
@@ -619,41 +622,44 @@ EOD;
 
                         $invTable->invRow($quantity, $price, $idProduct, $productName, $shortUrl);
 
-                        if ($outOfStock == 1) {
-                            $maxAttribute = "";
-                            if ($quantity > 0) {
-                                $stockLabel .= $inStoreLabel;
-                            } else {
-                                $stockLabel .= $this->infoLabel("Není skladem, lze objednat", "Toto zboží nemáme fyzicky v prodejně v Brozanech na skladě, můžeme jej ale objednat od dodavatele.");
-                                if ($quantity < 0) {
+                        if (!$isBottle) {
+                            if ($outOfStock == 1) {
+                                $maxAttribute = "";
+                                if ($quantity > 0) {
+                                    $stockLabel .= $inStoreLabel;
+                                } else {
+                                    $stockLabel .= $this->infoLabel("Není skladem, lze objednat", "Toto zboží nemáme fyzicky v prodejně v Brozanech na skladě, můžeme jej ale objednat od dodavatele.");
+                                    if ($quantity < 0) {
 
-                                    $quantityToOrder = $priceInfo->quantityToAmountAndUnit($quantity, -1);
-                                    $stockLabel .= $this->infoLabel("Budeme objednávat: " . $quantityToOrder,
-                                        "Informace o tom, kolik budeme objednávat v příští objednávce. Jde o množství, co zákazníci objednali mínus kolik máme na skladě.");
+                                        $quantityToOrder = $priceInfo->quantityToAmountAndUnit($quantity, -1);
+                                        $stockLabel .= $this->infoLabel("Budeme objednávat: " . $quantityToOrder,
+                                            "Informace o tom, kolik budeme objednávat v příští objednávce. Jde o množství, co zákazníci objednali mínus kolik máme na skladě.");
+                                    }
                                 }
+
+                                $stockLabel = $this->calculateStockLabel($supplierCrons, $product, $stockLabel);
+
+                            } else {
+                                $stockLabel = $inStoreLabel;
                             }
-
-                            $stockLabel = $this->calculateStockLabel($supplierCrons, $product, $stockLabel);
-
-                        } else {
-                            $stockLabel = $inStoreLabel;
                         }
-
 
                         $quote = "'";
 
 
-                        $updateProdctPouredGramInputFunction = "";
+                        $updateProductPouredGramInputFunction = "";
                         if ($priceInfo->isPoured) {
-                            $updateProdctPouredGramInputFunction = '; updateProductPouredGramInput(' . $idProduct . ', ' . $quote . $shortUrl . $quote . ');"';
+                            $updateProductPouredGramInputFunction = '; updateProductPouredGramInput(' . $idProduct . ', ' . $quote . $shortUrl . $quote . ');"';
                         }
 
-                        $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ');' . $updateProdctPouredGramInputFunction . '"';
+                        $updateTotalPriceFunction = '"updateTotalPrice(' . $idProduct . ');' . $updateProductPouredGramInputFunction . '"';
                         $oninput = " oninput=" . $updateTotalPriceFunction;
                         $onchange = " onchange=" . $updateTotalPriceFunction;
                         $onchange = "";
 
-                        if ($priceInfo->isWeightedKs) {
+                        if ($isBottle) {
+                            $resultOneProduct.= "Vráceno kusů: "."<input class='returnedBottle' oninput='refreshTotalPrice()' type='number' value='0' id='returnedBottle".$idProduct."'>";
+                        } else if ($priceInfo->isWeightedKs) {
                             $updateFunctionFruitKs = '"updateTotalPriceFruitKs(' . $idProduct . ',' . $priceInfo->gramPerKs . ', ' . $quote . $shortUrl . $quote . ')"';
                             $productQuantityKsIdAttr = " id='productQuantityKs_" . $shortUrl . "' ";
                             $resultOneProduct .= "<input " . $productQuantityKsIdAttr
@@ -674,19 +680,14 @@ EOD;
                             }
 
 
-                            $resultOneProduct .= $this->toGraySpan($priceInfo->help);
                         } else {
 
-                            $inputMin = 0;
-                            if (CustomUtils::contains($shortUrl, 'lahev-na-mleko')) {
-                                $inputMin = -1000;
-                            }
                             $appendKsClass = ($priceInfo->unitX == "ks ") ? " kusove-zbozi" : "";
                             $resultOneProduct .= "<input " . $productQuantityIdAttr . $oninput . $onchange
                                 . " class='quantity"
                                 . $appendKsClass
                                 . "' style='width:100px' type='number' value='0' name='" . $fieldName
-                                . "' min=" . $inputMin . " " . $maxAttribute . ">";
+                                . "' min=0 " . $maxAttribute . ">";
                             $resultOneProduct .= " " . $priceInfo->unitX;
 
 
@@ -700,12 +701,9 @@ EOD;
                                 $resultOneProduct .= "<input " . $productPouredGramIdAttr . $oninputMl . $onchangeMl . " class='quantity' style='width:100px' type='number' value='0' name='" . $fieldNameWeightPoured . "' min=0 " . $maxAttribute . ">";
                                 $resultOneProduct .= "&nbsp;g&nbsp;";
                             }
-                            if ($isBottle) {
-                                $resultOneProduct.= "Vráceno lahví: "."<input oninput='refreshTotalPrice()' type='number' value='0' id='returnedBottles".$idProduct."'>";
-                            }
-                            $resultOneProduct .= $this->toGraySpan($priceInfo->help) . $priceInfo->isPoured;
 
                         }
+                        $resultOneProduct .= $this->toGraySpan($priceInfo->help);
 
 
                         $resultOneProduct .= "<br>" . $this->toGraySpan($stockLabel);

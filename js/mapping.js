@@ -283,32 +283,24 @@
 
     function refreshTotalPrice() {
         var totalPrice = 0;
-        let bottleCounts = new Object();
-        for (var bottledProductId in bottledProducts) {
-            var bottledProductQuantity = parseInt(quantityObj(bottledProductId).val());
-            var bottledId = bottledProducts[bottledProductId];
-            if (!(bottledId in bottleCounts)) {
-                bottleCounts[bottledId] = 0;
-            }
-            bottleCounts[bottledId] += bottledProductQuantity;
+        let totalReturnedBottlesPrice = 0;
+        let returnedBottles = $('.returnedBottle');
+        for (let i=0; i<returnedBottles.length; i++) {
+            let input = returnedBottles[i];
+            let returnedBottleProductId = input.id.substring("returnedBottle".length);
+            let returnedBottleQuantity = input.value;
+            totalReturnedBottlesPrice += returnedBottleQuantity * pricePerUnit(returnedBottleProductId);
         }
-        updateTotalPriceDisabled = true;
-        var totalReturnedBottlesPrice = 0;
-        for (var bottleId in bottleCounts) {
-            quantityObj(bottleId).val(bottleCounts[bottledId]);
-            updateProductQuantity(bottledId, quantityObj(bottledId))
-            let returnedCount = parseInt($('#returnedBottles' + bottledId).val());
-            let returnedCost = returnedCount*pricePerUnit(bottledId);
-            totalReturnedBottlesPrice += returnedCost;
-        }
-        updateTotalPriceDisabled = false;
-
-
         Object.keys(cart).forEach(function(productId) {
             totalPrice+=cart[productId];
         });
-        totalPrice -= totalReturnedBottlesPrice;
         document.getElementById('cartTotalPrice').innerHTML =  Math.round(totalPrice * 100) / 100 + ',- Kč'
+
+        let toPay = totalPrice - totalReturnedBottlesPrice;
+        document.getElementById('whatToPayPrice').innerHTML =  Math.round(toPay * 100) / 100 + ',- Kč'
+
+        document.getElementById('returnedBottlesPrice').innerHTML =  Math.round(totalReturnedBottlesPrice * 100) / 100 + ',- Kč'
+
     }
 
     function pricePerUnit(productId) {
@@ -334,14 +326,11 @@
     }
 
 
-    var updateTotalPriceDisabled = false;
-
     function quantityObj(productId) {
         return $('[name="productQuantity' + productId + '"]');
     }
 
     function updateTotalPrice(productId) {
-        if (updateTotalPriceDisabled) return;
         var quantityJQueryObj =  quantityObj(productId);
         updateTotalPriceQuantityElement(productId, quantityJQueryObj);
     }
