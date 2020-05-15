@@ -156,10 +156,10 @@ EOD;
                 $bottleJs = '<script language="JavaScript">let bottledProducts=[];';
                 foreach ($bottles as $bottle) {
                     $idBottle = $bottle["id_product_bottle"];
-                    $idProduct = $bottle["id_product"];
-                    $bottleMap[$idProduct] = $idBottle;
+                    $idProductInBottle = $bottle["id_product"];
+                    $bottleMap[$idProductInBottle] = $idBottle;
                     $bottleIds[$idBottle] = true;
-                    $bottleJs .= "bottledProducts[".$idProduct."]=".$idBottle.";";
+                    $bottleJs .= "bottledProducts[".$idProductInBottle."]=".$idBottle.";";
                 }
                 $bottleJs .= "</script>\n";
                 $result .= $bottleJs;
@@ -194,6 +194,8 @@ EOD;
                         if ($isBottle && !$isAdmin) continue;
                         foreach ($products as $product) {
                             $oneProduct = $this->displayOneProduct($product, $productIds, $catProductCounter, $cats, $isAdmin, $invTable, $supplierCrons, $formPosted, $productsOneCategory, $isBottle);
+                            $idProduct = $product["id_product"];
+                            $productIds[$idProduct] = 1;
                             $productsOneCategory .= $oneProduct;
                         }
 
@@ -719,7 +721,6 @@ EOD;
                         $resultOneProduct .= "\n<td>";
                         $resultOneProduct .= $info . "</td>";
 
-            $productIds[$idProduct] = 1;
             $resultOneProduct .= "</tr>";
         }
         return $resultOneProduct;
