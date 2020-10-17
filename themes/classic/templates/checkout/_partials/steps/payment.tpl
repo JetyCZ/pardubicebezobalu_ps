@@ -21,7 +21,11 @@
                 name="payment-option"
                 type="radio"
                 required
-                {if $selected_payment_option == $option.id || $is_free} checked {/if}
+                {if $selected_payment_option == $option.id || $is_free} checked
+                {else}
+                  {if $option.module_name == "ps_cashondelivery"} checked {/if}
+                {/if}
+
               >
               <span></span>
             </span>
@@ -125,7 +129,7 @@
         <script type="text/javascript">
             if (document.getElementById('checkout-payment-step').classList.contains('-current')) {
                 document.getElementById('orderBtn').disabled = false;
-                document.getElementById('payment-option-1').click();
+                document.getElementById('payment-option-2').click();
                 document.getElementById('conditions_to_approve[terms-and-conditions]').click();
                 setTimeout(function (){
                     document.getElementById('orderBtn').click();

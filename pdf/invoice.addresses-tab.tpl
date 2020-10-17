@@ -24,12 +24,19 @@
  *}
 <table id="addresses-tab" cellspacing="0" cellpadding="0">
 	<tr>
-		<td width="50%">{if $delivery_address}<span class="bold">{l s='Delivery Address' d='Shop.Pdf' pdf='true'}</span><br/><br/>
+		<td width="33%">{if $delivery_address}<span class="bold">{l s='Delivery Address' d='Shop.Pdf' pdf='true'}</span><br/><br/>
 				{$delivery_address}
 			{/if}
 		</td>
-		<td width="50%"><span class="bold">{l s='Billing Address' d='Shop.Pdf' pdf='true'}</span><br/><br/>
+		<td width="33%"><span class="bold">{l s='Billing Address' d='Shop.Pdf' pdf='true'}</span><br/><br/>
 				{$invoice_address}
+		</td>
+		<td width="33%"><span class="bold">Fakturu vystavil</span><br/><br/>
+			Krámek Bezobalu <br>
+			Brozany 7 <br>
+			533 52 Staré Hradiště <br>
+			Nabersi s.r.o. <br>
+			IČO: 06758622 <br>
 		</td>
 	</tr>
 </table>
