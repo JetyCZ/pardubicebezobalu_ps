@@ -152,7 +152,7 @@
 
                 try {
                     if (!shouldIncreaseByOne) {
-                        $.get("/vaha.php", function (data) {
+                        $.get("/vaha.php?t="+Date.now(), function (data) {
                             if (data != -1) {
                                 var input = productQuantityJQueryObj(productId).val(100);
                                 input.val(data);
