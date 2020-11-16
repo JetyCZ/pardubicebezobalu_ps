@@ -11,10 +11,15 @@ try {
     require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
     CustomUtils::connect_to_database();
     if (isset($_GET['vaha'])) {
-        $sql = "update ps_jety_vaha set vaha=" . $_GET['vaha']. " where id=0";
+        $sql = "update ps_jety_vaha set "
+        ."vaha=" . $_GET['vaha']
+        .",scale_date=" . $_GET['scale_date']
+        ." where id=0 AND scale_date<". $_GET['scale_date'];
         if ($conn->query($sql)===TRUE) {
-            echo "OK".$_GET['vaha'];
-        };
+            echo "OK";
+        } else {
+            echo $conn->error;
+        }
     } else {
             $sql = "select * from ps_jety_vaha";
             $result = $conn->query($sql);
