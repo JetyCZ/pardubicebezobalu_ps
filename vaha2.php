@@ -1,8 +1,6 @@
 <?php
-echo 125;
-
-/*
-$file = './vaha.txt';
+echo "1111";
+$file = './vaha2.txt';
 if (!file_exists($file)) {
     touch($file);
 }
@@ -11,7 +9,9 @@ if (!file_exists($file)) {
 $handle = fopen($file, "r+");
 
 //Lock File, error if unable to lock
+echo "Getting FLOCK";
 if(flock($handle, LOCK_EX)) {
+    echo "FLOCK OK";
     $size = filesize($file);
 
     if(isset($_REQUEST["vaha"])) {
@@ -30,5 +30,5 @@ if(flock($handle, LOCK_EX)) {
 
 //Close Stream
 fclose($handle);
-*/
+
 ?>
