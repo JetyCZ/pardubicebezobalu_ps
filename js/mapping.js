@@ -158,6 +158,8 @@
                                 input.val(data);
                                 updateTotalPrice(productId);
                                 toSay += " " + data + " gramů";
+                            } else {
+                                toSay += ", zadejte váhu";
                             }
                             responsiveVoice.speak(toSay);
                         });
