@@ -256,8 +256,15 @@
 
     function refreshTotalPrice() {
         var totalPrice = 0;
+        // boolean overrideMin = false;
         Object.keys(cart).forEach(function(productId) {
             totalPrice+=cart[productId];
+            /*
+            let elem = $('[name="productQuantity' + productId + '"]');
+            if (elem.attr["min"]<elem.val()) {
+                if (confirm('Některé položky nákupu ')
+            }
+             */
         });
         document.getElementById('cartTotalPrice').innerHTML =  Math.round(totalPrice * 100) / 100 + ',- Kč'
     }
