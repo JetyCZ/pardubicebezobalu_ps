@@ -140,20 +140,20 @@
                 }
             } else if (event.ctrlKey) {
 
-                    delete map[qrBufferData];
-                    let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
-                    $.get(deleteUrl, function (data) {});
-                    let remapMessage='Mapování zrušeno';
-                    if (activeElement != null && activeId.startsWith('productQuantity_')) {
+                delete map[qrBufferData];
+                let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
+                $.get(deleteUrl, function (data) {});
+                let remapMessage='Mapování zrušeno';
+                if (activeElement != null && activeId.startsWith('productQuantity_')) {
 
-                        var productId = activeName.substring(preffix.length);
-                        let productLabelElem = document.getElementById('productLabel'+productId);
-                        map[qrBufferData] = productId;
-                        let addUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&idproduct=" + productId;
-                        $.get(addUrl, function (data) {});
-                        remapMessage = 'Přemapováno na ' + productLabelElem.text;
-                    }
-                    responsiveVoice.speak(remapMessage);
+                    var productId = activeName.substring(preffix.length);
+                    let productLabelElem = document.getElementById('productLabel'+productId);
+                    map[qrBufferData] = productId;
+                    let addUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&idproduct=" + productId;
+                    $.get(addUrl, function (data) {});
+                    remapMessage = 'Přemapováno na ' + productLabelElem.text;
+                }
+                responsiveVoice.speak(remapMessage);
 
 
                 /*
@@ -174,19 +174,14 @@
 
                 try {
                     if (!shouldIncreaseByOne) {
-                        $.get("/vaha.php", function (data) {
+                        $.get("/admin313uriemy/vaha.php?t="+Date.now(), function (data) {
                             if (data != -1) {
+                                var input = productQuantityJQueryObj(productId).val(100);
+                                input.val(data);
+                                updateTotalPrice(productId);
                                 toSay += " " + data + " gramů";
-                                var input = productQuantityJQueryObj(productId);
-
-                                if (!inventory) {
-                                    input.val(data);
-                                    updateTotalPrice(productId);
-                                } else {
-                                    callInventoryPHPUrl(productId, idInventory, data, input, false);
-                                    toSay += ' přidáno do inventury';
-                                }
-
+                            } else {
+                                toSay += ", zadejte váhu";
                             }
                             responsiveVoice.speak(toSay);
                         });

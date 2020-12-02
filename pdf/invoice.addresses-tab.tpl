@@ -31,7 +31,7 @@
 		<td width="33%"><span class="bold">{l s='Billing Address' d='Shop.Pdf' pdf='true'}</span><br/><br/>
 				{$invoice_address}
 		</td>
-		<td width="33%"><span class="bold">Fakturu vystavil</span><br/><br/>
+		<td width="33%"><span class="bold">Dodavatel</span><br/><br/>
 			Krámek Bezobalu <br>
 			Brozany 7 <br>
 			533 52 Staré Hradiště <br>
