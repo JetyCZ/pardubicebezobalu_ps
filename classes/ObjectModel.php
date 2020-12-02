@@ -672,7 +672,7 @@ abstract class ObjectModelCore implements \PrestaShop\PrestaShop\Core\Foundation
         }
 
         $id_shop_list = Shop::getContextListShopID();
-        if (count($this->id_shop_list) > 0) {
+        if ($this->id_shop_list !=null && count($this->id_shop_list) > 0) {
             $id_shop_list = $this->id_shop_list;
         }
 

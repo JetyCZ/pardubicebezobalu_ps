@@ -160,7 +160,7 @@ class AdminModulesControllerCore extends AdminController
         return (bool)($a['name'] > $b['name']);
     }
 
-    public function setMedia()
+    public function setMedia($isNewTheme = false)
     {
         parent::setMedia();
         $this->addJqueryPlugin(array('autocomplete', 'fancybox', 'tablefilter'));
@@ -169,6 +169,7 @@ class AdminModulesControllerCore extends AdminController
             $this->addJS(_PS_JS_DIR_.'admin/addons.js');
         }
     }
+
 
     public function ajaxProcessRefreshModuleList($force_reload_cache = false)
     {
