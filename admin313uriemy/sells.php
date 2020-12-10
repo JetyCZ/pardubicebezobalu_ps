@@ -70,7 +70,9 @@ order by trzba_sum desc, id_product
 EOD;
     if (isset($_REQUEST['idSupplier'])) {
         $idSupplierF = $_REQUEST['idSupplier'];
-        $sql = str_replace("-- idSupplierFilter", "s.id_supplier=".$idSupplierF." and"."\n", $sql);
+        if (strlen($idSupplierF)>0) {
+            $sql = str_replace("-- idSupplierFilter", "s.id_supplier=".$idSupplierF." and"."\n", $sql);
+        }
     }
     if (isset($_REQUEST['bio'])) {
         $bioF = $_REQUEST['bio'];
@@ -86,11 +88,11 @@ EOD;
     }
     if (isset($_REQUEST['active'])) {
         $activeF = $_REQUEST['active'];
-        if ($activeF!="all") {
-            $sql = str_replace("-- activeFilter", "p.active=".$activeF." and"."\n", $sql);
-        }
     } else {
         $activeF = "true";
+    }
+    if ($activeF!="all") {
+        $sql = str_replace("-- activeFilter", "p.active=".$activeF." and"."\n", $sql);
     }
     if (isset($_REQUEST['m'])) {
         $m = $_REQUEST['m'];
@@ -100,7 +102,6 @@ EOD;
         $m=12;
     }
 //    order by sum(`od`.`total_price_tax_incl`) desc, `p`.`id_product`
-
     $result = $conn->query($sql);
     ?>
 
@@ -116,7 +117,7 @@ EOD;
                 <li id="li_2">
                     <label class="description" for="element_2">Dodavatelé </label>
                     <div>
-                        <select class="element select medium" id="element_2" name="element_2">
+                        <select class="element select medium" id="element_2" name="idSupplier">
                             <option value=""></option>
                             <?php
 
