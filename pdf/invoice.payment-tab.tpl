@@ -28,7 +28,8 @@
         <td class="payment left white" width="56%">
             <table width="100%" border="0">
                 {foreach from=$order_invoice->getOrderPaymentCollection() item=payment}
-                    {if $payment->payment_method eq 'Platba v hotovosti'}
+
+                    {if $payment->payment_method eq 'Platba v hotovosti (dobírka)'}
                         <tr>
                             <td class="right small">{$payment->payment_method}</td>
                             <td class="right small">{displayPrice currency=$payment->id_currency price=$payment->amount}</td>
@@ -40,7 +41,7 @@
                         </tr>
                         <tr>
                             <td class="right small">Na účet</td>
-                            <td class="right small">285763334/0300</td>
+                            <td class="right small">2241315002/5500</td>
                         </tr>
                         <tr>
                             <td class="right small">Variabilní symbol</td>

@@ -12,22 +12,29 @@ try {
     CustomUtils::connect_to_database();
     if (isset($_GET['vaha'])) {
         $sql = "update ps_jety_vaha set "
-        ."vaha=" . $_GET['vaha']
-        .",scale_date=" . $_GET['scale_date']
-        ." where id=0 AND scale_date<". $_GET['scale_date'];
-        if ($conn->query($sql)===TRUE) {
+            . "vaha=" . $_GET['vaha']
+            . ",scale_date=" . $_GET['scale_date']
+            . ",date=now()"
+            . " where id=0 AND scale_date<" . $_GET['scale_date'];
+        if ($conn->query($sql) === TRUE) {
             echo "OK";
         } else {
             echo $conn->error;
         }
     } else {
-            $sql = "select * from ps_jety_vaha";
-            $result = $conn->query($sql);
-            $vaha = -1;
-            while ($row = $result->fetch_assoc()) {
-                $vaha = $row['vaha'];
+        $sql = "select *,TIMESTAMPDIFF(SECOND, date, now()) as dursec from ps_jety_vaha";
+        $result = $conn->query($sql);
+        $vaha = -1;
+        while ($row = $result->fetch_assoc()) {
+            $vaha = $row['vaha'];
+            if ($row['dursec'] > 10) {
+                echo -1;
+            } else {
+                echo $vaha;
             }
-            echo $vaha;
+            break;
+        }
+
     }
 
 } catch (Throwable $e) {

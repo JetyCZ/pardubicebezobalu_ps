@@ -44,10 +44,13 @@
                       } 
                     }
 
-                $val =  @$this->odecetPolozky($cenyObjednavky['pouzit_zboz'][$sazba], $cenyEet['pouzit_zboz'][$sazba], 'celkem');
-                if(!($val === false)) {
-                    $ceny['pouzit_zboz'][$sazba]['celkem'] = $val; 
-                    $ceny['pouzit_zboz'][$sazba]['rate'] =   Eetplus::sazbaToRate($sazba);
+                if (isset($cenyObjednavky) && isset($cenyObjednavky['pouzit_zboz'])
+                && isset($cenyEet['pouzit_zboz']) && isset($cenyEet['pouzit_zboz'])) {
+                    $val =  @$this->odecetPolozky($cenyObjednavky['pouzit_zboz'][$sazba], $cenyEet['pouzit_zboz'][$sazba], 'celkem');
+                    if(!($val === false)) {
+                        $ceny['pouzit_zboz'][$sazba]['celkem'] = $val;
+                        $ceny['pouzit_zboz'][$sazba]['rate'] =   Eetplus::sazbaToRate($sazba);
+                    }
                 }
           }
            if(Configuration::get('EETPLUS_CERPANI')) {

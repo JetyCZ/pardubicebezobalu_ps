@@ -310,4 +310,57 @@ class CustomUtils {
         return $result;
     }
 
+    // $stmt = The SQL Statement Object
+// $param = Array of the Parameters
+    public static function DynamicBindVariables($stmt, $params)
+    {
+        if ($params != null)
+        {
+            // Generate the Type String (eg: 'issisd')
+            $types = '';
+            foreach($params as $param)
+            {
+                if(is_int($param)) {
+                    // Integer
+                    $types .= 'i';
+                } elseif (is_float($param)) {
+                    // Double
+                    $types .= 'd';
+                } elseif (is_string($param)) {
+                    // String
+                    $types .= 's';
+                } else {
+                    // Blob and Unknown
+                    $types .= 'b';
+                }
+            }
+
+            // Add the Type String as the first Parameter
+            $bind_names[] = $types;
+
+            // Loop thru the given Parameters
+            for ($i=0; $i<count($params);$i++)
+            {
+                // Create a variable Name
+                $bind_name = 'bind' . $i;
+                // Add the Parameter to the variable Variable
+                $$bind_name = $params[$i];
+                // Associate the Variable as an Element in the Array
+                $bind_names[] = &$$bind_name;
+            }
+
+            // Call the Function bind_param with dynamic Parameters
+            call_user_func_array(array($stmt,'bind_param'), $bind_names);
+        }
+        return $stmt;
+    }
+
+
+    public static function startsWith ($string, $startString)
+    {
+        $len = strlen($startString);
+        return (substr($string, 0, $len) === $startString);
+    }
+
+
 }

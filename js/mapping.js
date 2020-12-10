@@ -19,6 +19,7 @@
     var readingData = false;
     var qrBufferPreffix='';
     var qrBufferData='';
+    var lastInventoryProductId=-1;
 
     var ctrl
 
@@ -80,7 +81,26 @@
 
     let preffix = 'productQuantity';
 
+    function activeElementIsProductQuantity() {
+        return document.activeElement != null && document.activeElement.id.startsWith('productQuantity_');
+    }
+
+
+    function getIdInventory() {
+        let query = window.location.search.substring(1);
+        let urlParams = parse_query_string(query);
+        let idInventory = urlParams['id_inventory'];
+        return idInventory;
+    }
+
     function processQrData(event) {
+
+        let idInventory = getIdInventory();
+        let inventory = (idInventory != null);
+        if (inventory && event.ctrlKey) {
+            setInventoryQuantity(true);
+        }
+
         let activeElement = document.activeElement;
         console.log("processQrData: " + qrBufferData);
         var productId = map[qrBufferData];
@@ -119,6 +139,7 @@
                     });
                 }
             } else if (event.ctrlKey) {
+
                 delete map[qrBufferData];
                 let deleteUrl = "/admin313uriemy/mapping.php?qrcode=" + qrBufferData + "&delete=true";
                 $.get(deleteUrl, function (data) {});
@@ -133,6 +154,7 @@
                     remapMessage = 'Přemapováno na ' + productLabelElem.text;
                 }
                 responsiveVoice.speak(remapMessage);
+
 
                 /*
                 Open product in admin
@@ -158,6 +180,8 @@
                                 input.val(data);
                                 updateTotalPrice(productId);
                                 toSay += " " + data + " gramů";
+                            } else {
+                                toSay += ", zadejte váhu";
                             }
                             responsiveVoice.speak(toSay);
                         });
@@ -175,7 +199,7 @@
             var msg = 'Neznámý produkt (čár. kód:' + qrBufferData + '). ';
 
 
-            if (activeElement != null && activeId.startsWith('productQuantity_')) {
+            if (activeElementIsProductQuantity()) {
                 var productId = activeName.substring(preffix.length);
                 let productLabelElem = document.getElementById('productLabel'+productId);
                 if (confirm(msg + ' Chcete ho namapovat na ' + productLabelElem.text + '?')) {
@@ -254,27 +278,61 @@
 
     function refreshTotalPrice() {
         var totalPrice = 0;
+        let totalReturnedBottlesPrice = 0;
+        let returnedBottles = $('.returnedBottle');
+        for (let i=0; i<returnedBottles.length; i++) {
+            let input = returnedBottles[i];
+            let returnedBottleProductId = input.id.substring("returnedBottle".length);
+            let returnedBottleQuantity = input.value;
+            totalReturnedBottlesPrice += returnedBottleQuantity * pricePerUnit(returnedBottleProductId);
+        }
         Object.keys(cart).forEach(function(productId) {
             totalPrice+=cart[productId];
+            /*
+            let elem = $('[name="productQuantity' + productId + '"]');
+            if (elem.attr["min"]<elem.val()) {
+                if (confirm('Některé položky nákupu ')
+            }
+             */
         });
         document.getElementById('cartTotalPrice').innerHTML =  Math.round(totalPrice * 100) / 100 + ',- Kč'
+
+        let toPay = totalPrice - totalReturnedBottlesPrice;
+        document.getElementById('whatToPayPrice').innerHTML =  Math.round(toPay * 100) / 100 + ',- Kč'
+
+        document.getElementById('returnedBottlesPrice').innerHTML =  Math.round(totalReturnedBottlesPrice * 100) / 100 + ',- Kč'
+
+    }
+
+    function pricePerUnit(productId) {
+        var productPriceHiddenId = "productPrice" + productId;
+        var productPriceHidden = document.getElementById(productPriceHiddenId);
+        var result = productPriceHidden.value;
+        return result;
+    }
+
+    function updateProductQuantity(productId, quantityJQueryObj) {
+        var totalPriceId = "totalPrice" + productId;
+        var pricePerUnitVal = pricePerUnit(productId);
+        var totalPriceSpan = document.getElementById(totalPriceId);
+        let priceForQuantity = pricePerUnitVal * quantityJQueryObj.val();
+        totalPriceSpan.innerText = Math.round(priceForQuantity * 100) / 100 + ',- Kč';
+        cart[productId] = priceForQuantity;
     }
 
     function updateTotalPriceQuantityElement(productId, quantityJQueryObj) {
-        var productPriceHiddenId = "productPrice" + productId;
-        var totalPriceId = "totalPrice" + productId;
-        var productPriceHidden = document.getElementById(productPriceHiddenId);
-        var totalPriceSpan = document.getElementById(totalPriceId);
-        var pricePerUnit = productPriceHidden.value;
-        let priceForQuantity = pricePerUnit * quantityJQueryObj.val();
-        totalPriceSpan.innerText = Math.round(priceForQuantity * 100) / 100 + ',- Kč';
-        cart[productId] = priceForQuantity;
+        updateProductQuantity(productId, quantityJQueryObj);
+
         refreshTotalPrice();
     }
 
 
+    function quantityObj(productId) {
+        return $('[name="productQuantity' + productId + '"]');
+    }
+
     function updateTotalPrice(productId) {
-        var quantityJQueryObj =  $('[name="productQuantity' + productId + '"]');
+        var quantityJQueryObj =  quantityObj(productId);
         updateTotalPriceQuantityElement(productId, quantityJQueryObj);
     }
     function updateTotalPriceFruitKs(productId, gramPerKs, shortUrl) {
@@ -316,3 +374,70 @@
             pouredGramElem.value = Math.round(quantityElem.value * (tierreGramPerLitr/1000));
         }
     }
+
+
+    function parse_query_string(query) {
+        var vars = query.split("&");
+        var query_string = {};
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            var key = decodeURIComponent(pair[0]);
+            var value = decodeURIComponent(pair[1]);
+            // If first entry with this name
+            if (typeof query_string[key] === "undefined") {
+                query_string[key] = decodeURIComponent(value);
+                // If second entry with this name
+            } else if (typeof query_string[key] === "string") {
+                var arr = [query_string[key], decodeURIComponent(value)];
+                query_string[key] = arr;
+                // If third or later entry with this name
+            } else {
+                query_string[key].push(decodeURIComponent(value));
+            }
+        }
+        return query_string;
+    }
+
+    function setInventoryQuantity(reset=false) {
+        if (activeElementIsProductQuantity()) {
+            var productId = document.activeElement.name.substring(preffix.length);
+            let productLabelElem = document.getElementById('productLabel' + productId);
+            callInventoryPHPUrl(productId, getIdInventory(), document.activeElement.value, document.activeElement, reset);
+        }else {
+            alert('Prosím klepněte do množství produktu, jehož inventorní množství chcete nastavit');
+        }
+    }
+
+    function callInventoryPHPUrlFromLink(shortUrl, productId, reset = true) {
+        let elementId = preffix + '_' + shortUrl;
+        let quantityElem = document.getElementById(elementId);
+        callInventoryPHPUrl(productId, getIdInventory(), quantityElem.value, $('#' + elementId), reset);
+    }
+
+    function callInventoryPHPUrlReset(productId, shortUrl) {
+        callInventoryPHPUrlFromLink(shortUrl, productId, true);
+    }
+    function callInventoryPHPUrlUpdate(productId, shortUrl) {
+        callInventoryPHPUrlFromLink(shortUrl, productId, false);
+    }
+    function callInventoryPHPUrl(productId, idInventory, quantity, productQuantityElement,reset) {
+        let dmt = $('#inventoryDmt').val();
+        if (lastInventoryProductId != productId || dmt == '') {
+            dmt = prompt('Prosím zadej DMT zboží:', '1/21');
+            $('#inventoryDmt').val(dmt);
+            lastInventoryProductId = productId;
+        }
+        if (dmt.split('/').length == 2) {
+            dmt = '1/' + dmt;
+        }
+        $.get("/admin313uriemy/inventory.php?" +
+            "id_inventory=" + idInventory + "&" +
+            "id_product=" + productId + "&" +
+            "quantity=" + quantity + "&" +
+            "reset=" + reset + "&" +
+            "dmt=" + dmt + "&", function (inventoryResponse) {
+            productQuantityElement.val(inventoryResponse);
+            updateTotalPrice(productId);
+        });
+    }
+
