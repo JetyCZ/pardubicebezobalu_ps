@@ -20,6 +20,12 @@ try {
 <head>
 <link rel="stylesheet" type="text/css" href="view.css" media="all">
 <meta charset="utf-8">
+    <script type="text/javascript">
+        function setFilterAndSubmit(idSupplier) {
+            document.getElementById('supplier').value = idSupplier;
+            document.getElementById('formCoObjednat').submit();
+        }
+    </script>
 </head>
 <body>
 <?php
@@ -49,9 +55,6 @@ from ps_order_detail od
         left join ps_supplier s on (ps.id_supplier = s.id_supplier)        
 where (
        ((osl.name = 'Dodáno') or (osl.name = 'Zaplaceno snížením dluhu Pavlovi') or (osl.name like '%Dodavatele%')) and
-       (not s.name='Farma rodiny Němcovy') and
-       (not s.name='Mléčná farma Jehnědí') and
-       (not s.name='Pekařství Vlastimil Holub') and
        (pl.id_lang = 2) and
        (not ((c.lastname like '%stnanec%'))) and
        (not ((c.lastname like '%Soukromé%'))) and
@@ -63,7 +66,7 @@ where (
        1 = 1
        ) 
        -- and pss.quantity>=0
-group by p.id_product, pname, sname, s.id_supplier, pss.quantity
+group by p.id_product, pl.name, s.name, s.id_supplier, pss.quantity
 -- having mnozstvi_sum>1000 and mnozstviPulrok>=2500
 order by trzba_sum desc, id_product
 
@@ -107,7 +110,7 @@ EOD;
 
     <div id="form_container">
 
-        <form id="form_93127" class="appnitro" method="get" action="sells.php">
+        <form id="formCoObjednat" class="appnitro" method="get" action="sells.php">
             <div class="form_description">
                 <h2>Co objednat (posledních <?= $m ?> měsíců)</h2>
                 <p>Tato stránka zobrazuje červeně podbarvené zboží, které nám brzy dojde a je potřeba jej doobjednat</p>
@@ -117,7 +120,7 @@ EOD;
                 <li id="li_2">
                     <label class="description" for="element_2">Dodavatelé </label>
                     <div>
-                        <select class="element select medium" id="element_2" name="idSupplier">
+                        <select class="element select medium" id="supplier" name="idSupplier">
                             <option value=""></option>
                             <?php
 
@@ -163,7 +166,7 @@ EOD;
                 </li>
 
                 <li class="buttons">
-                    <input id="saveForm" class="button_text" type="submit" name="submit" value="Submit">
+                    <input id="saveForm" class="button_text" type="submit" name="btnSubmit" value="Submit">
                 </li>
             </ul>
         </form>
@@ -177,7 +180,7 @@ EOD;
 
     $supplierEmail = "blabla";
     $storeQuantities .= "<tr style='background-color: #50AFAF'>\n".
-        "<th>Dodavatel <a href='sells.php'>Zruš filter</a> </th>\n".
+        "<th><a href='javascript:setFilterAndSubmit();'>Zruš filtr dodavatele</a></th>\n".
         "<th></th>\n".
         "<th>ID Produktu</th>\n".
         "<th>Produkt</th>\n".
@@ -212,7 +215,7 @@ EOD;
         $productCss = ($active) ? "":" style='color:gray'";
         $storeQuantities .= "<tr style='background-color: #".$color."'>\n".
                 "<td>".$row['sname']."</td>\n".
-                "<td><a href='sells.php?idSupplier=". $idSupplier ."'>Filtr</a></td>\n".
+                "<td><a href='javascript:setFilterAndSubmit(". $idSupplier .");'>Filtr</a></td>\n".
                 "<td>".$idProduct."</td>\n".
                 "<td".$productCss.">".$row['pname']."</td>\n".
                 "<td".$productCss.">".
