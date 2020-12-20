@@ -2,7 +2,8 @@
 if (!defined('_PS_ROOT_DIR_')) {
     define('_PS_ROOT_DIR_',getcwd()."/..");
 }
-require_once _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
+require_once
+    _PS_ROOT_DIR_ . '/classes/custom/CustomUtils.php';
 
 try {
 
@@ -38,7 +39,6 @@ EOD;
     }
     $sql = str_replace("now()", $dateFilter, $sql);
 //    order by sum(`od`.`total_price_tax_incl`) desc, `p`.`id_product`
-
     $result = $conn->query($sql);
     while($row = $result->fetch_assoc()) {
         $trzba_sum = $row['trzba_sum'];

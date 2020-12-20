@@ -128,9 +128,10 @@ EOD;
                 $result .= "</table>";
                 if ($isAdmin) {
                     $result .= "<h2 style='background-color:#FFF0FF;' id='btnAddAllTopLeft'>Vložit vše</h2>";
-                    $result .= "<a target='_new' href='http://pardubicebezobalu.cz/admin313uriemy/sells.php'><h4 style='background-color:#FFF0FF;' >Co objednat</h4></a>";
-                    $result .= "<a target='_new' href='http://pardubicebezobalu.cz/admin313uriemy/supply.php'><h4 style='background-color:#FFF0FF;' >Objednávky dle dodavatelů</h4></a>";
-                    $result .= "<a target='_new' href='http://bezobalu.herokuapp.com'><h4 style='background-color:#FFF0FF;' >Ceníky dodavatelů <br>(info@pardubicebezobalu.cz)</h4></a>";
+                    $result .= "<a target='sells' href='http://pardubicebezobalu.cz/admin313uriemy/sells.php'><h4 style='background-color:#FFF0FF;' >Co objednat</h4></a>";
+                    $result .= "<a target='supply' href='http://pardubicebezobalu.cz/admin313uriemy/supply.php'><h4 style='background-color:#FFF0FF;' >Objednávky dle dodavatelů</h4></a>";
+                    $result .= "<a target='coobjednat' href='http://bezobalu.herokuapp.com'><h4 style='background-color:#FFF0FF;' >Ceníky dodavatelů <br>(info@pardubicebezobalu.cz)</h4></a>";
+                    $result .= "<a target='orders' href='https://pardubicebezobalu.cz/admin313uriemy/index.php?controller=AdminOrders'><h4 style='background-color:#FFF0FF;' >ORD (Objednávky)</h4></a>";
                 }
                 $result .= "</div>";
 
