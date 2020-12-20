@@ -138,8 +138,12 @@ class CustomUtils {
     }
     public static function supplyLink($productName)
     {
+        $stripedProductName = str_replace(" - na váhu", "", $productName);
+        $stripedProductName = str_replace(" - stáčený produkt", "", $stripedProductName);
+
         return
-            '<a target="_bezobalu" href="https://bezobalu.herokuapp.com/items/search/?productName='.str_replace(" - na váhu","",$productName).'">C</a>';
+            '<a target="_bezobalu" href="https://bezobalu.herokuapp.com/items/search/?productName='
+            . urlencode($stripedProductName) .'">C</a>';
     }
 
     public static function orderLink($idOrder, $linkBody)
