@@ -37,6 +37,7 @@
 			533 52 Staré Hradiště <br>
 			Nabersi s.r.o. <br>
 			IČO: 06758622 <br>
+			NENÍ PLÁTCE DPH<br>
 		</td>
 	</tr>
 </table>
