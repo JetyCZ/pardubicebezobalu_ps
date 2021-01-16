@@ -82,16 +82,37 @@
 
     let preffix = 'productQuantity';
 
-    function activeElementIsProductQuantity() {
-        return document.activeElement != null && document.activeElement.id.startsWith('productQuantity_');
-    }
-
-
     function getIdInventory() {
         let query = window.location.search.substring(1);
         let urlParams = parse_query_string(query);
         let idInventory = urlParams['id_inventory'];
         return idInventory;
+    }
+
+
+    function activeElementIsProductQuantity() {
+        return document.activeElement != null && document.activeElement.id.startsWith('productQuantity_');
+    }
+
+    function isValidWeight(data, showAlert) {
+        let valid = data!=-1;
+        if (!valid && showAlert) {
+            alert('Váha není aktuální, zkontrolujte přenos váhy do PC');
+        }
+        return valid;
+    }
+
+    function fillVahaIntoActiveElement() {
+        if (activeElementIsProductQuantity()) {
+
+            $.get("/admin313uriemy/vaha.php", function (data) {
+                if (isValidWeight(data, true)) {
+                    document.activeElement.value = data;
+                }
+            });
+        } else {
+            alert('Pípnuli jste čárový kód pro přenos váhy do políčka množství produktu, ale nejste v žádném políčku množství. Prosím klepněte myší do políčka množství produktu, jehož váhu chcete nastavit, a pípněte znovu.');
+        }
     }
 
     function processQrData(event) {
@@ -104,6 +125,10 @@
 
         let activeElement = document.activeElement;
         console.log("processQrData: " + qrBufferData);
+        if (qrBufferData=="1") {
+            fillVahaIntoActiveElement();
+            return;
+        }
         var productId = map[qrBufferData];
         console.log('productId:' + productId);
         var activeName = null;
@@ -174,8 +199,8 @@
 
                 try {
                     if (!shouldIncreaseByOne) {
-                        $.get("/vaha.php", function (data) {
-                            if (data != -1) {
+                        $.get("/admin313uriemy/vaha.php", function (data) {
+                            if (isValidWeight(data, false)) {
                                 toSay += " " + data + " gramů";
                                 var input = productQuantityJQueryObj(productId);
                                 if (!inventory) {
