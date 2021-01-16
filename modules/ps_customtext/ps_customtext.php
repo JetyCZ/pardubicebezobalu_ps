@@ -73,13 +73,13 @@ class Ps_Customtext extends Module implements WidgetInterface
     {
         $javascript = <<<'EOD'
 <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"></link>
-<script type='text/javascript' src="/js/mapping.js?v=14"></script>
-<script type='text/javascript' src="/admin313uriemy/mapping.php?v=6[inventoryUrlParam]"></script>
+<script type='text/javascript' src="/js/mapping.php?v=15[inventoryUrlParam]"></script>
 <script src="//code.responsivevoice.org/responsivevoice.js?key=hLFPNIz1"></script>
 
 EOD;
         $inventoryUrlParam = "";
-        if (isset($_GET['id_inventory'])) {
+
+        if ($this->inventoryMode()) {
             $inventoryUrlParam = "&id_inventory=".$_GET['id_inventory'];
         }
         $javascript = str_replace( "[inventoryUrlParam]",$inventoryUrlParam,$javascript);
@@ -725,6 +725,14 @@ EOD;
             $resultOneProduct .= "</tr>";
         }
         return $resultOneProduct;
+    }
+
+    /**
+     * @return bool
+     */
+    public function inventoryMode()
+    {
+        return isset($_GET['id_inventory']);
     }
 
 

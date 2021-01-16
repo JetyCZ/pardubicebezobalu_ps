@@ -14,6 +14,7 @@
 
     };
 
+
     document.addEventListener("keydown", handleKeyDown);
     var readingPreffix = false;
     var readingData = false;
