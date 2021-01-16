@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
-<script type="text/javascript" src="/js/mapping.js"></script>
+<script type="text/javascript" src="/js/mapping.js?v=15"></script>
 <script type="text/javascript">
     var url=new URL(window.location.href);
     let idSklenice = url.searchParams.get('id');

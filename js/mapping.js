@@ -442,7 +442,7 @@
             "id_product=" + productId + "&" +
             "quantity=" + quantity + "&" +
             "reset=" + reset + "&" +
-            "dmt=" + dmt + "&", function (inventoryResponse) {
+            "dmt=" + dmt + "&time=" + Date.now(), function (inventoryResponse) {
             productQuantityElement.val(inventoryResponse);
             updateTotalPrice(productId);
         });
