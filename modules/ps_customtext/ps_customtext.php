@@ -256,9 +256,11 @@ EOD;
                 <script type="text/javascript">document.location.href = \'' . $redirectUrl . '\';</script>';
                 }
 
-                // return $result.$invTable->outputHtml();
-                return $result;
-
+                if ($this->inventoryMode()) {
+                    return $result.$invTable->outputHtml();
+                } else {
+                    return $result;
+                }
 
             } catch (Exception $e) {
                 var_dump("<!--" . $e . "-->");

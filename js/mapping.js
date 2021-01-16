@@ -156,7 +156,6 @@
                 }
                 responsiveVoice.speak(remapMessage);
 
-
                 /*
                 Open product in admin
                 let productLink = document.getElementById('productLink_' + productId);
@@ -175,12 +174,17 @@
 
                 try {
                     if (!shouldIncreaseByOne) {
-                        $.get("/admin313uriemy/vaha.php?t="+Date.now(), function (data) {
+                        $.get("/vaha.php", function (data) {
                             if (data != -1) {
-                                var input = productQuantityJQueryObj(productId).val(100);
-                                input.val(data);
-                                updateTotalPrice(productId);
                                 toSay += " " + data + " gramů";
+                                var input = productQuantityJQueryObj(productId);
+                                if (!inventory) {
+                                    input.val(data);
+                                    updateTotalPrice(productId);
+                                } else {
+                                    callInventoryPHPUrl(productId, idInventory, data, input, false);
+                                    toSay += ' přidáno do inventury';
+                                }
                             } else {
                                 toSay += ", zadejte váhu";
                             }
@@ -327,12 +331,14 @@
         refreshTotalPrice();
     }
 
+    var updateTotalPriceDisabled = false;
 
     function quantityObj(productId) {
         return $('[name="productQuantity' + productId + '"]');
     }
 
     function updateTotalPrice(productId) {
+        if (updateTotalPriceDisabled) return;
         var quantityJQueryObj =  quantityObj(productId);
         updateTotalPriceQuantityElement(productId, quantityJQueryObj);
     }
