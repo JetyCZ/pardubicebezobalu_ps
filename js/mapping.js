@@ -125,7 +125,7 @@
 
         let activeElement = document.activeElement;
         console.log("processQrData: " + qrBufferData);
-        if (qrBufferData=="1") {
+        if (qrBufferData=="C1") {
             fillVahaIntoActiveElement();
             return;
         }
