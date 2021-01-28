@@ -102,12 +102,21 @@
         return valid;
     }
 
-    function fillVahaIntoActiveElement() {
+    function getVahaUrl() {
+        return "/admin313uriemy/vaha.php?t=" + Date.now();
+    }
+
+    function fillVahaIntoActiveElement(inventory) {
         if (activeElementIsProductQuantity()) {
 
-            $.get("/admin313uriemy/vaha.php", function (data) {
+            $.get(getVahaUrl(), function (data) {
                 if (isValidWeight(data, true)) {
                     document.activeElement.value = data;
+                    var productId = document.activeElement.name.substring(preffix.length);
+                    updateTotalPrice(productId);
+                    if (inventory) {
+                        setInventoryQuantity(false);
+                    }
                 }
             });
         } else {
@@ -119,14 +128,11 @@
 
         let idInventory = getIdInventory();
         let inventory = (idInventory != null);
-        if (inventory && event.ctrlKey) {
-            setInventoryQuantity(true);
-        }
 
         let activeElement = document.activeElement;
         console.log("processQrData: " + qrBufferData);
         if (qrBufferData=="C1") {
-            fillVahaIntoActiveElement();
+            fillVahaIntoActiveElement(inventory);
             return;
         }
         var productId = map[qrBufferData];
@@ -199,7 +205,7 @@
 
                 try {
                     if (!shouldIncreaseByOne) {
-                        $.get("/admin313uriemy/vaha.php", function (data) {
+                        $.get(getVahaUrl(), function (data) {
                             if (isValidWeight(data, false)) {
                                 toSay += " " + data + " gramů";
                                 var input = productQuantityJQueryObj(productId);
